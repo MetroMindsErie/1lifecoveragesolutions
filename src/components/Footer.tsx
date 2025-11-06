@@ -9,7 +9,8 @@ export function Footer() {
           {/* Brand */}
           <div className="space-y-4">
             <a href="/" className="inline-block">
-              <Logo variant="light" size="md" />
+              {/* Size changed to match header style */}
+              <Logo variant="light" size="sm" />
             </a>
             <p className="text-sm text-[#94a3b8]">
               One Life. Total Coverage. Protecting what matters most with comprehensive insurance solutions.
@@ -21,18 +22,38 @@ export function Footer() {
             <h3 className="mb-4 text-sm uppercase tracking-wider text-white">Coverage</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <a href="/coverage/auto" className="text-[#94a3b8] hover:text-white transition-colors">
+                <a href="/quote/auto" className="text-[#94a3b8] hover:text-white transition-colors">
                   Auto Insurance
                 </a>
               </li>
               <li>
-                <a href="/coverage/business" className="text-[#94a3b8] hover:text-white transition-colors">
-                  Business Insurance
+                <a href="/quote/homeowners" className="text-[#94a3b8] hover:text-white transition-colors">
+                  Homeowners Insurance
                 </a>
               </li>
               <li>
-                <a href="/coverage/life" className="text-[#94a3b8] hover:text-white transition-colors">
+                <a href="/quote/umbrella" className="text-[#94a3b8] hover:text-white transition-colors">
+                  Personal Umbrella
+                </a>
+              </li>
+              <li>
+                <a href="/quote/life" className="text-[#94a3b8] hover:text-white transition-colors">
                   Life Insurance
+                </a>
+              </li>
+              <li>
+                <a href="/quote/commercial-building" className="text-[#94a3b8] hover:text-white transition-colors">
+                  Commercial Building
+                </a>
+              </li>
+              <li>
+                <a href="/quote/bop" className="text-[#94a3b8] hover:text-white transition-colors">
+                  Business Owners Policy (BOP)
+                </a>
+              </li>
+              <li className="pt-2">
+                <a href="/quote" className="text-[#94a3b8] hover:text-white transition-colors">
+                  View all quotes
                 </a>
               </li>
             </ul>
@@ -49,17 +70,17 @@ export function Footer() {
               </li>
               <li>
                 <a href="/blog" className="text-[#94a3b8] hover:text-white transition-colors">
-                  Blog & Resources
+                  Resources
+                </a>
+              </li>
+              <li>
+                <a href="/quote" className="text-[#94a3b8] hover:text-white transition-colors">
+                  Get a Quote
                 </a>
               </li>
               <li>
                 <a href="/contact" className="text-[#94a3b8] hover:text-white transition-colors">
                   Contact
-                </a>
-              </li>
-              <li>
-                <a href="/careers" className="text-[#94a3b8] hover:text-white transition-colors">
-                  Careers
                 </a>
               </li>
             </ul>
@@ -69,18 +90,19 @@ export function Footer() {
           <div>
             <h3 className="mb-4 text-sm uppercase tracking-wider text-white">Legal</h3>
             <ul className="space-y-2 text-sm">
+              {/* TODO: Replace with real policy routes when available */}
               <li>
-                <a href="/privacy" className="text-[#94a3b8] hover:text-white transition-colors">
+                <a href="/contact" className="text-[#94a3b8] hover:text-white transition-colors">
                   Privacy Policy
                 </a>
               </li>
               <li>
-                <a href="/terms" className="text-[#94a3b8] hover:text-white transition-colors">
+                <a href="/contact" className="text-[#94a3b8] hover:text-white transition-colors">
                   Terms of Service
                 </a>
               </li>
               <li>
-                <a href="/compliance" className="text-[#94a3b8] hover:text-white transition-colors">
+                <a href="/contact" className="text-[#94a3b8] hover:text-white transition-colors">
                   Compliance
                 </a>
               </li>
