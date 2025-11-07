@@ -274,7 +274,8 @@ export function QuoteLayout({
                   Guidance on limits, discounts, and bundling strategies.
                 </p>
                 <div className="flex flex-col gap-2">
-                  <Button asChild className="bg-[#1B5A8E] hover:bg-[#144669]">
+                  {/* Make Call match the outline design */}
+                  <Button variant="outline" asChild>
                     <a href="tel:1-800-555-0123">Call (800) 555-0123</a>
                   </Button>
                   <Button variant="outline" asChild>
