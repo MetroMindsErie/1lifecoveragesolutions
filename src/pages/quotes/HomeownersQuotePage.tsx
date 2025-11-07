@@ -6,13 +6,24 @@ import { Label } from "../../components/ui/label";
 import { Textarea } from "../../components/ui/textarea";
 import { CheckCircle2, Home } from "lucide-react";
 import { QuoteLayout } from "../../components/quotes/QuoteLayout";
+import { submitQuote } from "../../lib/submit";
 
 export function HomeownersQuotePage() {
   const [submitted, setSubmitted] = useState(false);
-  const onSubmit = (e: React.FormEvent) => {
+  const [submitting, setSubmitting] = useState(false); // NEW
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setSubmitted(true);
-    window.scrollTo(0, 0);
+    if (submitting) return;
+    setSubmitting(true);
+    try {
+      await submitQuote("homeowners", e.currentTarget);
+      setSubmitted(true);
+      window.scrollTo(0, 0);
+    } catch (err: any) {
+      alert(err?.message || "Failed to submit. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (submitted) {
@@ -122,6 +133,9 @@ export function HomeownersQuotePage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={onSubmit} className="space-y-8">
+            {/* Honeypot fields (hidden) */}
+            <input type="text" name="hp_company" tabIndex={-1} aria-hidden="true" className="hidden" />
+            <input type="url" name="hp_url" tabIndex={-1} aria-hidden="true" className="hidden" />
             {/* Client Information */}
             <div
               data-step="Client Information"
@@ -353,9 +367,10 @@ export function HomeownersQuotePage() {
             <div className="flex justify-end">
               <Button
                 type="submit"
+                disabled={submitting}
                 className="bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] hover:opacity-90"
               >
-                Submit Homeowners Quote
+                {submitting ? "Submitting..." : "Submit Homeowners Quote"}
               </Button>
             </div>
           </form>

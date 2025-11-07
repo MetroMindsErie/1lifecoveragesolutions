@@ -12,6 +12,7 @@ import { Label } from "../../components/ui/label";
 import { Textarea } from "../../components/ui/textarea";
 import { CheckCircle2, Car } from "lucide-react";
 import { QuoteLayout } from "../../components/quotes/QuoteLayout";
+import { submitQuote } from "../../lib/submit";
 
 function Section({
 	title,
@@ -35,10 +36,20 @@ function Section({
 
 export function AutoQuotePage() {
 	const [submitted, setSubmitted] = useState(false);
-	const onSubmit = (e: React.FormEvent) => {
+	const [submitting, setSubmitting] = useState(false); // NEW
+	const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
-		setSubmitted(true);
-		window.scrollTo(0, 0);
+		if (submitting) return;
+		setSubmitting(true);
+		try {
+			await submitQuote("auto", e.currentTarget);
+			setSubmitted(true);
+			window.scrollTo(0, 0);
+		} catch (err: any) {
+			alert(err?.message || "Failed to submit. Please try again.");
+		} finally {
+			setSubmitting(false);
+		}
 	};
 
 	if (submitted) {
@@ -176,6 +187,21 @@ export function AutoQuotePage() {
 				</CardContent>
 			</Card>
 			<form onSubmit={onSubmit} className="space-y-8 p-8">
+				{/* Honeypot fields (hidden) */}
+				<input
+					type="text"
+					name="hp_company"
+					tabIndex={-1}
+					aria-hidden="true"
+					className="hidden"
+				/>
+				<input
+					type="url"
+					name="hp_url"
+					tabIndex={-1}
+					aria-hidden="true"
+					className="hidden"
+				/>
 				<div className="mx-auto max-w-3xl space-y-8">
 					<Section title="Client Information">
 						<div className="grid gap-4 sm:grid-cols-2">
@@ -296,9 +322,10 @@ export function AutoQuotePage() {
 					<div className="flex justify-end">
 						<Button
 							type="submit"
+							disabled={submitting}
 							className="bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] hover:opacity-90"
 						>
-							Submit Auto Quote
+							{submitting ? "Submitting..." : "Submit Auto Quote"}
 						</Button>
 					</div>
 				</div>

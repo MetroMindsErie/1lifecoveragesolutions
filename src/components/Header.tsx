@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { Button } from "./ui/button";
 import { Logo } from "./Logo";
+import { Link } from "react-router-dom"; // NEW
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -179,9 +180,10 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
       <nav className="mx-auto flex max-w-7xl items-center justify-between p-4 lg:px-8">
         <div className="flex lg:flex-1">
-          <a href="/">
+          {/* CHANGED: use Link instead of <a href="/"> */}
+          <Link to="/">
             <Logo size="sm" />
-          </a>
+          </Link>
         </div>
 
         {/* Mobile menu button */}
