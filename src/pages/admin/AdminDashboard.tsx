@@ -755,16 +755,31 @@ export default function AdminDashboard() {
             <div className="sm:hidden space-y-3">
               {contacts.map(r => {
                 const displayName = ([r.first_name, r.last_name].filter(Boolean).join(" ").trim() || r.name || "Unnamed");
+                const src = r?.utm?.source || r.referrer || "Direct";
                 return (
                   <div key={r.id} onClick={() => openContact(r)} className="rounded-lg border border-gray-200 bg-white/90 p-3 shadow-sm cursor-pointer">
-                    <div className="text-[11px] text-gray-500">{new Date(r.created_at).toLocaleString()}</div>
-                    <div className="text-sm font-medium text-[#1B5A8E]">{displayName}</div>
-                    {r.subject && <div className="text-[11px] text-gray-600 mt-1">Subject: {r.subject}</div>}
-                    <div className="mt-1 flex flex-wrap gap-2 text-xs text-gray-600">
-                      {r.email && <span>{r.email}</span>}
-                      {r.phone && <span>{r.phone}</span>}
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <div className="text-[11px] text-gray-500">{new Date(r.created_at).toLocaleString()}</div>
+                        <div className="text-sm font-medium text-[#1B5A8E]">{displayName}</div>
+                      </div>
+                      {r.subject && (
+                        <span className="ml-2 inline-flex rounded-full bg-[#1B5A8E]/10 px-2 py-0.5 text-[10px] text-[#1B5A8E]">
+                          {r.subject}
+                        </span>
+                      )}
                     </div>
-                    <div className="mt-1 text-[10px] text-gray-500">Source: {r.utm?.source || r.referrer || "-"}</div>
+                    {r.message && (
+                      <div className="mt-2 text-xs text-gray-700">
+                        {String(r.message).slice(0, 120)}
+                        {String(r.message).length > 120 ? "…" : ""}
+                      </div>
+                    )}
+                    <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-gray-600">
+                      {r.email && <span>{r.email}</span>}
+                      {r.phone && <span>• {r.phone}</span>}
+                      <span className="ml-auto rounded bg-gray-100 px-2 py-0.5 text-gray-700">Source: {src === r.referrer ? "Referral" : src}</span>
+                    </div>
                   </div>
                 );
               })}
@@ -778,6 +793,7 @@ export default function AdminDashboard() {
                     <th className="p-2 text-left">When</th>
                     <th className="p-2 text-left">Name</th>
                     <th className="p-2 text-left">Subject</th>
+                    <th className="p-2 text-left">Message</th> {/* NEW */}
                     <th className="p-2 text-left">Email</th>
                     <th className="p-2 text-left">Phone</th>
                     <th className="p-2 text-left">Source</th>
@@ -787,14 +803,17 @@ export default function AdminDashboard() {
                 <tbody>
                   {contacts.map(r => {
                     const displayName = ([r.first_name, r.last_name].filter(Boolean).join(" ").trim() || r.name || "Unnamed");
+                    const msg = (r.message || "") as string;
+                    const src = r?.utm?.source || r.referrer || "Direct";
                     return (
                       <tr key={r.id} onClick={() => openContact(r)} className="border-t hover:bg-gray-50 cursor-pointer">
                         <td className="p-2">{new Date(r.created_at).toLocaleString()}</td>
                         <td className="p-2">{displayName}</td>
                         <td className="p-2">{r.subject || "-"}</td>
+                        <td className="p-2 text-gray-700">{msg ? `${msg.slice(0, 60)}${msg.length > 60 ? "…" : ""}` : "-"}</td> {/* NEW */}
                         <td className="p-2">{r.email || "-"}</td>
                         <td className="p-2">{r.phone || "-"}</td>
-                        <td className="p-2">{r.utm?.source || r.referrer || "-"}</td>
+                        <td className="p-2">{src === r.referrer ? "Referral" : src}</td>
                         <td className="p-2">
                           <Button size="sm" variant="outline" onClick={(e: { stopPropagation: () => void; }) => { e.stopPropagation(); openContact(r); }}>View</Button>
                         </td>
