@@ -207,35 +207,35 @@ export function AutoQuotePage() {
 						<div className="grid gap-4 sm:grid-cols-2">
 							<div>
 								<Label>Full Name</Label>
-								<Input required />
+								<Input required name="name" />
 							</div>
 							<div>
 								<Label>Email Address</Label>
-								<Input type="email" required />
+								<Input type="email" required name="email" />
 							</div>
 							<div>
 								<Label>Phone Number</Label>
-								<Input type="tel" required />
+								<Input type="tel" required name="phone" />
 							</div>
 							<div>
 								<Label>Preferred Contact Method</Label>
-								<Input placeholder="Phone / Email" />
+								<Input placeholder="Phone / Email" name="preferred_contact_method" />
 							</div>
 							<div className="sm:col-span-2">
 								<Label>Address</Label>
-								<Input />
+								<Input name="address" />
 							</div>
 							<div>
 								<Label>Date of Birth</Label>
-								<Input type="date" />
+								<Input type="date" name="dob" />
 							</div>
 							<div>
 								<Label>Driver’s License Number</Label>
-								<Input />
+								<Input name="drivers_license_number" />
 							</div>
 							<div className="sm:col-span-2">
 								<Label>Primary Residence</Label>
-								<Input placeholder="Own Home / Rent / Own Condo / Mobile Home / Other" />
+								<Input name="primary_residence" />
 							</div>
 						</div>
 					</Section>
@@ -243,11 +243,11 @@ export function AutoQuotePage() {
 						<div className="grid gap-4 sm:grid-cols-2">
 							<div>
 								<Label>Current Occupation</Label>
-								<Input />
+								<Input name="occupation" />
 							</div>
 							<div>
 								<Label>Highest Level of Education</Label>
-								<Input />
+								<Input name="education_level" />
 							</div>
 						</div>
 					</Section>
@@ -257,33 +257,37 @@ export function AutoQuotePage() {
 						</p>
 						<div className="grid gap-4">
 							{[1, 2, 3].map((i) => (
-								<Input key={i} placeholder={`${i}. Year / Make / Model / VIN`} />
+								<Input
+									key={i}
+									placeholder={`${i}. Year / Make / Model / VIN`}
+									name={`vehicle_${i}`}
+								/>
 							))}
 						</div>
 						<div className="grid gap-4 sm:grid-cols-2">
 							<div>
 								<Label>Primary Vehicle Use</Label>
-								<Input placeholder="Commute / Pleasure / Business" />
+								<Input name="primary_vehicle_use" />
 							</div>
 							<div>
 								<Label>Length of Primary Vehicle Ownership</Label>
-								<Input placeholder="e.g., 3 years" />
+								<Input name="vehicle_ownership_length" />
 							</div>
 							<div>
 								<Label>Miles Driven One Way for Commute</Label>
-								<Input />
+								<Input name="commute_one_way_miles" />
 							</div>
 							<div>
 								<Label>Number of Days per Week Commuting</Label>
-								<Input />
+								<Input name="commute_days_per_week" />
 							</div>
 							<div>
 								<Label>Annual Miles per Year</Label>
-								<Input />
+								<Input name="annual_miles" />
 							</div>
 							<div>
 								<Label>Used for Rideshare?</Label>
-								<Input placeholder="Yes / No (Uber, DoorDash, etc.)" />
+								<Input name="rideshare_use" />
 							</div>
 						</div>
 					</Section>
@@ -293,10 +297,7 @@ export function AutoQuotePage() {
 						</p>
 						<div className="grid gap-4">
 							{[1, 2, 3].map((i) => (
-								<Textarea
-									key={i}
-									placeholder={`${i}. Name / DOB / Relationship`}
-								/>
+								<Textarea key={i} name={`additional_driver_${i}`} />
 							))}
 						</div>
 					</Section>
@@ -304,20 +305,20 @@ export function AutoQuotePage() {
 						<div className="grid gap-4 sm:grid-cols-2">
 							<div>
 								<Label>Currently Insured?</Label>
-								<Input placeholder="Yes / No" />
+								<Input name="currently_insured" />
 							</div>
 							<div>
 								<Label>Current Policy Expiration Date</Label>
-								<Input type="date" />
+								<Input type="date" name="current_policy_expiration" />
 							</div>
 						</div>
 					</Section>
 					<Section title="Additional Coverage">
-						<Input placeholder="Interested in Homeowners, Renters, Business, Umbrella, or Life? (Yes / No)" />
+						<Input name="interested_in_other_coverages" />
 					</Section>
 					<Section title="Referral">
 						<Label>How did you hear about us?</Label>
-						<Input />
+						<Input name="referral_source" />
 					</Section>
 					<div className="flex justify-end">
 						<Button

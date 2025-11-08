@@ -4,12 +4,37 @@ import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { Textarea } from "../components/ui/textarea";
 import { Phone, Mail, MapPin, Clock } from "lucide-react";
+import { submit } from "../lib/submit";
+import { useState } from "react";
 
 export function ContactPage() {
-  const handleSubmit = (e: React.FormEvent) => {
+  const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    alert("Thank you for contacting us! We'll be in touch soon.");
+    if (submitting) return;
+    setSubmitting(true);
+    try {
+      await submit(e.currentTarget);
+      setSubmitted(true);
+      window.scrollTo(0, 0);
+    } catch (err: any) {
+      alert(err?.message || "Failed to submit.");
+    } finally {
+      setSubmitting(false);
+    }
   };
+
+  if (submitted) {
+    return (
+      <div className="mx-auto max-w-lg p-8 text-center">
+        <h1 className="mb-2 text-2xl font-semibold text-[#1B5A8E]">Message Sent</h1>
+        <p className="text-sm text-gray-600 mb-6">We will get back to you within 24 hours.</p>
+        <a href="/" className="inline-flex rounded bg-[#1B5A8E] px-4 py-2 text-white text-sm">Return Home</a>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -92,72 +117,48 @@ export function ContactPage() {
               <Card className="border-gray-200">
                 <CardContent className="p-8">
                   <h2 className="mb-6 text-2xl text-[#1a1a1a]">Send us a Message</h2>
-                  <form onSubmit={handleSubmit} className="space-y-6">
+                  <form onSubmit={onSubmit} className="space-y-4">
+                    {/* Honeypots */}
+                    <input type="text" name="hp_company" className="hidden" aria-hidden="true" />
+                    <input type="url" name="hp_url" className="hidden" aria-hidden="true" />
+
                     <div className="grid gap-6 sm:grid-cols-2">
                       <div>
                         <Label htmlFor="firstName">First Name</Label>
-                        <Input
-                          id="firstName"
-                          type="text"
-                          placeholder="John"
-                          required
-                        />
+                        <Input id="firstName" name="first_name" type="text" placeholder="John" required />
                       </div>
                       <div>
                         <Label htmlFor="lastName">Last Name</Label>
-                        <Input
-                          id="lastName"
-                          type="text"
-                          placeholder="Doe"
-                          required
-                        />
+                        <Input id="lastName" name="last_name" type="text" placeholder="Doe" required />
                       </div>
                     </div>
 
                     <div>
                       <Label htmlFor="email">Email</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        placeholder="john.doe@example.com"
-                        required
-                      />
+                      <Input id="email" name="email" type="email" placeholder="john.doe@example.com" required />
                     </div>
 
                     <div>
                       <Label htmlFor="phone">Phone Number</Label>
-                      <Input
-                        id="phone"
-                        type="tel"
-                        placeholder="(555) 123-4567"
-                      />
+                      <Input id="phone" name="phone" type="tel" placeholder="(555) 123-4567" />
                     </div>
 
                     <div>
                       <Label htmlFor="subject">Subject</Label>
-                      <Input
-                        id="subject"
-                        type="text"
-                        placeholder="How can we help?"
-                        required
-                      />
+                      <Input id="subject" name="subject" type="text" placeholder="How can we help?" required />
                     </div>
 
                     <div>
                       <Label htmlFor="message">Message</Label>
-                      <Textarea
-                        id="message"
-                        placeholder="Tell us what you need help with..."
-                        rows={6}
-                        required
-                      />
+                      <Textarea id="message" name="message" placeholder="Tell us what you need help with..." rows={6} required />
                     </div>
 
                     <Button
                       type="submit"
-                      className="w-full bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] hover:opacity-90 sm:w-auto"
+                      disabled={submitting}
+                      className="rounded bg-[#1B5A8E] px-4 py-2 text-white text-sm disabled:opacity-50"
                     >
-                      Send Message
+                      {submitting ? "Sending…" : "Send Message"}
                     </Button>
                   </form>
                 </CardContent>
@@ -183,3 +184,4 @@ export function ContactPage() {
     </div>
   );
 }
+

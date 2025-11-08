@@ -17,6 +17,8 @@ import { CommercialBuildingQuotePage } from "./pages/quotes/CommercialBuildingQu
 import { BopQuotePage } from "./pages/quotes/BopQuotePage";
 import { Routes, Route } from "react-router-dom";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminQuoteDetailPage from "./pages/admin/AdminQuoteDetailPage"; // NEW
+import AdminContactDetailPage from "./pages/admin/AdminContactDetailPage"; // NEW
 
 function App() {
   return (
@@ -101,6 +103,9 @@ function App() {
             />
           } />
           <Route path="/admin" element={<AdminDashboard />} />
+          {/* NEW: Admin quote detail route */}
+          <Route path="/admin/quotes/:srcTable/:id" element={<AdminQuoteDetailPage />} />
+          <Route path="/admin/contacts/:id" element={<AdminContactDetailPage />} /> {/* NEW */}
           {/* Default/404 route */}
           <Route
             path="*"

@@ -190,65 +190,65 @@ export function CommercialBuildingQuotePage() {
 									<Label>
 										Business Name / Property Owner or Tenant
 									</Label>
-									<Input required />
+									<Input required name="business_name_or_owner" />
 								</div>
 								<div className="sm:col-span-2">
 									<Label>Property Address</Label>
-									<Input required />
+									<Input required name="property_address" />
 								</div>
 								<div>
 									<Label>Phone Number</Label>
-									<Input type="tel" />
+									<Input type="tel" name="phone" />
 								</div>
 								<div>
 									<Label>Email Address</Label>
-									<Input type="email" />
+									<Input type="email" name="email" />
 								</div>
 								<div>
 									<Label>Own or Rent/Lease?</Label>
-									<Input placeholder="Own / Rent/Lease" />
+									<Input name="own_or_rent" placeholder="Own / Rent/Lease" />
 								</div>
 								<div>
 									<Label>Type of Property</Label>
-									<Input placeholder="Office / Retail / Warehouse / Industrial / Mixed Use / Other" />
+									<Input name="property_type" placeholder="Office / Retail / Warehouse / Industrial / Mixed Use / Other" />
 								</div>
 								<div>
 									<Label>Year Built</Label>
-									<Input />
+									<Input name="year_built" />
 								</div>
 								<div>
 									<Label>Number of Stories</Label>
-									<Input />
+									<Input name="stories" />
 								</div>
 								<div>
 									<Label>Square Footage</Label>
-									<Input />
+									<Input name="square_footage" />
 								</div>
 								<div>
 									<Label>Construction Type</Label>
-									<Input placeholder="Brick / Wood / Metal / Concrete / Other" />
+									<Input name="construction_type" placeholder="Brick / Wood / Metal / Concrete / Other" />
 								</div>
 								<div>
 									<Label>Roof Type / Age</Label>
-									<Input />
+									<Input name="roof_type_age" />
 								</div>
 								<div>
 									<Label>Foundation Type</Label>
-									<Input placeholder="Slab / Crawl Space / Basement" />
+									<Input name="foundation_type" placeholder="Slab / Crawl Space / Basement" />
 								</div>
 								<div>
 									<Label>Fire Protection / Sprinklers</Label>
-									<Input placeholder="Yes / No" />
+									<Input name="sprinklers" placeholder="Yes / No" />
 								</div>
 								<div>
 									<Label>Security Systems</Label>
-									<Input placeholder="Yes / No" />
+									<Input name="security_systems" placeholder="Yes / No" />
 								</div>
 								<div className="sm:col-span-2">
 									<Label>
 										Any hazardous materials stored on-site?
 									</Label>
-									<Input placeholder="Yes / No" />
+									<Input name="hazardous_materials" placeholder="Yes / No" />
 								</div>
 							</div>
 						</div>
@@ -264,23 +264,23 @@ export function CommercialBuildingQuotePage() {
 							<div className="grid gap-4 sm:grid-cols-2">
 								<div className="sm:col-span-2">
 									<Label>Primary Use of Building</Label>
-									<Input />
+									<Input name="primary_use" />
 								</div>
 								<div>
 									<Label>Number of Units / Tenants</Label>
-									<Input />
+									<Input name="units_tenants" />
 								</div>
 								<div>
 									<Label>Occupancy Type</Label>
-									<Input placeholder="Owner-Occupied / Tenant-Occupied / Mixed" />
+									<Input name="occupancy_type" placeholder="Owner-Occupied / Tenant-Occupied / Mixed" />
 								</div>
 								<div>
 									<Label>Business Hours / Operating Schedule</Label>
-									<Input />
+									<Input name="business_hours" />
 								</div>
 								<div>
 									<Label>Any seasonal operations?</Label>
-									<Input placeholder="Yes / No" />
+									<Input name="seasonal" placeholder="Yes / No" />
 								</div>
 							</div>
 						</div>
@@ -296,35 +296,36 @@ export function CommercialBuildingQuotePage() {
 							<div className="grid gap-4 sm:grid-cols-2">
 								<div className="sm:col-span-2">
 									<Label>Current Insurance Carrier</Label>
-									<Input />
+									<Input name="current_carrier" />
 								</div>
 								<div>
 									<Label>Policy Expiration Date</Label>
-									<Input type="date" />
+									<Input type="date" name="policy_expiration" />
 								</div>
 								<div>
 									<Label>
 										Desired Building Coverage Limits ($) - if Owner
 									</Label>
-									<Input />
+									<Input name="building_coverage" />
 								</div>
 								<div>
 									<Label>
 										Desired Tenant Property & Improvements ($) - if Tenant
 									</Label>
-									<Input />
+									<Input name="tenant_improvements" />
 								</div>
 								<div>
 									<Label>Liability Coverage Desired ($)</Label>
-									<Input />
+									<Input name="liability_coverage" />
 								</div>
 								<div>
 									<Label>Deductible Preference ($)</Label>
-									<Input />
+									<Input name="deductible" />
 								</div>
 								<div className="sm:col-span-2">
 									<Label>Additional Coverage Requested</Label>
 									<Input
+										name="additional_coverage"
 										placeholder="Flood / Earthquake / Equipment Breakdown / Ordinance or Law / Business Interruption / Other"
 									/>
 								</div>
@@ -332,11 +333,11 @@ export function CommercialBuildingQuotePage() {
 									<Label>
 										Any previous claims or losses in last 5 years?
 									</Label>
-									<Input placeholder="Yes / No" />
+									<Input name="prior_claims" placeholder="Yes / No" />
 								</div>
 								<div className="sm:col-span-2">
 									<Label>If yes, please describe</Label>
-									<Textarea />
+									<Textarea name="prior_claims_description" />
 								</div>
 							</div>
 						</div>
@@ -351,7 +352,7 @@ export function CommercialBuildingQuotePage() {
 							</h3>
 							<div className="space-y-4">
 								<Label>How did you hear about us?</Label>
-								<Input />
+								<Input name="referral_source" />
 							</div>
 						</div>
 

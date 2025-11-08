@@ -188,31 +188,31 @@ export function LifeQuotePage() {
 							<div className="grid gap-4 sm:grid-cols-2">
 								<div>
 									<Label>Full Name</Label>
-									<Input required />
+									<Input required name="name" />
 								</div>
 								<div>
 									<Label>Date of Birth</Label>
-									<Input type="date" required />
+									<Input type="date" required name="dob" />
 								</div>
 								<div>
 									<Label>Gender</Label>
-									<Input placeholder="Male / Female" />
+									<Input name="gender" />
 								</div>
 								<div>
 									<Label>Phone Number</Label>
-									<Input type="tel" />
+									<Input type="tel" name="phone" />
 								</div>
 								<div>
 									<Label>Email Address</Label>
-									<Input type="email" />
+									<Input type="email" name="email" />
 								</div>
 								<div className="sm:col-span-2">
 									<Label>Address</Label>
-									<Input />
+									<Input name="address" />
 								</div>
 								<div className="sm:col-span-2">
 									<Label>Occupation</Label>
-									<Input />
+									<Input name="occupation" />
 								</div>
 							</div>
 						</div>
@@ -228,33 +228,33 @@ export function LifeQuotePage() {
 							<div className="grid gap-4 sm:grid-cols-2">
 								<div>
 									<Label>Type of Life Insurance</Label>
-									<Input placeholder="Term / Whole Life" />
+									<Input name="policy_type" />
 								</div>
 								<div>
 									<Label>Desired Coverage Amount ($)</Label>
-									<Input />
+									<Input name="coverage_amount" />
 								</div>
 								<div>
 									<Label>Desired Policy Term (years)</Label>
-									<Input />
+									<Input name="term_years" />
 								</div>
 								<div className="sm:col-span-2">
 									<Label>Beneficiaries (Name & Relationship)</Label>
-									<Textarea />
+									<Textarea name="beneficiaries" />
 								</div>
 								<div>
 									<Label>Current Life Insurance Policies?</Label>
-									<Input placeholder="Yes / No" />
+									<Input name="current_policies" />
 								</div>
 								<div className="sm:col-span-2">
 									<Label>
 										If yes, provide carrier, coverage amount, and policy type
 									</Label>
-									<Textarea />
+									<Textarea name="current_policies_details" />
 								</div>
 								<div>
 									<Label>Any life insurance applications pending?</Label>
-									<Input placeholder="Yes / No" />
+									<Input name="applications_pending" />
 								</div>
 							</div>
 						</div>
@@ -270,37 +270,38 @@ export function LifeQuotePage() {
 							<div className="grid gap-4 sm:grid-cols-2">
 								<div>
 									<Label>Height</Label>
-									<Input placeholder="e.g., 5'10&quot;" />
+									<Input name="height" />
 								</div>
 								<div>
 									<Label>Weight</Label>
-									<Input />
+									<Input name="weight" />
 								</div>
 								<div>
 									<Label>Tobacco Use</Label>
-									<Input placeholder="Yes / No" />
+									<Input name="tobacco_use" />
 								</div>
 								<div>
 									<Label>Alcohol Use</Label>
-									<Input placeholder="Yes / No" />
+									<Input name="alcohol_use" />
 								</div>
 								<div className="sm:col-span-2">
 									<Label>Medical Conditions (current or past)</Label>
-									<Textarea />
+									<Textarea name="medical_conditions" />
 								</div>
 								<div className="sm:col-span-2">
 									<Label>Medications</Label>
-									<Textarea />
+									<Textarea name="medications" />
 								</div>
 								<div className="sm:col-span-2">
 									<Label>
 										Hospitalizations or Surgeries in the last 5 years
 									</Label>
-									<Textarea />
+									<Textarea name="hospitalizations" />
 								</div>
 								<div className="sm:col-span-2">
 									<Label>Family Medical History</Label>
 									<Textarea
+										name="family_history"
 										placeholder="heart disease, cancer, diabetes, etc."
 									/>
 								</div>
@@ -318,11 +319,11 @@ export function LifeQuotePage() {
 							<div className="grid gap-4">
 								<div>
 									<Label>High-risk hobbies or activities</Label>
-									<Textarea placeholder="skydiving, scuba, racing, etc." />
+									<Textarea name="high_risk_hobbies" placeholder="skydiving, scuba, racing, etc." />
 								</div>
 								<div>
 									<Label>Travel Outside the U.S.</Label>
-									<Textarea placeholder="frequency & countries" />
+									<Textarea name="travel" placeholder="frequency & countries" />
 								</div>
 							</div>
 						</div>
@@ -337,7 +338,7 @@ export function LifeQuotePage() {
 							</h3>
 							<div className="space-y-4">
 								<Label>How did you hear about us?</Label>
-								<Input />
+								<Input name="referral_source" />
 							</div>
 						</div>
 

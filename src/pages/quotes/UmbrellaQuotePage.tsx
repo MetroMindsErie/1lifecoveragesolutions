@@ -180,31 +180,31 @@ export function UmbrellaQuotePage() {
 							<div className="grid gap-4 sm:grid-cols-2">
 								<div>
 									<Label>Full Name</Label>
-									<Input required />
+									<Input required name="name" />
 								</div>
 								<div>
 									<Label>Email Address</Label>
-									<Input type="email" required />
+									<Input type="email" required name="email" />
 								</div>
 								<div>
 									<Label>Phone Number</Label>
-									<Input type="tel" required />
+									<Input type="tel" required name="phone" />
 								</div>
 								<div>
 									<Label>Preferred Contact Method</Label>
-									<Input placeholder="Phone / Email / Text" />
+									<Input name="preferred_contact_method" placeholder="Phone / Email / Text" />
 								</div>
 								<div className="sm:col-span-2">
 									<Label>Address</Label>
-									<Input />
+									<Input name="address" />
 								</div>
 								<div>
 									<Label>Date of Birth</Label>
-									<Input type="date" />
+									<Input type="date" name="dob" />
 								</div>
 								<div>
 									<Label>Driver’s License Number</Label>
-									<Input />
+									<Input name="drivers_license_number" />
 								</div>
 							</div>
 						</div>
@@ -218,11 +218,11 @@ export function UmbrellaQuotePage() {
 								Current Insurance Coverage
 							</h3>
 							<div className="grid gap-4">
-								<Input placeholder="Do you have Homeowners / Renters / Auto / Watercraft / Other?" />
-								<Input placeholder="Current Coverage Limits" />
+								<Input name="current_coverages" placeholder="Do you have Homeowners / Renters / Auto / Watercraft / Other?" />
+								<Input name="current_coverage_limits" placeholder="Current Coverage Limits" />
 								<div>
 									<Label>Policy Expiration Date</Label>
-									<Input type="date" />
+									<Input type="date" name="policy_expiration" />
 								</div>
 							</div>
 						</div>
@@ -238,23 +238,23 @@ export function UmbrellaQuotePage() {
 							<div className="grid gap-4 sm:grid-cols-2">
 								<div>
 									<Label>Number of Drivers in Household</Label>
-									<Input />
+									<Input name="household_drivers" />
 								</div>
 								<div>
 									<Label>Number of Vehicles</Label>
-									<Input />
+									<Input name="household_vehicles" />
 								</div>
 								<div className="sm:col-span-2">
 									<Label>High-value items? Describe if yes</Label>
-									<Textarea placeholder="Jewelry, art, collectibles, etc." />
+									<Textarea name="valuables_description" placeholder="Jewelry, art, collectibles, etc." />
 								</div>
 								<div>
 									<Label>Rental Properties?</Label>
-									<Input placeholder="Yes / No" />
+									<Input name="rental_properties" placeholder="Yes / No" />
 								</div>
 								<div>
 									<Label>Watercraft/Boats?</Label>
-									<Input placeholder="Yes / No" />
+									<Input name="watercraft" placeholder="Yes / No" />
 								</div>
 							</div>
 						</div>
@@ -270,25 +270,25 @@ export function UmbrellaQuotePage() {
 							<div className="grid gap-4 sm:grid-cols-2">
 								<div>
 									<Label>Do you have pets?</Label>
-									<Input placeholder="Yes / No" />
+									<Input name="pets_have" placeholder="Yes / No" />
 								</div>
 								<div>
 									<Label>Type of Pet(s)</Label>
-									<Input placeholder="Dog / Cat / Other" />
+									<Input name="pets_type" placeholder="Dog / Cat / Other" />
 								</div>
 								<div>
 									<Label>Number of Pets</Label>
-									<Input />
+									<Input name="pets_count" />
 								</div>
 								<div>
 									<Label>Dog Breed(s)</Label>
-									<Input />
+									<Input name="dog_breeds" />
 								</div>
 								<div className="sm:col-span-2">
 									<Label>
 										Any pets with a history of bites/claims?
 									</Label>
-									<Input placeholder="Yes / No" />
+									<Input name="pets_bite_history" placeholder="Yes / No" />
 								</div>
 							</div>
 						</div>
@@ -304,21 +304,21 @@ export function UmbrellaQuotePage() {
 							<div className="grid gap-4 sm:grid-cols-2">
 								<div>
 									<Label>Desired Umbrella Policy Limit ($)</Label>
-									<Input />
+									<Input name="desired_limit" />
 								</div>
 								<div>
 									<Label>Desired Deductible ($)</Label>
-									<Input />
+									<Input name="desired_deductible" />
 								</div>
 								<div className="sm:col-span-2">
 									<Label>
 										Any prior claims or liability incidents?
 									</Label>
-									<Input placeholder="Yes / No" />
+									<Input name="prior_claims" placeholder="Yes / No" />
 								</div>
 								<div className="sm:col-span-2">
 									<Label>If yes, please describe</Label>
-									<Textarea />
+									<Textarea name="prior_claims_description" />
 								</div>
 							</div>
 						</div>
@@ -335,7 +335,7 @@ export function UmbrellaQuotePage() {
 								Interested in additional quotes? (Auto / Homeowners / Renters /
 								Life / Business)
 							</Label>
-							<Input />
+							<Input name="additional_quotes_interest" />
 						</div>
 
 						{/* Referral */}
@@ -347,7 +347,7 @@ export function UmbrellaQuotePage() {
 								Referral
 							</h3>
 							<Label>How did you hear about us?</Label>
-							<Input />
+							<Input name="referral_source" />
 						</div>
 
 						<div className="flex justify-end">

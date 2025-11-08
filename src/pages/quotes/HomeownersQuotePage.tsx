@@ -145,35 +145,35 @@ export function HomeownersQuotePage() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <Label>Full Name</Label>
-                  <Input required />
+                  <Input required name="name" />
                 </div>
                 <div>
                   <Label>Email Address</Label>
-                  <Input type="email" required />
+                  <Input type="email" required name="email" />
                 </div>
                 <div>
                   <Label>Phone Number</Label>
-                  <Input type="tel" required />
+                  <Input type="tel" required name="phone" />
                 </div>
                 <div>
                   <Label>Preferred Contact Method</Label>
-                  <Input placeholder="Phone / Email / Text" />
+                  <Input name="preferred_contact_method" placeholder="Phone / Email / Text" />
                 </div>
                 <div className="sm:col-span-2">
                   <Label>Address of Property to be Insured</Label>
-                  <Input required />
+                  <Input required name="property_address" />
                 </div>
                 <div className="sm:col-span-2">
                   <Label>Mailing Address (if different)</Label>
-                  <Input />
+                  <Input name="mailing_address" />
                 </div>
                 <div>
                   <Label>Date of Birth</Label>
-                  <Input type="date" />
+                  <Input type="date" name="dob" />
                 </div>
                 <div>
                   <Label>Driver’s License Number</Label>
-                  <Input />
+                  <Input name="drivers_license_number" />
                 </div>
               </div>
             </div>
@@ -187,55 +187,55 @@ export function HomeownersQuotePage() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="sm:col-span-2">
                   <Label>Type of Home</Label>
-                  <Input placeholder="Single Family / Condo / Townhome / Manufactured/Mobile / Other" />
+                  <Input name="home_type" placeholder="Single Family / Condo / Townhome / Manufactured/Mobile / Other" />
                 </div>
                 <div>
                   <Label>Year Built</Label>
-                  <Input />
+                  <Input name="year_built" />
                 </div>
                 <div>
                   <Label>Square Footage</Label>
-                  <Input />
+                  <Input name="square_footage" />
                 </div>
                 <div>
                   <Label>Number of Stories</Label>
-                  <Input />
+                  <Input name="stories" />
                 </div>
                 <div>
                   <Label>Roof Type / Year Last Replaced</Label>
-                  <Input />
+                  <Input name="roof_type_year" />
                 </div>
                 <div>
                   <Label>Foundation Type</Label>
-                  <Input placeholder="Slab / Crawl Space / Basement" />
+                  <Input name="foundation_type" placeholder="Slab / Crawl Space / Basement" />
                 </div>
                 <div className="sm:col-span-2">
                   <Label>If basement, is it finished?</Label>
-                  <Input placeholder="Yes / No / Partially Finished" />
+                  <Input name="basement_finished" placeholder="Yes / No / Partially Finished" />
                 </div>
                 <div className="sm:col-span-2">
                   <Label>Exterior Construction</Label>
-                  <Input placeholder="Brick / Siding / Wood / Stucco / Other" />
+                  <Input name="exterior_construction" placeholder="Brick / Siding / Wood / Stucco / Other" />
                 </div>
                 <div>
                   <Label>Heating Type</Label>
-                  <Input />
+                  <Input name="heating_type" />
                 </div>
                 <div>
                   <Label>Age of Heating System (years)</Label>
-                  <Input />
+                  <Input name="heating_age_years" />
                 </div>
                 <div>
                   <Label>Fireplace or Wood Stove?</Label>
-                  <Input placeholder="Yes / No" />
+                  <Input name="fireplace_or_woodstove" placeholder="Yes / No" />
                 </div>
                 <div>
                   <Label>Garage</Label>
-                  <Input placeholder="Attached / Detached / None" />
+                  <Input name="garage" placeholder="Attached / Detached / None" />
                 </div>
                 <div>
                   <Label>Garage Capacity</Label>
-                  <Input placeholder="1-Car / 2-Car / 3+ Car" />
+                  <Input name="garage_capacity" placeholder="1-Car / 2-Car / 3+ Car" />
                 </div>
               </div>
             </div>
@@ -249,35 +249,35 @@ export function HomeownersQuotePage() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <Label>Central Fire Alarm</Label>
-                  <Input placeholder="Yes / No" />
+                  <Input name="central_fire_alarm" placeholder="Yes / No" />
                 </div>
                 <div>
                   <Label>Central Burglar Alarm</Label>
-                  <Input placeholder="Yes / No" />
+                  <Input name="central_burglar_alarm" placeholder="Yes / No" />
                 </div>
                 <div>
                   <Label>Fire Extinguisher</Label>
-                  <Input placeholder="Yes / No" />
+                  <Input name="fire_extinguisher" placeholder="Yes / No" />
                 </div>
                 <div>
                   <Label>Deadbolts on Exterior Doors</Label>
-                  <Input placeholder="Yes / No" />
+                  <Input name="deadbolts" placeholder="Yes / No" />
                 </div>
                 <div>
                   <Label>Swimming Pool on Property?</Label>
-                  <Input placeholder="Yes / No" />
+                  <Input name="pool" placeholder="Yes / No" />
                 </div>
                 <div>
                   <Label>If pool, is it fenced?</Label>
-                  <Input placeholder="Yes / No" />
+                  <Input name="pool_fenced" placeholder="Yes / No" />
                 </div>
                 <div>
                   <Label>Pool Type</Label>
-                  <Input placeholder="Above Ground / Inground" />
+                  <Input name="pool_type" placeholder="Above Ground / Inground" />
                 </div>
                 <div>
                   <Label>Trampoline on Property?</Label>
-                  <Input placeholder="Yes / No" />
+                  <Input name="trampoline" placeholder="Yes / No" />
                 </div>
               </div>
             </div>
@@ -291,23 +291,23 @@ export function HomeownersQuotePage() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <Label>Do you have pets?</Label>
-                  <Input placeholder="Yes / No" />
+                  <Input name="pets_have" placeholder="Yes / No" />
                 </div>
                 <div>
                   <Label>Type of Pets</Label>
-                  <Input placeholder="Dog / Cat / Other" />
+                  <Input name="pets_type" placeholder="Dog / Cat / Other" />
                 </div>
                 <div>
                   <Label>Number of Pets</Label>
-                  <Input />
+                  <Input name="pets_count" />
                 </div>
                 <div>
                   <Label>Dog Breeds (if applicable)</Label>
-                  <Input />
+                  <Input name="dog_breeds" />
                 </div>
                 <div className="sm:col-span-2">
                   <Label>Any pets with a history of bites/claims?</Label>
-                  <Input placeholder="Yes / No" />
+                  <Input name="pets_bite_history" placeholder="Yes / No" />
                 </div>
               </div>
             </div>
@@ -321,27 +321,27 @@ export function HomeownersQuotePage() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <Label>Current Insurance Carrier</Label>
-                  <Input />
+                  <Input name="current_carrier" />
                 </div>
                 <div>
                   <Label>Policy Expiration Date</Label>
-                  <Input type="date" />
+                  <Input type="date" name="policy_expiration" />
                 </div>
                 <div>
                   <Label>Current Dwelling Coverage Amount ($)</Label>
-                  <Input />
+                  <Input name="current_dwelling_coverage" />
                 </div>
                 <div>
                   <Label>Desired Deductible ($)</Label>
-                  <Input />
+                  <Input name="desired_deductible" />
                 </div>
                 <div className="sm:col-span-2">
                   <Label>Any claims in the last 5 years?</Label>
-                  <Input placeholder="Yes / No" />
+                  <Input name="claims_last_5_years" placeholder="Yes / No" />
                 </div>
                 <div className="sm:col-span-2">
                   <Label>If yes, please describe</Label>
-                  <Textarea />
+                  <Textarea name="claims_description" />
                 </div>
               </div>
             </div>
@@ -352,7 +352,7 @@ export function HomeownersQuotePage() {
               className="space-y-4 rounded-xl border border-gray-200 bg-white/60 backdrop-blur-sm p-6 shadow-sm"
             >
               <h3 className="text-sm font-semibold tracking-wide text-[#1B5A8E] uppercase">Additional Coverages</h3>
-              <Input placeholder="Interested in: Personal Umbrella / Auto / Life / Business (optional)" />
+              <Input name="additional_coverages" placeholder="Interested in: Personal Umbrella / Auto / Life / Business (optional)" />
             </div>
 
             {/* Referral */}
@@ -361,7 +361,7 @@ export function HomeownersQuotePage() {
               className="space-y-4 rounded-xl border border-gray-200 bg-white/60 backdrop-blur-sm p-6 shadow-sm"
             >
               <Label>How did you hear about us?</Label>
-              <Input />
+              <Input name="referral_source" />
             </div>
 
             <div className="flex justify-end">

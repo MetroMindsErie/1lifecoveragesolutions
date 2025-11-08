@@ -182,39 +182,39 @@ export function BopQuotePage() {
 							<div className="grid gap-4 sm:grid-cols-2">
 								<div className="sm:col-span-2">
 									<Label>Business Name</Label>
-									<Input required />
+									<Input required name="business_name" />
 								</div>
 								<div className="sm:col-span-2">
 									<Label>Business Address</Label>
-									<Input required />
+									<Input required name="business_address" />
 								</div>
 								<div>
 									<Label>Phone Number</Label>
-									<Input type="tel" />
+									<Input type="tel" name="phone" />
 								</div>
 								<div>
 									<Label>Email Address</Label>
-									<Input type="email" />
+									<Input type="email" name="email" />
 								</div>
 								<div className="sm:col-span-2">
 									<Label>Type of Business</Label>
-									<Input />
+									<Input name="business_type" />
 								</div>
 								<div>
 									<Label>FEIN / Tax ID Number</Label>
-									<Input />
+									<Input name="fein" />
 								</div>
 								<div>
 									<Label>Years in Business</Label>
-									<Input />
+									<Input name="years_in_business" />
 								</div>
 								<div>
 									<Label>Number of Employees</Label>
-									<Input />
+									<Input name="employees" />
 								</div>
 								<div className="sm:col-span-2">
 									<Label>Website (if applicable)</Label>
-									<Input />
+									<Input name="website" />
 								</div>
 							</div>
 						</div>
@@ -230,19 +230,19 @@ export function BopQuotePage() {
 							<div className="grid gap-4 sm:grid-cols-2">
 								<div>
 									<Label>Primary Contact Name</Label>
-									<Input />
+									<Input name="contact_name" />
 								</div>
 								<div>
 									<Label>Title/Position</Label>
-									<Input />
+									<Input name="contact_title" />
 								</div>
 								<div>
 									<Label>Phone Number</Label>
-									<Input type="tel" />
+									<Input type="tel" name="contact_phone" />
 								</div>
 								<div>
 									<Label>Email Address</Label>
-									<Input type="email" />
+									<Input type="email" name="contact_email" />
 								</div>
 							</div>
 						</div>
@@ -258,39 +258,39 @@ export function BopQuotePage() {
 							<div className="grid gap-4 sm:grid-cols-2">
 								<div className="sm:col-span-2">
 									<Label>Property Address (if different)</Label>
-									<Input />
+									<Input name="property_address" />
 								</div>
 								<div>
 									<Label>Property Type</Label>
-									<Input placeholder="Owned / Leased / Rented" />
+									<Input placeholder="Owned / Leased / Rented" name="property_type" />
 								</div>
 								<div>
 									<Label>Building Construction</Label>
-									<Input placeholder="Brick / Wood / Metal / Other" />
+									<Input placeholder="Brick / Wood / Metal / Other" name="building_construction" />
 								</div>
 								<div>
 									<Label>Year Built</Label>
-									<Input />
+									<Input name="year_built" />
 								</div>
 								<div>
 									<Label>Number of Stories</Label>
-									<Input />
+									<Input name="stories" />
 								</div>
 								<div>
 									<Label>Square Footage</Label>
-									<Input />
+									<Input name="square_footage" />
 								</div>
 								<div>
 									<Label>Fire Protection/Sprinklers</Label>
-									<Input placeholder="Yes / No" />
+									<Input placeholder="Yes / No" name="sprinklers" />
 								</div>
 								<div>
 									<Label>Security Systems</Label>
-									<Input placeholder="Yes / No" />
+									<Input placeholder="Yes / No" name="security_systems" />
 								</div>
 								<div className="sm:col-span-2">
 									<Label>Any hazardous materials on site?</Label>
-									<Input placeholder="Yes / No" />
+									<Input placeholder="Yes / No" name="hazardous_materials" />
 								</div>
 							</div>
 						</div>
@@ -306,33 +306,33 @@ export function BopQuotePage() {
 							<div className="grid gap-4 sm:grid-cols-2">
 								<div>
 									<Label>Annual Gross Revenue ($)</Label>
-									<Input />
+									<Input name="annual_revenue" />
 								</div>
 								<div>
 									<Label>Annual Payroll ($)</Label>
-									<Input />
+									<Input name="annual_payroll" />
 								</div>
 								<div>
 									<Label>Number of Locations</Label>
-									<Input />
+									<Input name="locations" />
 								</div>
 								<div>
 									<Label>Business Hours</Label>
-									<Input />
+									<Input name="business_hours" />
 								</div>
 								<div>
 									<Label>Any seasonal operations?</Label>
-									<Input placeholder="Yes / No" />
+									<Input placeholder="Yes / No" name="seasonal" />
 								</div>
 								<div className="sm:col-span-2">
 									<Label>
 										Any previous claims or losses in last 5 years?
 									</Label>
-									<Input placeholder="Yes / No" />
+									<Input placeholder="Yes / No" name="prior_claims" />
 								</div>
 								<div className="sm:col-span-2">
 									<Label>If yes, please describe</Label>
-									<Textarea />
+									<Textarea name="prior_claims_description" />
 								</div>
 							</div>
 						</div>
@@ -348,15 +348,15 @@ export function BopQuotePage() {
 							<div className="grid gap-4 sm:grid-cols-2">
 								<div className="sm:col-span-2">
 									<Label>Desired Coverage Types</Label>
-									<Input placeholder="Property / Liability / Business Interruption / Equipment Breakdown / Other" />
+									<Input placeholder="Property / Liability / Business Interruption / Equipment Breakdown / Other" name="desired_coverage_types" />
 								</div>
 								<div>
 									<Label>Desired Coverage Limits ($)</Label>
-									<Input />
+									<Input name="coverage_limits" />
 								</div>
 								<div>
 									<Label>Deductible Preference ($)</Label>
-									<Input />
+									<Input name="deductible" />
 								</div>
 							</div>
 						</div>
@@ -372,15 +372,15 @@ export function BopQuotePage() {
 							<div className="grid gap-4 sm:grid-cols-2">
 								<div>
 									<Label>Vehicles used for operations?</Label>
-									<Input placeholder="Yes / No" />
+									<Input placeholder="Yes / No" name="vehicles_for_operations" />
 								</div>
 								<div>
 									<Label>Subcontractors?</Label>
-									<Input placeholder="Yes / No" />
+									<Input placeholder="Yes / No" name="subcontractors" />
 								</div>
 								<div className="sm:col-span-2">
 									<Label>Special endorsements needed?</Label>
-									<Textarea />
+									<Textarea name="special_endorsements" />
 								</div>
 							</div>
 						</div>
@@ -396,7 +396,7 @@ export function BopQuotePage() {
 							<div className="grid gap-4 sm:grid-cols-2">
 								<div>
 									<Label>How did you hear about us?</Label>
-									<Input />
+									<Input name="referral_source" />
 								</div>
 							</div>
 						</div>

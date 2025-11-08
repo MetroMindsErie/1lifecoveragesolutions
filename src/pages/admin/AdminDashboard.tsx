@@ -4,6 +4,7 @@ import { Card, CardContent } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
 import { X, Mail, Phone, Copy, ExternalLink } from "lucide-react"; // NEW
+import { useNavigate, useLocation } from "react-router-dom"; // NEW
 
 export default function AdminDashboard() {
   const [session, setSession] = useState<any>(null);
@@ -14,6 +15,10 @@ export default function AdminDashboard() {
   const [contacts, setContacts] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [q, setQ] = useState("");
+  // NEW: no legacy mode – only typed tables
+  // NEW: local UI state for collapsing tech/payload
+  const [showTech, setShowTech] = useState(false);
+  const [showRaw, setShowRaw] = useState(false);
 
   // NEW: tabs + GA state
   const [tab, setTab] = useState<"overview" | "quotes" | "contacts" | "settings">("overview");
@@ -26,12 +31,38 @@ export default function AdminDashboard() {
   const [gaPageViews7d, setGaPageViews7d] = useState<number | null>(null);
   const [gaTopPages, setGaTopPages] = useState<{ path: string; views: number }[]>([]);
 
-  // NEW: detail drawer state
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [drawerType, setDrawerType] = useState<"quote" | "contact" | null>(null);
-  const [selectedQuote, setSelectedQuote] = useState<any | null>(null);
-  const [selectedContact, setSelectedContact] = useState<any | null>(null);
-  const [statusSaving, setStatusSaving] = useState(false);
+  // BRANDING
+  const brand = {
+    primary: "#1B5A8E",
+    primaryDark: "#144669",
+    accentA: "#06b6d4",
+    accentB: "#4f46e5",
+    bgSoft: "from-white via-[#E9F3FB] to-[#D9ECFF]"
+  };
+
+  // BODY SCROLL LOCK when drawer open
+  // useEffect(() => {
+  //   if (drawerOpen) {
+  //     lockBodyScroll();
+  //   } else {
+  //     unlockBodyScroll();
+  //   }
+  // }, [drawerOpen]);
+
+  // NEW: ESC to close drawer
+  // useEffect(() => {
+  //   if (!drawerOpen) return;
+  //   const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") closeDrawer(); };
+  //   window.addEventListener("keydown", onKey);
+  //   return () => window.removeEventListener("keydown", onKey);
+  // }, [drawerOpen]);
+
+  // When drawer opens ensure internal scroll top & focus (do not touch page scroll)
+  // useEffect(() => {
+  //   if (!drawerOpen) return;
+  //   try { drawerContentRef.current?.scrollTo({ top: 0 }); } catch {}
+  //   drawerPanelRef.current?.focus();
+  // }, [drawerOpen, selectedQuote, selectedContact]);
 
   useEffect(() => {
     const init = async () => {
@@ -89,55 +120,246 @@ export default function AdminDashboard() {
     }
   }
 
+  // NEW: seed typed tables demo data
+  async function loadTypedDemoData() {
+    if (!isAdmin) return;
+    setLoading(true);
+    const { error } = await supabase.rpc("seed_typed_quotes");
+    setLoading(false);
+    if (error) {
+      alert(`Typed seed failed.\n\n${error.message}`);
+    } else {
+      fetchData();
+    }
+  }
+
+  // REPLACE fetchData (remove legacy logic)
   async function fetchData() {
     setLoading(true);
-    const like = q ? `%${q}%` : null;
-    const quotesQry = supabase.from("quotes").select("*").order("created_at", { ascending: false }).limit(200);
+    const like = q ? q.toLowerCase() : null;
+    const tables: { tbl: string; type: string }[] = [
+      { tbl: "auto_quotes", type: "auto" },
+      { tbl: "homeowners_quotes", type: "homeowners" },
+      { tbl: "umbrella_quotes", type: "umbrella" },
+      { tbl: "life_quotes", type: "life" },
+      { tbl: "commercial_building_quotes", type: "commercial-building" },
+      { tbl: "bop_quotes", type: "bop" },
+    ];
+
+    const requests = tables.map(t =>
+      supabase.from(t.tbl).select("*").order("created_at", { ascending: false }).limit(150)
+    );
     const contactsQry = supabase.from("contacts").select("*").order("created_at", { ascending: false }).limit(200);
-    const q1 = like ? quotesQry.or(`name.ilike.${like},email.ilike.${like},phone.ilike.${like},quote_type.ilike.${like}`) : quotesQry;
-    const q2 = like ? contactsQry.or(`name.ilike.${like},email.ilike.${like},phone.ilike.${like}`) : contactsQry;
-    const [{ data: qd, error: qe }, { data: cd, error: ce }] = await Promise.all([q1, q2]);
+
+    const results = await Promise.all([...requests, contactsQry]);
+    const contactRes = results.pop() as any;
+    if (contactRes?.error) alert(contactRes.error.message);
+    setContacts(contactRes?.data || []);
+
+    const combined: any[] = [];
+    results.forEach((r, idx) => {
+      const { error, data } = r as any;
+      const meta = tables[idx];
+      if (error) return;
+      (data || []).forEach((row: any) => {
+        combined.push({ ...row, quote_type: meta.type, srcTable: meta.tbl });
+      });
+    });
+
+    const filtered = like
+      ? combined.filter(r =>
+          (r.name || "").toLowerCase().includes(like) ||
+          (r.email || "").toLowerCase().includes(like) ||
+          (r.phone || "").toLowerCase().includes(like) ||
+          (r.quote_type || "").toLowerCase().includes(like)
+        )
+      : combined;
+
+    filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    setQuotes(filtered);
     setLoading(false);
-    if (qe) alert(qe.message);
-    if (ce) alert(ce.message);
-    setQuotes(qd || []);
-    setContacts(cd || []);
   }
 
   useEffect(() => { if (session && isAdmin) fetchData(); }, [session, isAdmin]);
 
-  // NEW: derived metrics for Overview
+  // Compute overview stats
   const overview = useMemo(() => {
-    const startOfToday = new Date(); startOfToday.setHours(0,0,0,0);
-    const toDate = (v: any) => v ? new Date(v) : null;
-
-    const quotesToday = quotes.filter(r => {
-      const d = toDate(r.created_at); return d ? d >= startOfToday : false;
-    }).length;
-    const contactsToday = contacts.filter(r => {
-      const d = toDate(r.created_at); return d ? d >= startOfToday : false;
-    }).length;
-
-    const byType: Record<string, number> = {};
-    quotes.forEach(r => { byType[r.quote_type] = (byType[r.quote_type] || 0) + 1; });
-
-    const bySource: Record<string, number> = {};
-    [...quotes, ...contacts].forEach(r => {
-      const src = (r.utm && (r.utm.source || r.utm.utm_source)) || r.referrer || "direct";
-      bySource[String(src || "direct").toLowerCase()] = (bySource[String(src || "direct").toLowerCase()] || 0) + 1;
+    const now = new Date();
+    const today = now.toISOString().split('T')[0];
+    
+    const quotesToday = quotes.filter(q => q.created_at?.startsWith(today)).length;
+    const contactsToday = contacts.filter(c => c.created_at?.startsWith(today)).length;
+    
+    const typeCount: Record<string, number> = {};
+    quotes.forEach(q => {
+      const t = q.quote_type || "unknown";
+      typeCount[t] = (typeCount[t] || 0) + 1;
     });
-
-    const topSources = Object.entries(bySource).sort((a,b)=>b[1]-a[1]).slice(0,5);
-    const topTypes = Object.entries(byType).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    const topTypes = Object.entries(typeCount).sort((a, b) => b[1] - a[1]).slice(0, 5);
+    
+    const sourceCount: Record<string, number> = {};
+    [...quotes, ...contacts].forEach(r => {
+      const s = r.utm?.source || r.referrer || "direct";
+      sourceCount[s] = (sourceCount[s] || 0) + 1;
+    });
+    const topSources = Object.entries(sourceCount).sort((a, b) => b[1] - a[1]).slice(0, 5);
+    
     return {
       quotesTotal: quotes.length,
-      contactsTotal: contacts.length,
       quotesToday,
+      contactsTotal: contacts.length,
       contactsToday,
-      topSources,
       topTypes,
+      topSources,
     };
   }, [quotes, contacts]);
+
+  // NEW: label helpers for quote detail sections
+  function prettyLabel(raw: string) {
+    return raw
+      .replace(/_/g, " ")
+      .replace(/\b\d\b/g, m => m) // keep simple numbers
+      .replace(/\b([a-z])/gi, s => s.toUpperCase());
+  }
+  function sectionize(q: any) {
+    if (!q) return [];
+    const payload = q.payload || {};
+    const already = new Set<string>();
+
+    const pushItems = (keys: string[], title: string) => {
+      const items = keys
+        .filter(k => q[k] !== undefined && q[k] !== null && String(q[k]).trim() !== "")
+        .map(k => {
+          already.add(k);
+          return { label: prettyLabel(k), value: q[k] };
+        });
+      if (items.length) sections.push({ title, items });
+    };
+
+    const sections: { title: string; items: { label: string; value: any }[] }[] = [];
+
+    switch (q.srcTable) {
+      case "auto_quotes":
+        pushItems(
+          ["name","email","phone","address","dob","drivers_license_number","primary_residence","occupation","education_level"],
+          "Client Information"
+        );
+        pushItems(
+          ["vehicle_1","vehicle_2","vehicle_3","primary_vehicle_use","ownership_length","commute_one_way_miles","commute_days_per_week","annual_miles","rideshare_use"],
+          "Vehicle Information"
+        );
+        pushItems(
+          ["additional_driver_1","additional_driver_2","additional_driver_3"],
+          "Additional Drivers"
+        );
+        pushItems(
+          ["currently_insured","current_policy_expiration","interested_in_other_coverages","referral_source"],
+          "Other / Referral"
+        );
+        break;
+      case "homeowners_quotes":
+        pushItems(
+          ["name","email","phone","property_address","mailing_address","dob","drivers_license_number"],
+          "Client & Property"
+        );
+        pushItems(
+          ["home_type","year_built","square_footage","stories","roof_type_year","foundation_type","basement_finished","exterior_construction","heating_type","heating_age_years","fireplace_or_woodstove","garage","garage_capacity"],
+          "Physical Details"
+        );
+        pushItems(
+          ["central_fire_alarm","central_burglar_alarm","fire_extinguisher","deadbolts","pool","pool_fenced","pool_type","trampoline"],
+          "Safety Features"
+        );
+        pushItems(
+          ["pets_have","pets_type","pets_count","dog_breeds","pets_bite_history"],
+          "Pets"
+        );
+        pushItems(
+          ["current_carrier","policy_expiration","current_dwelling_coverage","desired_deductible","claims_last_5_years","claims_description","additional_coverages","referral_source"],
+          "Coverage & History"
+        );
+        break;
+      case "umbrella_quotes":
+        pushItems(
+          ["name","email","phone","address","dob","drivers_license_number"],
+          "Client Information"
+        );
+        pushItems(
+          ["current_coverages","current_coverage_limits","policy_expiration","household_drivers","household_vehicles","valuables_description","rental_properties","watercraft"],
+          "Household & Existing Coverage"
+        );
+        pushItems(
+          ["pets_have","pets_type","pets_count","dog_breeds","pets_bite_history"],
+          "Pets"
+        );
+        pushItems(
+          ["desired_limit","desired_deductible","prior_claims","prior_claims_description","additional_quotes_interest","referral_source"],
+          "Umbrella Request"
+        );
+        break;
+      case "life_quotes":
+        pushItems(
+          ["name","dob","gender","phone","email","address","occupation"],
+          "Personal Information"
+        );
+        pushItems(
+          ["policy_type","coverage_amount","term_years","beneficiaries","current_policies","current_policies_details","applications_pending"],
+          "Coverage Request"
+        );
+        pushItems(
+          ["height","weight","tobacco_use","alcohol_use","medical_conditions","medications","hospitalizations","family_history"],
+          "Health"
+        );
+        pushItems(
+          ["high_risk_hobbies","travel","referral_source"],
+          "Lifestyle & Referral"
+        );
+        break;
+      case "commercial_building_quotes":
+        pushItems(
+          ["business_name_or_owner","property_address","phone","email","own_or_rent","property_type","year_built","stories","square_footage","construction_type","roof_type_age","foundation_type","sprinklers","security_systems","hazardous_materials"],
+          "Property / Construction"
+        );
+        pushItems(
+          ["primary_use","units_tenants","occupancy_type","business_hours","seasonal"],
+          "Occupancy & Use"
+        );
+        pushItems(
+          ["current_carrier","policy_expiration","building_coverage","tenant_improvements","liability_coverage","deductible","additional_coverage","prior_claims","prior_claims_description","referral_source"],
+          "Coverage & History"
+        );
+        break;
+      case "bop_quotes":
+        pushItems(
+          ["business_name","business_address","phone","email","business_type","fein","years_in_business","employees","website","contact_name","contact_title","contact_phone","contact_email"],
+          "Business & Contact"
+        );
+        pushItems(
+          ["property_address","property_type","building_construction","year_built","stories","square_footage","sprinklers","security_systems","hazardous_materials"],
+          "Property"
+        );
+        pushItems(
+          ["annual_revenue","annual_payroll","locations","business_hours","seasonal","prior_claims","prior_claims_description"],
+          "Operations & History"
+        );
+        pushItems(
+          ["desired_coverage_types","coverage_limits","deductible","vehicles_for_operations","subcontractors","special_endorsements","referral_source"],
+          "Coverage Request"
+        );
+        break;
+      default:
+        // fallback – show mapped basics only
+        pushItems(["name","email","phone","referral_source"], "Details");
+    }
+
+    // Add unmapped payload extras
+    const extras = Object.entries(payload)
+      .filter(([k, v]) => v && String(v).trim() !== "" && !already.has(k))
+      .map(([k, v]) => ({ label: prettyLabel(k), value: v }));
+    if (extras.length) sections.push({ title: "Additional Submitted Fields", items: extras });
+
+    return sections;
+  }
 
   // NEW: Google Analytics - OAuth & fetch
   function ensureGis(): Promise<void> {
@@ -246,185 +468,175 @@ export default function AdminDashboard() {
     }
   };
 
+  const navigate = useNavigate(); // NEW
+  const location = useLocation(); // NEW
+
+  // REPLACE openQuote/openContact to route
   const openQuote = (row: any) => {
-    setSelectedQuote(row);
-    setSelectedContact(null);
-    setDrawerType("quote");
-    setDrawerOpen(true);
+    // navigate to quote detail page with srcTable + id
+    navigate(`/admin/quotes/${row.srcTable}/${row.id}`);
   };
   const openContact = (row: any) => {
-    setSelectedContact(row);
-    setSelectedQuote(null);
-    setDrawerType("contact");
-    setDrawerOpen(true);
-  };
-  const closeDrawer = () => {
-    setDrawerOpen(false);
-    setSelectedQuote(null);
-    setSelectedContact(null);
-    setDrawerType(null);
+    // navigate to contact details page
+    navigate(`/admin/contacts/${row.id}`);
   };
 
-  async function updateQuoteStatus(id: string, next: string) {
-    if (!id || !isAdmin) return;
-    setStatusSaving(true);
-    const { error } = await supabase.from("quotes").update({ status: next }).eq("id", id);
-    setStatusSaving(false);
-    if (error) {
-      alert(error.message);
-      return;
+  // REMOVE updateQuoteStatus here if only used in drawer; it remains used in detail page
+  // ...existing code...
+
+  // NEW: read tab from URL query on mount
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const t = params.get("tab");
+    if (t && ["overview", "quotes", "contacts", "settings"].includes(t)) {
+      // @ts-ignore
+      setTab(t);
     }
-    // update local state
-    setQuotes((prev) => prev.map((q) => (q.id === id ? { ...q, status: next } : q)));
-    setSelectedQuote((prev: any) => (prev ? { ...prev, status: next } : prev));
-  }
+  }, []); // run once
 
-  if (!session) {
-    return (
-      <div className="mx-auto max-w-sm p-6">
-        <h1 className="mb-4 text-xl">Admin Sign In</h1>
-        <form onSubmit={signIn} className="space-y-3">
-          <Input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-          <Input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-          <Button type="submit" disabled={loading} className="bg-[#1B5A8E] hover:bg-[#144669]">{loading ? "Signing in..." : "Sign In"}</Button>
-        </form>
-        <p className="mt-3 text-xs text-gray-500">After signing in, grant yourself admin to view data.</p>
-      </div>
-    );
-  }
+  useEffect(() => {
+    // NEW: write current tab into URL (preserve other params)
+    const params = new URLSearchParams(location.search);
+    params.set("tab", tab);
+    const next = `${location.pathname}?${params.toString()}`;
+    if (next !== location.pathname + location.search) {
+      window.history.replaceState({}, "", next);
+    }
+  }, [tab, location.pathname, location.search]);
 
   return (
-    <div className="mx-auto max-w-7xl p-6 space-y-6">
-      {/* Header / controls */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl">Admin Dashboard</h1>
-        <div className="flex items-center gap-2">
-          <Input placeholder="Search name/email/phone/type" value={q} onChange={(e) => setQ(e.target.value)} />
-          <Button onClick={fetchData} disabled={loading || !isAdmin}>Refresh</Button>
-          {isAdmin && (
-            <Button onClick={loadDemoData} disabled={loading} variant="outline">
-              {loading ? "Working..." : "Load Demo Data"}
-            </Button>
-          )}
-          <Button variant="outline" onClick={() => supabase.auth.signOut()}>Sign Out</Button>
-        </div>
-      </div>
-
-      {/* Grant admin message */}
-      {isAdmin === false && (
-        <div className="rounded-md border border-yellow-300 bg-yellow-50 p-4 text-sm text-yellow-900">
-          <div className="flex items-center justify-between gap-4">
-            <p>You don’t have admin access yet. Click “Grant Admin Access.”</p>
-            <Button onClick={grantAdminAccess} disabled={loading} className="bg-[#1B5A8E] hover:bg-[#144669]">
-              {loading ? "Granting..." : "Grant Admin Access"}
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* Tabs */}
-      <div className="flex gap-2 border-b">
-        {["overview","quotes","contacts","settings"].map(t => (
-          <button
-            key={t}
-            onClick={() => setTab(t as any)}
-            className={`px-4 py-2 text-sm -mb-px border-b-2 ${tab===t ? "border-[#1B5A8E] text-[#1B5A8E]" : "border-transparent text-gray-500 hover:text-[#1B5A8E]"}`}
-          >
-            {t[0].toUpperCase() + t.slice(1)}
-          </button>
-        ))}
-      </div>
-
-      {/* OVERVIEW */}
-      {tab === "overview" && (
-        <div className="space-y-6">
-          {/* Metric cards */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <Card><CardContent className="p-4">
-              <div className="text-xs text-gray-500">Quotes (Total)</div>
-              <div className="text-2xl">{overview.quotesTotal}</div>
-              <div className="text-xs text-gray-500 mt-1">Today: {overview.quotesToday}</div>
-            </CardContent></Card>
-            <Card><CardContent className="p-4">
-              <div className="text-xs text-gray-500">Contacts (Total)</div>
-              <div className="text-2xl">{overview.contactsTotal}</div>
-              <div className="text-xs text-gray-500 mt-1">Today: {overview.contactsToday}</div>
-            </CardContent></Card>
-            <Card><CardContent className="p-4">
-              <div className="text-xs text-gray-500">GA Active Users (Realtime)</div>
-              <div className="text-2xl">{gaActiveUsers ?? "-"}</div>
-              <div className="mt-2">
-                <Button size="sm" variant="outline" onClick={() => gaToken ? fetchGaMetrics() : connectGoogleAnalytics()} disabled={gaLoading}>
-                  {gaToken ? (gaLoading ? "Refreshing…" : "Refresh") : "Connect GA"}
+    <div className="relative min-h-screen bg-gradient-to-br from-white via-[#E9F3FB] to-[#D9ECFF]">
+      {/* Ambient pattern */}
+      <div className="pointer-events-none fixed inset-0 -z-10 opacity-30 mix-blend-overlay bg-[radial-gradient(circle_at_30%_30%,rgba(27,90,142,0.12),transparent_70%)]" />
+      {/* Main container */}
+      <div className="mx-auto max-w-7xl p-6 space-y-6">
+        {/* Header / controls */}
+        <div className="rounded-xl border border-white/40 bg-white/70 backdrop-blur-md shadow-sm p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <h1 className="text-2xl font-semibold bg-gradient-to-r from-[#1B5A8E] to-[#4f46e5] bg-clip-text text-transparent">Admin Dashboard</h1>
+          <div className="flex flex-wrap items-center gap-2">
+            <Input className="w-44 sm:w-56 bg-white/80" placeholder="Search…" value={q} onChange={(e) => setQ(e.target.value)} />
+            <Button onClick={fetchData} disabled={loading || !isAdmin} className="bg-[#1B5A8E] hover:bg-[#144669]">Refresh</Button>
+            {isAdmin && (
+              <>
+                <Button onClick={loadDemoData} disabled={loading} variant="outline" className="border-[#1B5A8E] text-[#1B5A8E] hover:bg-[#1B5A8E] hover:text-white">
+                  {loading ? "Working…" : "Seed Legacy"}
                 </Button>
-              </div>
-            </CardContent></Card>
-            <Card><CardContent className="p-4">
-              <div className="text-xs text-gray-500">GA Page Views (7 days)</div>
-              <div className="text-2xl">{gaPageViews7d ?? "-"}</div>
-              {gaError && <div className="mt-2 text-xs text-red-600">{gaError}</div>}
-            </CardContent></Card>
+                <Button onClick={loadTypedDemoData} disabled={loading} variant="outline" className="border-[#4f46e5] text-[#4f46e5] hover:bg-[#4f46e5] hover:text-white">
+                  {loading ? "Working…" : "Seed Typed"}
+                </Button>
+              </>
+            )}
+            <Button variant="outline" onClick={() => supabase.auth.signOut()} className="hover:bg-white/50">Sign Out</Button>
           </div>
+        </div>
 
-          {/* Top Types & Sources */}
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <Card><CardContent className="p-4">
-              <h3 className="mb-3 text-sm font-semibold">Top Quote Types</h3>
-              <ul className="space-y-2">
-                {overview.topTypes.map(([k,v]) => (
-                  <li key={k} className="flex items-center gap-3">
-                    <div className="w-28 text-sm text-gray-600">{k}</div>
-                    <div className="h-2 flex-1 rounded bg-gray-100">
-                      <div className="h-2 rounded bg-[#1B5A8E]" style={{ width: `${(Number(v)/Math.max(1, Number(overview.topTypes[0]?.[1]||1)))*100}%` }} />
-                    </div>
-                    <div className="w-8 text-right text-sm">{v}</div>
-                  </li>
-                ))}
-                {overview.topTypes.length === 0 && <div className="text-xs text-gray-500">No data yet.</div>}
-              </ul>
-            </CardContent></Card>
-            <Card><CardContent className="p-4">
-              <h3 className="mb-3 text-sm font-semibold">Top Sources (from UTM/referrer)</h3>
-              <ul className="space-y-2">
-                {overview.topSources.map(([k,v]) => (
-                  <li key={k} className="flex items-center gap-3">
-                    <div className="w-28 text-sm text-gray-600">{k}</div>
-                    <div className="h-2 flex-1 rounded bg-gray-100">
-                      <div className="h-2 rounded bg-[#06b6d4]" style={{ width: `${(Number(v)/Math.max(1, Number(overview.topSources[0]?.[1]||1)))*100}%` }} />
-                    </div>
-                    <div className="w-8 text-right text-sm">{v}</div>
-                  </li>
-                ))}
-                {overview.topSources.length === 0 && <div className="text-xs text-gray-500">No data yet.</div>}
-              </ul>
-            </CardContent></Card>
+        {/* Grant admin message */}
+        {isAdmin === false && (
+          <div className="rounded-lg border border-yellow-300 bg-gradient-to-r from-yellow-50 to-yellow-100 p-4 text-sm text-yellow-900 shadow">
+            <div className="flex items-center justify-between gap-4">
+              <p>Grant yourself admin to view data.</p>
+              <Button onClick={grantAdminAccess} disabled={loading} className="bg-[#1B5A8E] hover:bg-[#144669]">
+                {loading ? "Granting…" : "Grant Admin Access"}
+              </Button>
+            </div>
           </div>
+        )}
 
-          {/* GA Top Pages */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="mb-3 flex items-center justify-between">
-                <h3 className="text-sm font-semibold">GA Top Pages (7 days)</h3>
-                <div className="flex items-center gap-2">
-                  <Button size="sm" variant="outline" onClick={() => gaToken ? fetchGaMetrics() : connectGoogleAnalytics()} disabled={gaLoading}>
+        {/* Tabs */}
+        <div className="flex gap-2">
+          {["overview","quotes","contacts","settings"].map(t => (
+            <button
+              key={t}
+              onClick={() => setTab(t as any)}
+              className={`px-4 py-2 text-sm rounded-full border transition
+                ${tab===t
+                  ? "border-[#1B5A8E] bg-[#1B5A8E] text-white shadow"
+                  : "border-transparent bg-white/60 text-gray-600 hover:border-[#1B5A8E] hover:text-[#1B5A8E]"}`}
+            >
+              {t[0].toUpperCase() + t.slice(1)}
+            </button>
+          ))}
+        </div>
+
+        {/* OVERVIEW */}
+        {tab === "overview" && (
+          <div className="space-y-6">
+            {/* Metric cards */}
+            <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+              {[
+                { label: "Quotes (Total)", val: overview.quotesTotal, sub: `Today: ${overview.quotesToday}` },
+                { label: "Contacts (Total)", val: overview.contactsTotal, sub: `Today: ${overview.contactsToday}` },
+                { label: "GA Active Users", val: gaActiveUsers ?? "-", sub: (
+                  <Button size="sm" variant="outline" onClick={() => gaToken ? fetchGaMetrics() : connectGoogleAnalytics()} disabled={gaLoading} className="mt-2 border-[#1B5A8E] text-[#1B5A8E]">
                     {gaToken ? (gaLoading ? "Refreshing…" : "Refresh") : "Connect GA"}
                   </Button>
+                ) },
+                { label: "GA Page Views (7d)", val: gaPageViews7d ?? "-", sub: gaError ? <span className="text-xs text-red-600">{gaError}</span> : null },
+              ].map((m,i) => (
+                <div key={i} className="rounded-xl border border-white/50 bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-md p-4 shadow-sm">
+                  <div className="text-xs text-gray-500">{m.label}</div>
+                  <div className="text-2xl font-semibold text-[#1B5A8E]">{m.val}</div>
+                  {m.sub && <div className="text-xs text-gray-600">{m.sub}</div>}
                 </div>
+              ))}
+            </div>
+
+            {/* Top Types & Sources */}
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+              <div className="rounded-xl border border-white/50 bg-white/70 backdrop-blur p-4">
+                <h3 className="mb-3 text-sm font-semibold text-[#1B5A8E]">Top Quote Types</h3>
+                <ul className="space-y-2">
+                  {overview.topTypes.map(([k,v], idx) => (
+                    <li key={k} className="flex items-center gap-3">
+                      <span className="w-32 text-xs font-medium capitalize text-gray-700">{k}</span>
+                      <div className="h-2 flex-1 rounded bg-gray-100 overflow-hidden">
+                        <div className="h-full rounded bg-gradient-to-r from-[#1B5A8E] to-[#4f46e5]" style={{ width: `${(Number(v)/Math.max(1, Number(overview.topTypes[0]?.[1]||1)))*100}%` }} />
+                      </div>
+                      <span className="w-8 text-right text-xs text-gray-600">{v}</span>
+                    </li>
+                  ))}
+                  {overview.topTypes.length === 0 && <div className="text-xs text-gray-500">No data yet.</div>}
+                </ul>
+              </div>
+              <div className="rounded-xl border border-white/50 bg-white/70 backdrop-blur p-4">
+                <h3 className="mb-3 text-sm font-semibold text-[#1B5A8E]">Top Sources</h3>
+                <ul className="space-y-2">
+                  {overview.topSources.map(([k,v]) => (
+                    <li key={k} className="flex items-center gap-3">
+                      <span className="w-32 text-xs font-medium lowercase text-gray-700">{k}</span>
+                      <div className="h-2 flex-1 rounded bg-gray-100 overflow-hidden">
+                        <div className="h-full rounded bg-gradient-to-r from-[#06b6d4] to-[#4f46e5]" style={{ width: `${(Number(v)/Math.max(1, Number(overview.topSources[0]?.[1]||1)))*100}%` }} />
+                      </div>
+                      <span className="w-8 text-right text-xs text-gray-600">{v}</span>
+                    </li>
+                  ))}
+                  {overview.topSources.length === 0 && <div className="text-xs text-gray-500">No data yet.</div>}
+                </ul>
+              </div>
+            </div>
+
+            {/* GA Top Pages */}
+            <div className="rounded-xl border border-white/50 bg-white/70 backdrop-blur p-4">
+              <div className="mb-3 flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-[#1B5A8E]">GA Top Pages (7d)</h3>
+                <Button size="sm" variant="outline" onClick={() => gaToken ? fetchGaMetrics() : connectGoogleAnalytics()} disabled={gaLoading} className="border-[#1B5A8E] text-[#1B5A8E]">
+                  {gaToken ? (gaLoading ? "Refreshing…" : "Refresh") : "Connect GA"}
+                </Button>
               </div>
               {gaTopPages.length === 0 ? (
                 <div className="text-xs text-gray-500">No GA data loaded.</div>
               ) : (
-                <div className="overflow-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="text-left">
-                        <th className="p-2">Path</th>
-                        <th className="p-2 w-24 text-right">Views</th>
+                <div className="overflow-auto rounded-lg border border-gray-100">
+                  <table className="w-full text-xs">
+                    <thead className="bg-gray-50 text-gray-600">
+                      <tr>
+                        <th className="p-2 text-left">Path</th>
+                        <th className="p-2 text-right w-24">Views</th>
                       </tr>
                     </thead>
                     <tbody>
                       {gaTopPages.map(r => (
-                        <tr key={r.path} className="border-t">
+                        <tr key={r.path} className="border-t hover:bg-gray-50">
                           <td className="p-2">{r.path}</td>
                           <td className="p-2 text-right">{r.views}</td>
                         </tr>
@@ -434,128 +646,171 @@ export default function AdminDashboard() {
                 </div>
               )}
               {gaError && <div className="mt-2 text-xs text-red-600">{gaError}</div>}
-            </CardContent>
-          </Card>
-        </div>
-      )}
+            </div>
+          </div>
+        )}
 
-      {/* QUOTES TABLE */}
-      {tab === "quotes" && (
-        <Card>
-          <CardContent className="p-4">
-            <h2 className="mb-3 text-lg">Recent Quotes</h2>
-            <div className="overflow-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-left">
-                    <th className="p-2">When</th>
-                    <th className="p-2">Type</th>
-                    <th className="p-2">Name</th>
-                    <th className="p-2">Email</th>
-                    <th className="p-2">Phone</th>
-                    <th className="p-2">Status</th> {/* NEW */}
-                    <th className="p-2">Source</th>
-                    <th className="p-2 w-24">Actions</th> {/* NEW */}
-                  </tr>
-                </thead>
-                <tbody>
-                  {quotes.map((r) => (
-                    <tr
-                      key={r.id}
-                      onClick={() => openQuote(r)} // NEW
-                      className="border-t hover:bg-gray-50 cursor-pointer"
-                    >
-                      <td className="p-2">{new Date(r.created_at).toLocaleString()}</td>
-                      <td className="p-2">{r.quote_type}</td>
-                      <td className="p-2">{r.name || "-"}</td>
-                      <td className="p-2">{r.email || "-"}</td>
-                      <td className="p-2">{r.phone || "-"}</td>
-                      <td className="p-2">
-                        <span
-                          className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs
+        {/* QUOTES TABLE (desktop) */}
+        {tab === "quotes" && (
+          <div className="space-y-6">
+            <div className="rounded-xl border border-white/50 bg-white/70 backdrop-blur p-4">
+              <h2 className="mb-3 text-lg font-semibold text-[#1B5A8E]">Recent Quotes</h2>
+              {/* MOBILE CARD LIST */}
+              <div className="sm:hidden space-y-3">
+                {quotes.map(r => (
+                  <div key={r.id} onClick={() => openQuote(r)} className="rounded-lg border border-gray-200 bg-white/90 p-3 shadow-sm active:scale-[.99] transition cursor-pointer">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <div className="text-sm font-medium text-[#1B5A8E]">{r.name || "Unnamed"}</div>
+                        <div className="text-[11px] text-gray-500">{new Date(r.created_at).toLocaleString()}</div>
+                      </div>
+                      <span className={`text-[10px] px-2 py-1 rounded-full
+                        ${r.quote_type === "auto" ? "bg-[#1B5A8E]/10 text-[#1B5A8E]" :
+                           r.quote_type === "homeowners" ? "bg-[#4f46e5]/10 text-[#4f46e5]" :
+                           r.quote_type === "umbrella" ? "bg-[#06b6d4]/10 text-[#06b6d4]" :
+                           r.quote_type === "life" ? "bg-[#0ea5e9]/10 text-[#0ea5e9]" :
+                           r.quote_type === "commercial-building" ? "bg-[#f59e0b]/10 text-[#b45309]" :
+                           r.quote_type === "bop" ? "bg-[#10b981]/10 text-[#0d8c60]" :
+                           "bg-gray-200 text-gray-600"}`}>
+                        {r.quote_type}
+                      </span>
+                    </div>
+                    <div className="mt-2 flex flex-wrap gap-2 text-xs text-gray-600">
+                      {r.email && <span>{r.email}</span>}
+                      {r.phone && <span>{r.phone}</span>}
+                    </div>
+                    <div className="mt-2">
+                      <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] 
+                        ${r.status === "closed" ? "bg-green-100 text-green-700" :
+                           r.status === "in_progress" ? "bg-yellow-100 text-yellow-700" :
+                           "bg-gray-100 text-gray-700"}`}>
+                        {r.status || "new"}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+                {quotes.length === 0 && <div className="text-xs text-gray-500">No quotes found.</div>}
+              </div>
+              {/* DESKTOP TABLE */}
+              <div className="hidden sm:block overflow-auto rounded-lg border border-gray-100">
+                <table className="w-full text-xs">
+                  <thead className="bg-gray-50 text-gray-600">
+                    <tr>
+                      <th className="p-2 text-left">When</th>
+                      <th className="p-2 text-left">Type</th>
+                      <th className="p-2 text-left">Name</th>
+                      <th className="p-2 text-left">Email</th>
+                      <th className="p-2 text-left">Phone</th>
+                      <th className="p-2 text-left">Status</th>
+                      <th className="p-2 text-left">Source</th>
+                      <th className="p-2">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {quotes.map(r => (
+                      <tr key={r.id} onClick={() => openQuote(r)} className="border-t hover:bg-gray-50 cursor-pointer">
+                        <td className="p-2">{new Date(r.created_at).toLocaleString()}</td>
+                        <td className="p-2">
+                          <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium
+                            ${r.quote_type === "auto" ? "bg-[#1B5A8E]/10 text-[#1B5A8E]" :
+                               r.quote_type === "homeowners" ? "bg-[#4f46e5]/10 text-[#4f46e5]" :
+                               r.quote_type === "umbrella" ? "bg-[#06b6d4]/10 text-[#06b6d4]" :
+                               r.quote_type === "life" ? "bg-[#0ea5e9]/10 text-[#0ea5e9]" :
+                               r.quote_type === "commercial-building" ? "bg-[#f59e0b]/10 text-[#b45309]" :
+                               r.quote_type === "bop" ? "bg-[#10b981]/10 text-[#0d8c60]" :
+                               "bg-gray-200 text-gray-600"}`}>
+                            {r.quote_type}
+                          </span>
+                        </td>
+                        <td className="p-2">{r.name || "-"}</td>
+                        <td className="p-2">{r.email || "-"}</td>
+                        <td className="p-2">{r.phone || "-"}</td>
+                        <td className="p-2">
+                          <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px]
                             ${r.status === "closed" ? "bg-green-100 text-green-700" :
                                r.status === "in_progress" ? "bg-yellow-100 text-yellow-700" :
-                               "bg-gray-100 text-gray-700"}`}
-                        >
-                          {r.status || "new"}
-                        </span>
-                      </td>
-                      <td className="p-2">{(r.utm?.source || r.referrer || "-")}</td>
-                      <td className="p-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={(e: { stopPropagation: () => void; }) => { e.stopPropagation(); openQuote(r); }}
-                        >
-                          View
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {quotes.length === 0 && (
-                <div className="p-6 text-center text-xs text-gray-500">No quotes found.</div>
-              )}
+                               "bg-gray-100 text-gray-700"}`}>
+                            {r.status || "new"}
+                          </span>
+                        </td>
+                        <td className="p-2">{(r.utm?.source || r.referrer || "-")}</td>
+                        <td className="p-2">
+                          <Button size="sm" variant="outline" onClick={(e: { stopPropagation: () => void; }) => { e.stopPropagation(); openQuote(r); }}>View</Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {quotes.length === 0 && <div className="p-6 text-center text-xs text-gray-500">No quotes found.</div>}
+              </div>
             </div>
-          </CardContent>
-        </Card>
-      )}
+          </div>
+        )}
 
-      {/* CONTACTS TABLE */}
-      {tab === "contacts" && (
-        <Card>
-          <CardContent className="p-4">
-            <h2 className="mb-3 text-lg">Contact Requests</h2>
-            <div className="overflow-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-left">
-                    <th className="p-2">When</th>
-                    <th className="p-2">Name</th>
-                    <th className="p-2">Email</th>
-                    <th className="p-2">Phone</th>
-                    <th className="p-2">Referrer</th>
-                    <th className="p-2 w-24">Actions</th> {/* NEW */}
+        {/* CONTACTS (similar mobile card treatment) */}
+        {tab === "contacts" && (
+          <div className="rounded-xl border border-white/50 bg-white/70 backdrop-blur p-4">
+            <h2 className="mb-3 text-lg font-semibold text-[#1B5A8E]">Contact Requests</h2>
+            {/* Mobile cards */}
+            <div className="sm:hidden space-y-3">
+              {contacts.map(r => {
+                const displayName = ([r.first_name, r.last_name].filter(Boolean).join(" ").trim() || r.name || "Unnamed");
+                return (
+                  <div key={r.id} onClick={() => openContact(r)} className="rounded-lg border border-gray-200 bg-white/90 p-3 shadow-sm cursor-pointer">
+                    <div className="text-[11px] text-gray-500">{new Date(r.created_at).toLocaleString()}</div>
+                    <div className="text-sm font-medium text-[#1B5A8E]">{displayName}</div>
+                    {r.subject && <div className="text-[11px] text-gray-600 mt-1">Subject: {r.subject}</div>}
+                    <div className="mt-1 flex flex-wrap gap-2 text-xs text-gray-600">
+                      {r.email && <span>{r.email}</span>}
+                      {r.phone && <span>{r.phone}</span>}
+                    </div>
+                    <div className="mt-1 text-[10px] text-gray-500">Source: {r.utm?.source || r.referrer || "-"}</div>
+                  </div>
+                );
+              })}
+              {contacts.length === 0 && <div className="text-xs text-gray-500">No contacts found.</div>}
+            </div>
+            {/* Desktop table */}
+            <div className="hidden sm:block overflow-auto rounded-lg border border-gray-100">
+              <table className="w-full text-xs">
+                <thead className="bg-gray-50 text-gray-600">
+                  <tr>
+                    <th className="p-2 text-left">When</th>
+                    <th className="p-2 text-left">Name</th>
+                    <th className="p-2 text-left">Subject</th>
+                    <th className="p-2 text-left">Email</th>
+                    <th className="p-2 text-left">Phone</th>
+                    <th className="p-2 text-left">Source</th>
+                    <th className="p-2">Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {contacts.map((r) => (
-                    <tr
-                      key={r.id}
-                      onClick={() => openContact(r)} // NEW
-                      className="border-t hover:bg-gray-50 cursor-pointer"
-                    >
-                      <td className="p-2">{new Date(r.created_at).toLocaleString()}</td>
-                      <td className="p-2">{r.name || "-"}</td>
-                      <td className="p-2">{r.email || "-"}</td>
-                      <td className="p-2">{r.phone || "-"}</td>
-                      <td className="p-2">{(r.utm?.source || r.referrer || "-")}</td>
-                      <td className="p-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={(e: { stopPropagation: () => void; }) => { e.stopPropagation(); openContact(r); }}
-                        >
-                          View
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
+                  {contacts.map(r => {
+                    const displayName = ([r.first_name, r.last_name].filter(Boolean).join(" ").trim() || r.name || "Unnamed");
+                    return (
+                      <tr key={r.id} onClick={() => openContact(r)} className="border-t hover:bg-gray-50 cursor-pointer">
+                        <td className="p-2">{new Date(r.created_at).toLocaleString()}</td>
+                        <td className="p-2">{displayName}</td>
+                        <td className="p-2">{r.subject || "-"}</td>
+                        <td className="p-2">{r.email || "-"}</td>
+                        <td className="p-2">{r.phone || "-"}</td>
+                        <td className="p-2">{r.utm?.source || r.referrer || "-"}</td>
+                        <td className="p-2">
+                          <Button size="sm" variant="outline" onClick={(e: { stopPropagation: () => void; }) => { e.stopPropagation(); openContact(r); }}>View</Button>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
-              {contacts.length === 0 && (
-                <div className="p-6 text-center text-xs text-gray-500">No contacts found.</div>
-              )}
+              {contacts.length === 0 && <div className="p-6 text-center text-xs text-gray-500">No contacts found.</div>}
             </div>
-          </CardContent>
-        </Card>
-      )}
+          </div>
+        )}
 
-      {/* SETTINGS */}
-      {tab === "settings" && (
-        <Card>
-          <CardContent className="p-4 space-y-3 text-sm">
+        {/* SETTINGS */}
+        {tab === "settings" && (
+          <div className="rounded-xl border border-white/50 bg-white/70 backdrop-blur p-4 space-y-4 text-sm">
             <div className="font-medium">Settings</div>
             <div className="rounded border p-3">
               <div className="mb-2 font-medium">Google Analytics Connection</div>
@@ -584,241 +839,13 @@ export default function AdminDashboard() {
               <div className="flex gap-2">
                 <Button size="sm" onClick={fetchData} disabled={loading || !isAdmin}>Refresh Tables</Button>
                 <Button size="sm" variant="outline" onClick={loadDemoData} disabled={loading || !isAdmin}>Load Demo Data</Button>
+                {/* NEW: typed seed */}
+                <Button size="sm" variant="outline" onClick={loadTypedDemoData} disabled={loading || !isAdmin}>Load Typed Demo Data</Button>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* NEW: Right-side Detail Drawer */}
-      {drawerOpen && (
-        <div className="fixed inset-0 z-[60]">
-          {/* Backdrop */}
-          <div className="absolute inset-0 bg-black/30" onClick={closeDrawer} />
-          {/* Panel */}
-          <div className="absolute right-0 top-0 h-full w-full sm:w-[560px] bg-white shadow-xl">
-            <div className="flex items-center justify-between border-b p-4">
-              <div className="text-lg">
-                {drawerType === "quote" ? "Quote Details" : "Contact Details"}
-              </div>
-              <button
-                aria-label="Close"
-                className="rounded p-1 hover:bg-gray-100"
-                onClick={closeDrawer}
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            <div className="h-full overflow-y-auto p-4 space-y-6">
-              {/* Header summary */}
-              {drawerType === "quote" && selectedQuote && (
-                <div className="space-y-2">
-                  <div className="text-sm text-gray-500">
-                    {new Date(selectedQuote.created_at).toLocaleString()}
-                  </div>
-                  <div className="text-xl font-medium">{selectedQuote.name || "Unnamed"}</div>
-                  <div className="text-sm text-gray-600">Type: {selectedQuote.quote_type}</div>
-                  <div className="flex flex-wrap gap-2 pt-2">
-                    {selectedQuote.email && (
-                      <>
-                        <a
-                          href={`mailto:${selectedQuote.email}`}
-                          className="inline-flex items-center gap-2 rounded border px-2 py-1 text-sm hover:bg-gray-50"
-                        >
-                          <Mail className="h-4 w-4" /> {selectedQuote.email}
-                        </a>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => copyToClipboard(selectedQuote.email)}
-                        >
-                          <Copy className="mr-1 h-4 w-4" /> Copy Email
-                        </Button>
-                      </>
-                    )}
-                    {selectedQuote.phone && (
-                      <>
-                        <a
-                          href={`tel:${selectedQuote.phone}`}
-                          className="inline-flex items-center gap-2 rounded border px-2 py-1 text-sm hover:bg-gray-50"
-                        >
-                          <Phone className="h-4 w-4" /> {selectedQuote.phone}
-                        </a>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => copyToClipboard(selectedQuote.phone)}
-                        >
-                          <Copy className="mr-1 h-4 w-4" /> Copy Phone
-                        </Button>
-                      </>
-                    )}
-                  </div>
-
-                  {/* Status control */}
-                  <div className="pt-2">
-                    <label className="mb-1 block text-xs text-gray-500">Status</label>
-                    <div className="flex items-center gap-2">
-                      <select
-                        className="w-48 rounded border px-2 py-1 text-sm"
-                        value={selectedQuote.status || "new"}
-                        onChange={(e) => updateQuoteStatus(selectedQuote.id, e.target.value)}
-                        disabled={statusSaving || !isAdmin}
-                      >
-                        <option value="new">new</option>
-                        <option value="in_progress">in_progress</option>
-                        <option value="closed">closed</option>
-                      </select>
-                      {statusSaving && <span className="text-xs text-gray-500">Saving…</span>}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {drawerType === "contact" && selectedContact && (
-                <div className="space-y-2">
-                  <div className="text-sm text-gray-500">
-                    {new Date(selectedContact.created_at).toLocaleString()}
-                  </div>
-                  <div className="text-xl font-medium">{selectedContact.name || "Unnamed"}</div>
-                  <div className="flex flex-wrap gap-2 pt-2">
-                    {selectedContact.email && (
-                      <>
-                        <a
-                          href={`mailto:${selectedContact.email}`}
-                          className="inline-flex items-center gap-2 rounded border px-2 py-1 text-sm hover:bg-gray-50"
-                        >
-                          <Mail className="h-4 w-4" /> {selectedContact.email}
-                        </a>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => copyToClipboard(selectedContact.email)}
-                        >
-                          <Copy className="mr-1 h-4 w-4" /> Copy Email
-                        </Button>
-                      </>
-                    )}
-                    {selectedContact.phone && (
-                      <>
-                        <a
-                          href={`tel:${selectedContact.phone}`}
-                          className="inline-flex items-center gap-2 rounded border px-2 py-1 text-sm hover:bg-gray-50"
-                        >
-                          <Phone className="h-4 w-4" /> {selectedContact.phone}
-                        </a>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => copyToClipboard(selectedContact.phone)}
-                        >
-                          <Copy className="mr-1 h-4 w-4" /> Copy Phone
-                        </Button>
-                      </>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Details grid */}
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                {/* Left */}
-                <div className="space-y-3">
-                  <div className="rounded border p-3">
-                    <div className="mb-2 text-xs font-semibold text-gray-500">Referral / Source</div>
-                    <div className="text-sm">{(drawerType === "quote" ? selectedQuote?.referrer : selectedContact?.referrer) || "-"}</div>
-                    {drawerType === "quote" && selectedQuote?.submitted_from_path && (
-                      <a
-                        href={selectedQuote.submitted_from_path}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="mt-2 inline-flex items-center gap-1 text-xs text-[#1B5A8E] hover:underline"
-                      >
-                        <ExternalLink className="h-3.5 w-3.5" /> Open submitted path
-                      </a>
-                    )}
-                  </div>
-                  <div className="rounded border p-3">
-                    <div className="mb-2 text-xs font-semibold text-gray-500">UTM</div>
-                    <pre className="max-h-48 overflow-auto rounded bg-gray-50 p-2 text-xs">
-                      {JSON.stringify(
-                        drawerType === "quote" ? (selectedQuote?.utm || {}) : (selectedContact?.utm || {}),
-                        null,
-                        2
-                      )}
-                    </pre>
-                  </div>
-                </div>
-
-                {/* Right */}
-                <div className="space-y-3">
-                  <div className="rounded border p-3">
-                    <div className="mb-2 text-xs font-semibold text-gray-500">Technical</div>
-                    <div className="text-xs text-gray-600">
-                      <div>User Agent: {(drawerType === "quote" ? selectedQuote?.user_agent : selectedContact?.user_agent) || "-"}</div>
-                      <div>IP: {(drawerType === "quote" ? selectedQuote?.ip : selectedContact?.ip) || "-"}</div>
-                    </div>
-                  </div>
-
-                  {drawerType === "contact" && selectedContact?.message && (
-                    <div className="rounded border p-3">
-                      <div className="mb-2 text-xs font-semibold text-gray-500">Message</div>
-                      <p className="text-sm whitespace-pre-wrap">{selectedContact.message}</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Raw Payload / Metadata */}
-              {drawerType === "quote" && (
-                <div className="rounded border p-3">
-                  <div className="mb-2 text-xs font-semibold text-gray-500">Quote Form Submission (payload)</div>
-                  <pre className="max-h-80 overflow-auto rounded bg-gray-50 p-3 text-xs">
-                    {JSON.stringify(selectedQuote?.payload || {}, null, 2)}
-                  </pre>
-                </div>
-              )}
-              {drawerType === "contact" && (
-                <div className="rounded border p-3">
-                  <div className="mb-2 text-xs font-semibold text-gray-500">Metadata</div>
-                  <pre className="max-h-80 overflow-auto rounded bg-gray-50 p-3 text-xs">
-                    {JSON.stringify(selectedContact?.metadata || {}, null, 2)}
-                  </pre>
-                </div>
-              )}
-
-              {/* Quick follow-up (quote only) */}
-              {drawerType === "quote" && selectedQuote && (
-                <div className="flex flex-wrap gap-2">
-                  {selectedQuote.email && (
-                    <Button
-                      asChild
-                      className="bg-[#1B5A8E] hover:bg-[#144669]"
-                      disabled={!isAdmin}
-                    >
-                      <a
-                        href={`mailto:${selectedQuote.email}?subject=${encodeURIComponent(
-                          `Your ${selectedQuote.quote_type} quote with 1Life`
-                        )}&body=${encodeURIComponent(
-                          `Hi ${selectedQuote.name || ""},%0D%0A%0D%0AThanks for your ${selectedQuote.quote_type} quote request. When is a good time for a quick call?%0D%0A%0D%0A— 1Life Coverage`
-                        )}`}
-                      >
-                        Email follow-up
-                      </a>
-                    </Button>
-                  )}
-                  {selectedQuote.phone && (
-                    <Button variant="outline" asChild disabled={!isAdmin}>
-                      <a href={`tel:${selectedQuote.phone}`}>Call now</a>
-                    </Button>
-                  )}
-                </div>
-              )}
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
