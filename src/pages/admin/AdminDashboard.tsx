@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../../lib/supabaseClient";
 import { Card, CardContent } from "../../components/ui/card";
-import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
 import { X, Mail, Phone, Copy, ExternalLink } from "lucide-react"; // NEW
 import { useNavigate, useLocation } from "react-router-dom"; // NEW
@@ -14,7 +13,6 @@ export default function AdminDashboard() {
   const [quotes, setQuotes] = useState<any[]>([]);
   const [contacts, setContacts] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [q, setQ] = useState("");
   // NEW: no legacy mode – only typed tables
   // NEW: local UI state for collapsing tech/payload
   const [showTech, setShowTech] = useState(false);
@@ -109,34 +107,9 @@ export default function AdminDashboard() {
     }
   }
 
-  async function loadDemoData() {
-    setLoading(true);
-    const { error } = await supabase.rpc("seed_demo_data");
-    setLoading(false);
-    if (error) {
-      alert(`Seeding failed.\n\n${error.message}`);
-    } else {
-      fetchData();
-    }
-  }
-
-  // NEW: seed typed tables demo data
-  async function loadTypedDemoData() {
-    if (!isAdmin) return;
-    setLoading(true);
-    const { error } = await supabase.rpc("seed_typed_quotes");
-    setLoading(false);
-    if (error) {
-      alert(`Typed seed failed.\n\n${error.message}`);
-    } else {
-      fetchData();
-    }
-  }
-
   // REPLACE fetchData (remove legacy logic)
   async function fetchData() {
     setLoading(true);
-    const like = q ? q.toLowerCase() : null;
     const tables: { tbl: string; type: string }[] = [
       { tbl: "auto_quotes", type: "auto" },
       { tbl: "homeowners_quotes", type: "homeowners" },
@@ -166,17 +139,8 @@ export default function AdminDashboard() {
       });
     });
 
-    const filtered = like
-      ? combined.filter(r =>
-          (r.name || "").toLowerCase().includes(like) ||
-          (r.email || "").toLowerCase().includes(like) ||
-          (r.phone || "").toLowerCase().includes(like) ||
-          (r.quote_type || "").toLowerCase().includes(like)
-        )
-      : combined;
-
-    filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-    setQuotes(filtered);
+    combined.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    setQuotes(combined);
     setLoading(false);
   }
 
@@ -512,20 +476,9 @@ export default function AdminDashboard() {
       <div className="mx-auto max-w-7xl p-6 space-y-6">
         {/* Header / controls */}
         <div className="rounded-xl border border-white/40 bg-white/70 backdrop-blur-md shadow-sm p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h1 className="text-2xl font-semibold bg-gradient-to-r from-[#1B5A8E] to-[#4f46e5] bg-clip-text text-transparent">Admin Dashboard</h1>
+
           <div className="flex flex-wrap items-center gap-2">
-            <Input className="w-44 sm:w-56 bg-white/80" placeholder="Search…" value={q} onChange={(e) => setQ(e.target.value)} />
             <Button onClick={fetchData} disabled={loading || !isAdmin} className="bg-[#1B5A8E] hover:bg-[#144669]">Refresh</Button>
-            {isAdmin && (
-              <>
-                <Button onClick={loadDemoData} disabled={loading} variant="outline" className="border-[#1B5A8E] text-[#1B5A8E] hover:bg-[#1B5A8E] hover:text-white">
-                  {loading ? "Working…" : "Seed Legacy"}
-                </Button>
-                <Button onClick={loadTypedDemoData} disabled={loading} variant="outline" className="border-[#4f46e5] text-[#4f46e5] hover:bg-[#4f46e5] hover:text-white">
-                  {loading ? "Working…" : "Seed Typed"}
-                </Button>
-              </>
-            )}
             <Button variant="outline" onClick={() => supabase.auth.signOut()} className="hover:bg-white/50">Sign Out</Button>
           </div>
         </div>
@@ -857,9 +810,6 @@ export default function AdminDashboard() {
               <div className="mb-2 font-medium">Data</div>
               <div className="flex gap-2">
                 <Button size="sm" onClick={fetchData} disabled={loading || !isAdmin}>Refresh Tables</Button>
-                <Button size="sm" variant="outline" onClick={loadDemoData} disabled={loading || !isAdmin}>Load Demo Data</Button>
-                {/* NEW: typed seed */}
-                <Button size="sm" variant="outline" onClick={loadTypedDemoData} disabled={loading || !isAdmin}>Load Typed Demo Data</Button>
               </div>
             </div>
           </div>

@@ -223,9 +223,6 @@ export function Header() {
 
         <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:gap-x-3">
           {/* Disabled Login button (feature not ready) */}
-          <Button variant="ghost" disabled aria-disabled="true" title="Login coming soon" className="opacity-60 cursor-not-allowed">
-            Login
-          </Button>
           <Button 
             className="bg-[#1B5A8E] hover:bg-[#144669] transition-colors"
             asChild
