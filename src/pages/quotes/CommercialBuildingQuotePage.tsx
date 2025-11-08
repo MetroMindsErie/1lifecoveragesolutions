@@ -186,6 +186,11 @@ export function CommercialBuildingQuotePage() {
 								Business / Property Information
 							</h3>
 							<div className="grid gap-4 sm:grid-cols-2">
+								{/* NEW: Full Name (person submitting) */}
+								<div className="sm:col-span-2">
+									<Label>Full Name</Label>
+									<Input name="name" placeholder="Your full name" />
+								</div>
 								<div className="sm:col-span-2">
 									<Label>
 										Business Name / Property Owner or Tenant

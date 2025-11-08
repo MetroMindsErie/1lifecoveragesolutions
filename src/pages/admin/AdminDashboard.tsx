@@ -316,7 +316,7 @@ export default function AdminDashboard() {
         break;
       case "commercial_building_quotes":
         pushItems(
-          ["business_name_or_owner","property_address","phone","email","own_or_rent","property_type","year_built","stories","square_footage","construction_type","roof_type_age","foundation_type","sprinklers","security_systems","hazardous_materials"],
+          ["name","business_name_or_owner","property_address","phone","email","own_or_rent","property_type","year_built","stories","square_footage","construction_type","roof_type_age","foundation_type","sprinklers","security_systems","hazardous_materials"],
           "Property / Construction"
         );
         pushItems(
