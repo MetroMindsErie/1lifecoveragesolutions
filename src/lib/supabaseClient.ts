@@ -10,3 +10,16 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     detectSessionInUrl: true,
   },
 });
+
+export function clearSupabaseLocalAuth() {
+  try {
+    Object.keys(localStorage)
+      .filter(k => k.startsWith("sb-") || k.includes("supabase"))
+      .forEach(k => localStorage.removeItem(k));
+  } catch {}
+  try {
+    Object.keys(sessionStorage)
+      .filter(k => k.startsWith("sb-") || k.includes("supabase"))
+      .forEach(k => sessionStorage.removeItem(k));
+  } catch {}
+}

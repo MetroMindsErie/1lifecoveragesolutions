@@ -86,12 +86,44 @@ export default function AdminDashboard() {
     checkAdmin();
   }, [session]);
 
+  const [authLoading, setAuthLoading] = useState(false); // NEW
+  const [fetchError, setFetchError] = useState<string | null>(null); // NEW
+
+  // NEW: helper to hard-clear local tokens (Supabase sometimes leaves stale session in prod)
+  function hardClearSupabaseAuth() {
+    try {
+      Object.keys(localStorage)
+        .filter(k => k.startsWith("sb-") || k.includes("supabase"))
+        .forEach(k => localStorage.removeItem(k));
+      Object.keys(sessionStorage)
+        .filter(k => k.startsWith("sb-") || k.includes("supabase"))
+        .forEach(k => sessionStorage.removeItem(k));
+    } catch {}
+  }
+
   async function signIn(e: React.FormEvent) {
     e.preventDefault();
-    setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
-    if (error) alert(error.message);
+    setAuthLoading(true);
+    const { error, data } = await supabase.auth.signInWithPassword({ email, password });
+    setAuthLoading(false);
+    if (error) {
+      alert(error.message);
+      return;
+    }
+    if (data.session) setSession(data.session);
+  }
+
+  // NEW: full signOut
+  async function signOut() {
+    setAuthLoading(true);
+    await supabase.auth.signOut();
+    hardClearSupabaseAuth();
+    const { data } = await supabase.auth.getSession();
+    setSession(data.session); // should be null
+    setIsAdmin(null);
+    setQuotes([]);
+    setContacts([]);
+    setAuthLoading(false);
   }
 
   async function grantAdminAccess() {
@@ -109,7 +141,9 @@ export default function AdminDashboard() {
 
   // REPLACE fetchData (remove legacy logic)
   async function fetchData() {
+    if (!session || isAdmin !== true) return; // NEW guard
     setLoading(true);
+    setFetchError(null);
     const tables: { tbl: string; type: string }[] = [
       { tbl: "auto_quotes", type: "auto" },
       { tbl: "homeowners_quotes", type: "homeowners" },
@@ -126,12 +160,13 @@ export default function AdminDashboard() {
 
     const results = await Promise.all([...requests, contactsQry]);
     const contactRes = results.pop() as any;
-    if (contactRes?.error) alert(contactRes.error.message);
+    if (contactRes?.error) setFetchError(contactRes.error.message);
     setContacts(contactRes?.data || []);
 
     const combined: any[] = [];
     results.forEach((r, idx) => {
       const { error, data } = r as any;
+      if (error && !fetchError) setFetchError(error.message);
       const meta = tables[idx];
       if (error) return;
       (data || []).forEach((row: any) => {
@@ -144,7 +179,7 @@ export default function AdminDashboard() {
     setLoading(false);
   }
 
-  useEffect(() => { if (session && isAdmin) fetchData(); }, [session, isAdmin]);
+  useEffect(() => { if (session && isAdmin === true) fetchData(); }, [session, isAdmin]);
 
   // Compute overview stats
   const overview = useMemo(() => {
@@ -468,6 +503,95 @@ export default function AdminDashboard() {
     }
   }, [tab, location.pathname, location.search]);
 
+  // AUTH GATES (NEW)
+  const showLogin = !session;
+  const showGrantAdmin = !!session && isAdmin === false;
+  const showDashboard = !!session && isAdmin === true;
+
+  // EARLY RETURN: login form
+  if (showLogin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-white via-[#E9F3FB] to-[#D9ECFF] p-6">
+        <form
+          onSubmit={signIn}
+          className="w-full max-w-sm space-y-4 rounded-xl border border-white/60 bg-white/80 backdrop-blur p-6 shadow-sm"
+        >
+          <h1 className="text-xl font-semibold text-[#1B5A8E]">Admin Login</h1>
+          {!GA_CLIENT_ID || !GA_PROPERTY_ID ? (
+            <div className="rounded-md border border-yellow-300 bg-yellow-50 p-3 text-xs text-yellow-800">
+              Missing GA env vars (VITE_GA_CLIENT_ID / VITE_GA_PROPERTY_ID). Set these in Vercel for Analytics.
+            </div>
+          ) : null}
+          {!(import.meta as any).env?.VITE_SUPABASE_URL || !(import.meta as any).env?.VITE_SUPABASE_ANON_KEY ? (
+            <div className="rounded-md border border-red-300 bg-red-50 p-3 text-xs text-red-700">
+              Supabase env vars missing in production. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.
+            </div>
+          ) : null}
+          <div className="space-y-3 text-sm">
+            <div>
+              <label className="block text-gray-700 mb-1">Email</label>
+              <input
+                type="email"
+                required
+                className="w-full rounded border border-gray-300 bg-white/90 px-3 py-2 text-sm"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="username"
+              />
+            </div>
+            <div>
+              <label className="block text-gray-700 mb-1">Password</label>
+              <input
+                type="password"
+                required
+                className="w-full rounded border border-gray-300 bg-white/90 px-3 py-2 text-sm"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
+              />
+            </div>
+          </div>
+          <Button
+            type="submit"
+            disabled={authLoading}
+            className="w-full bg-[#1B5A8E] hover:bg-[#144669]"
+          >
+            {authLoading ? "Signing in…" : "Sign In"}
+          </Button>
+          <p className="text-[11px] text-gray-500">
+            Authorized users only. Contact an existing admin to be added.
+          </p>
+        </form>
+      </div>
+    );
+  }
+
+  // GRANT ADMIN VIEW
+  if (showGrantAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-white via-[#E9F3FB] to-[#D9ECFF] p-6">
+        <div className="w-full max-w-md space-y-4 rounded-xl border border-yellow-300 bg-gradient-to-r from-yellow-50 to-yellow-100 p-6 shadow">
+          <h1 className="text-lg font-semibold text-[#1B5A8E]">Admin Access Required</h1>
+            <p className="text-sm text-yellow-900">
+              You are signed in but not recognized as an admin. (Dev only) click to grant yourself admin.
+            </p>
+          <div className="flex gap-2">
+            <Button onClick={grantAdminAccess} disabled={loading} className="bg-[#1B5A8E] hover:bg-[#144669]">
+              {loading ? "Granting…" : "Grant Admin"}
+            </Button>
+            <Button variant="outline" onClick={signOut} disabled={authLoading}>
+              {authLoading ? "Signing out…" : "Sign Out"}
+            </Button>
+          </div>
+          <p className="text-[11px] text-gray-600">
+            Remove self-grant in production for security.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // DASHBOARD (wrap existing content)
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-white via-[#E9F3FB] to-[#D9ECFF]">
       {/* Ambient pattern */}
@@ -814,6 +938,18 @@ export default function AdminDashboard() {
             </div>
           </div>
         )}
+
+        {/* Insert error banners */}
+        <div className="mx-auto max-w-7xl px-6">
+          {fetchError && (
+            <div className="mt-4 rounded-md border border-red-300 bg-red-50 p-3 text-xs text-red-700">
+              {fetchError}
+              <div className="mt-1 text-[10px]">
+                Ensure RLS SELECT policies exist for all typed quote tables & contacts and your user is in public.admins.
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
