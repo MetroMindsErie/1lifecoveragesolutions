@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
 	Card,
 	CardContent,
@@ -13,8 +13,91 @@ import { Textarea } from "../../components/ui/textarea";
 import { CheckCircle2, Building2 } from "lucide-react";
 import { QuoteLayout } from "../../components/quotes/QuoteLayout";
 import { submitQuote } from "../../lib/submit";
+import { supabase } from "../../lib/supabaseClient";
+import { SelectWithOther } from "../../components/quotes/SelectWithOther";
+
+function absUrl(path: string) {
+	const base = (import.meta as any).env?.VITE_SITE_URL || window.location.origin;
+	return path.startsWith("http") ? path : `${base}${path.startsWith("/") ? "" : "/"}${path}`;
+}
+function setHead({
+	title,
+	description,
+	canonicalPath,
+	jsonLd,
+}: {
+	title: string;
+	description?: string;
+	canonicalPath?: string;
+	jsonLd?: any;
+}) {
+	const SITE = "1Life Coverage Solutions";
+	const url = absUrl(canonicalPath || window.location.pathname);
+	document.title = `${title} | ${SITE}`;
+	if (description) {
+		let d = document.head.querySelector('meta[name="description"]') as
+			| HTMLMetaElement
+			| null;
+		if (!d) {
+			d = document.createElement("meta");
+			d.setAttribute("name", "description");
+			document.head.appendChild(d);
+		}
+		d.setAttribute("content", description);
+	}
+	let c = document.head.querySelector('link[rel="canonical"]') as
+		| HTMLLinkElement
+		| null;
+	if (!c) {
+		c = document.createElement("link");
+		c.setAttribute("rel", "canonical");
+		document.head.appendChild(c);
+	}
+	c.setAttribute("href", url);
+	document.head.querySelectorAll('script[data-seo-jsonld="1"]').forEach((n) => n.remove());
+	if (jsonLd) {
+		const s = document.createElement("script");
+		s.type = "application/ld+json";
+		s.setAttribute("data-seo-jsonld", "1");
+		s.textContent = JSON.stringify(jsonLd);
+		document.head.appendChild(s);
+	}
+}
 
 export function CommercialBuildingQuotePage() {
+	useEffect(() => {
+		const jsonLd = {
+			"@context": "https://schema.org",
+			"@type": "Service",
+			serviceType: "Commercial Property Insurance Quote",
+			provider: { "@type": "InsuranceAgency", name: "1Life Coverage Solutions" },
+			url: absUrl("/quote/commercial-building"),
+			areaServed: "US",
+			description: "Protect your building, tenants, and operations with tailored coverage.",
+		};
+		setHead({
+			title: "Commercial Building Insurance Quote",
+			description: "Protect your building, tenants, and operations with tailored coverage.",
+			canonicalPath: "/quote/commercial-building",
+			jsonLd,
+		});
+		(async () => {
+			const { data } = await supabase
+				.from("pages_seo")
+				.select("title,description,canonical_url,json_ld")
+				.eq("path", "/quote/commercial-building")
+				.maybeSingle();
+			if (data) {
+				setHead({
+					title: data.title || "Commercial Building Insurance Quote",
+					description: data.description || undefined,
+					canonicalPath: data.canonical_url || "/quote/commercial-building",
+					jsonLd: data.json_ld || jsonLd,
+				});
+			}
+		})();
+	}, []);
+
 	const [submitted, setSubmitted] = useState(false);
 	const [submitting, setSubmitting] = useState(false); // NEW
 	const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -211,11 +294,19 @@ export function CommercialBuildingQuotePage() {
 								</div>
 								<div>
 									<Label>Own or Rent/Lease?</Label>
-									<Input name="own_or_rent" placeholder="Own / Rent/Lease" />
+									{/* CHANGED */}
+									<SelectWithOther
+										name="own_or_rent"
+										options={["Own", "Rent/Lease"]}
+									/>
 								</div>
 								<div>
 									<Label>Type of Property</Label>
-									<Input name="property_type" placeholder="Office / Retail / Warehouse / Industrial / Mixed Use / Other" />
+									{/* CHANGED */}
+									<SelectWithOther
+										name="property_type"
+										options={["Office", "Retail", "Warehouse", "Industrial", "Mixed Use"]}
+									/>
 								</div>
 								<div>
 									<Label>Year Built</Label>
@@ -239,21 +330,29 @@ export function CommercialBuildingQuotePage() {
 								</div>
 								<div>
 									<Label>Foundation Type</Label>
-									<Input name="foundation_type" placeholder="Slab / Crawl Space / Basement" />
+									{/* CHANGED */}
+									<SelectWithOther
+										name="foundation_type"
+										options={["Slab", "Crawl Space", "Basement"]}
+									/>
 								</div>
 								<div>
 									<Label>Fire Protection / Sprinklers</Label>
-									<Input name="sprinklers" placeholder="Yes / No" />
+									{/* CHANGED */}
+									<SelectWithOther name="sprinklers" options={["Yes", "No"]} />
 								</div>
 								<div>
 									<Label>Security Systems</Label>
-									<Input name="security_systems" placeholder="Yes / No" />
+									{/* CHANGED */}
+									<SelectWithOther name="security_systems" options={["Yes", "No"]} />
 								</div>
 								<div className="sm:col-span-2">
-									<Label>
-										Any hazardous materials stored on-site?
-									</Label>
-									<Input name="hazardous_materials" placeholder="Yes / No" />
+									<Label>Any hazardous materials stored on-site?</Label>
+									{/* CHANGED */}
+									<SelectWithOther
+										name="hazardous_materials"
+										options={["Yes", "No"]}
+									/>
 								</div>
 							</div>
 						</div>
@@ -277,7 +376,11 @@ export function CommercialBuildingQuotePage() {
 								</div>
 								<div>
 									<Label>Occupancy Type</Label>
-									<Input name="occupancy_type" placeholder="Owner-Occupied / Tenant-Occupied / Mixed" />
+									{/* CHANGED */}
+									<SelectWithOther
+										name="occupancy_type"
+										options={["Owner-Occupied", "Tenant-Occupied", "Mixed"]}
+									/>
 								</div>
 								<div>
 									<Label>Business Hours / Operating Schedule</Label>
@@ -285,7 +388,8 @@ export function CommercialBuildingQuotePage() {
 								</div>
 								<div>
 									<Label>Any seasonal operations?</Label>
-									<Input name="seasonal" placeholder="Yes / No" />
+									{/* CHANGED */}
+									<SelectWithOther name="seasonal" options={["Yes", "No"]} />
 								</div>
 							</div>
 						</div>
@@ -325,7 +429,12 @@ export function CommercialBuildingQuotePage() {
 								</div>
 								<div>
 									<Label>Deductible Preference ($)</Label>
-									<Input name="deductible" />
+									{/* CHANGED */}
+									<SelectWithOther
+										name="deductible"
+										options={["500", "1000", "2500", "5000"]}
+										otherLabel="Custom"
+									/>
 								</div>
 								<div className="sm:col-span-2">
 									<Label>Additional Coverage Requested</Label>
@@ -338,7 +447,11 @@ export function CommercialBuildingQuotePage() {
 									<Label>
 										Any previous claims or losses in last 5 years?
 									</Label>
-									<Input name="prior_claims" placeholder="Yes / No" />
+									{/* CHANGED */}
+									<SelectWithOther
+										name="prior_claims"
+										options={["Yes", "No"]}
+									/>
 								</div>
 								<div className="sm:col-span-2">
 									<Label>If yes, please describe</Label>
@@ -357,7 +470,11 @@ export function CommercialBuildingQuotePage() {
 							</h3>
 							<div className="space-y-4">
 								<Label>How did you hear about us?</Label>
-								<Input name="referral_source" />
+								{/* CHANGED */}
+								<SelectWithOther
+									name="referral_source"
+									options={["Google", "Referral", "Social Media", "Advertising"]}
+								/>
 							</div>
 						</div>
 

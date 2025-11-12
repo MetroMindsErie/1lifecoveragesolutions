@@ -5,6 +5,7 @@ import { Input } from "../components/ui/input";
 import { Badge } from "../components/ui/badge";
 import { Search, Calendar, ArrowRight, TrendingUp } from "lucide-react";
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
+import { supabase } from "../lib/supabaseClient";
 
 // FEED: Try multiple likely RSS endpoints (first that works is used)
 const IJ_FEED_CANDIDATES = [
@@ -37,7 +38,73 @@ function formatDate(d?: string) {
 
 const categories = ["All", "Auto", "Home", "Business", "Life", "Tips & Advice", "Industry News"];
 
+function absUrl(path: string) {
+  const base = (import.meta as any).env?.VITE_SITE_URL || window.location.origin;
+  return path.startsWith("http") ? path : `${base}${path.startsWith("/") ? "" : "/"}${path}`;
+}
+function setHead({ title, description, canonicalPath, jsonLd }: { title: string; description?: string; canonicalPath?: string; jsonLd?: any; }) {
+  const SITE = "1Life Coverage Solutions";
+  const url = absUrl(canonicalPath || window.location.pathname);
+  document.title = `${title} | ${SITE}`;
+  if (description) {
+    let d = document.head.querySelector('meta[name="description"]') as HTMLMetaElement | null;
+    if (!d) { d = document.createElement("meta"); d.setAttribute("name","description"); document.head.appendChild(d); }
+    d.setAttribute("content", description);
+  }
+  let c = document.head.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+  if (!c) { c = document.createElement("link"); c.setAttribute("rel","canonical"); document.head.appendChild(c); }
+  c.setAttribute("href", url);
+  const up = (name: string, content: string, isProp=false) => {
+    const sel = isProp ? `meta[property="${name}"]` : `meta[name="${name}"]`;
+    let el = document.head.querySelector(sel) as HTMLMetaElement | null;
+    if (!el) { el = document.createElement("meta"); if (isProp) el.setAttribute("property", name); else el.setAttribute("name", name); document.head.appendChild(el); }
+    el.setAttribute("content", content);
+  };
+  up("og:site_name", SITE, true);
+  up("og:type", "website", true);
+  up("og:title", `${title} | ${SITE}`, true);
+  if (description) up("og:description", description, true);
+  up("og:url", url, true);
+  up("twitter:card", "summary_large_image");
+  document.head.querySelectorAll('script[data-seo-jsonld="1"]').forEach(n => n.remove());
+  if (jsonLd) {
+    const s = document.createElement("script");
+    s.type = "application/ld+json"; s.setAttribute("data-seo-jsonld","1");
+    s.textContent = JSON.stringify(jsonLd);
+    document.head.appendChild(s);
+  }
+}
+
 export function BlogPage() {
+  useEffect(() => {
+    const jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "Blog",
+      name: "Insurance Insights & News",
+      url: absUrl("/blog"),
+      description: "Expert advice, industry trends, and helpful guides to navigate your insurance needs"
+    };
+    setHead({
+      title: "Insurance Blog & Guides",
+      description: "Insurance insights: auto, home, life & business coverage tips and industry news.",
+      canonicalPath: "/blog",
+      jsonLd
+    });
+    (async () => {
+      const { data } = await supabase
+        .from("pages_seo").select("title,description,canonical_url,og_image,json_ld")
+        .eq("path", "/blog").maybeSingle();
+      if (data) {
+        setHead({
+          title: data.title || "Insurance Blog & Guides",
+          description: data.description || undefined,
+          canonicalPath: data.canonical_url || "/blog",
+          jsonLd: data.json_ld || jsonLd
+        });
+      }
+    })();
+  }, []);
+
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [rssLoading, setRssLoading] = useState(true);
@@ -314,3 +381,86 @@ export function BlogPage() {
     </div>
   );
 }
+
+/*
+Content Strategy: 20 blog post ideas (3 months)
+- Auto insurance quotes [LOCATION] guide
+  keyword: auto insurance quotes seattle; slug: auto-insurance-quotes-seattle
+  meta: Compare auto insurance quotes in Seattle and save with discounts tailored to Washington drivers.
+
+- Auto insurance quotes [LOCATION] guide
+  keyword: auto insurance quotes austin; slug: auto-insurance-quotes-austin
+  meta: Get competitive auto insurance quotes in Austin with tips to lower your premium.
+
+- Home insurance coverage guide
+  keyword: home insurance coverage guide; slug: home-insurance-coverage-guide
+  meta: Learn the essentials of homeowners insurance coverages, deductibles, and endorsements.
+
+- What does homeowners insurance cover?
+  keyword: what does homeowners insurance cover; slug: what-does-homeowners-insurance-cover
+  meta: A plain-English breakdown of what standard homeowners policies include and exclude.
+
+- Compare life insurance policies
+  keyword: compare life insurance policies; slug: compare-life-insurance-policies
+  meta: Compare term vs whole life insurance, riders, and costs to find the right fit.
+
+- Life insurance for young families
+  keyword: life insurance for young families; slug: life-insurance-for-young-families
+  meta: How young families can protect their income, mortgage, and children with life insurance.
+
+- Personal umbrella insurance explained
+  keyword: what is umbrella insurance; slug: umbrella-insurance-explained
+  meta: Understand how umbrella coverage adds extra liability protection over home and auto.
+
+- Business owners policy vs general liability
+  keyword: bop vs general liability; slug: bop-vs-general-liability
+  meta: When a BOP makes sense versus standalone general liability for small businesses.
+
+- Commercial property insurance checklist
+  keyword: commercial property insurance checklist; slug: commercial-property-insurance-checklist
+  meta: COPE details to gather before quoting commercial building insurance.
+
+- Workers comp vs disability insurance
+  keyword: workers comp vs disability; slug: workers-comp-vs-disability
+  meta: The key differences between workers compensation and disability insurance.
+
+- SR-22 insurance basics
+  keyword: sr-22 insurance; slug: sr22-insurance-basics
+  meta: What an SR-22 is, when you need it, and how it affects auto insurance rates.
+
+- How to lower car insurance premiums
+  keyword: lower car insurance premiums; slug: lower-car-insurance-premiums
+  meta: Practical tips and discounts to reduce your car insurance costs.
+
+- Flood insurance: Do you need it?
+  keyword: do i need flood insurance; slug: flood-insurance-do-you-need-it
+  meta: Who needs flood insurance, how it works, and cost factors.
+
+- Landlord insurance vs homeowners
+  keyword: landlord insurance vs homeowners; slug: landlord-vs-homeowners
+  meta: Coverage differences between landlord policies and homeowners insurance.
+
+- Cyber insurance for small business
+  keyword: small business cyber insurance; slug: small-business-cyber-insurance
+  meta: Why cyber liability matters and what it covers for small businesses.
+
+- Term life vs whole life calculator guide
+  keyword: term vs whole life calculator; slug: term-vs-whole-life-calculator-guide
+  meta: Use a simple framework to compare term and whole life based on needs and budget.
+
+- Condo insurance (HO-6) explained
+  keyword: condo insurance ho-6; slug: condo-insurance-ho6-explained
+  meta: What HO-6 policies cover and how to coordinate with your HOA’s master policy.
+
+- Renters insurance coverage tips
+  keyword: renters insurance tips; slug: renters-insurance-coverage-tips
+  meta: What renters insurance covers and how to choose limits.
+
+- Umbrella insurance eligibility & requirements
+  keyword: umbrella insurance requirements; slug: umbrella-insurance-requirements
+  meta: Underlying limits and common requirements to qualify for personal umbrella.
+
+- Compare commercial auto vs personal auto
+  keyword: commercial auto vs personal auto; slug: commercial-auto-vs-personal-auto
+  meta: When commercial auto is required and how it differs from personal auto insurance.
+*/

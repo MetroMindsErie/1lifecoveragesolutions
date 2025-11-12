@@ -25,6 +25,67 @@ import {
   Briefcase
 } from "lucide-react";
 import { PartnerTicker } from "../components/PartnerTicker";
+import { useEffect } from "react";
+import { supabase } from "../lib/supabaseClient";
+
+// SEO helpers
+function absUrl(path: string) {
+  const base = (import.meta as any).env?.VITE_SITE_URL || window.location.origin;
+  return path.startsWith("http") ? path : `${base}${path.startsWith("/") ? "" : "/"}${path}`;
+}
+function upsertMeta(selector: { name?: string; property?: string }, content: string) {
+  let el = document.head.querySelector<HTMLMetaElement>(
+    selector.name ? `meta[name="${selector.name}"]` : `meta[property="${selector.property}"]`
+  );
+  if (!el) {
+    el = document.createElement("meta");
+    if (selector.name) el.setAttribute("name", selector.name);
+    if (selector.property) el.setAttribute("property", selector.property);
+    document.head.appendChild(el);
+  }
+  el.setAttribute("content", content);
+}
+function upsertLink(rel: string, href: string) {
+  let el = document.head.querySelector<HTMLLinkElement>(`link[rel="${rel}"]`);
+  if (!el) {
+    el = document.createElement("link");
+    el.setAttribute("rel", rel);
+    document.head.appendChild(el);
+  }
+  el.setAttribute("href", href);
+}
+function setHead(opts: {
+  title: string;
+  description?: string;
+  canonicalPath?: string;
+  noindex?: boolean;
+  ogImage?: string;
+  jsonLd?: any;
+}) {
+  const SITE = "1Life Coverage Solutions";
+  const url = absUrl(opts.canonicalPath || window.location.pathname);
+  document.title = `${opts.title} | ${SITE}`;
+  if (opts.description) upsertMeta({ name: "description" }, opts.description);
+  upsertLink("canonical", url);
+  upsertMeta({ name: "robots" }, opts.noindex ? "noindex,nofollow" : "index,follow");
+  upsertMeta({ property: "og:site_name" }, SITE);
+  upsertMeta({ property: "og:type" }, "website");
+  upsertMeta({ property: "og:title" }, `${opts.title} | ${SITE}`);
+  if (opts.description) upsertMeta({ property: "og:description" }, opts.description);
+  upsertMeta({ property: "og:url" }, url);
+  if (opts.ogImage) upsertMeta({ property: "og:image" }, absUrl(opts.ogImage));
+  upsertMeta({ name: "twitter:card" }, "summary_large_image");
+
+  // JSON-LD (replace any previous injected by this page)
+  document.head.querySelectorAll('script[data-seo-jsonld="1"]').forEach(n => n.remove());
+  if (opts.jsonLd) {
+    const s = document.createElement("script");
+    s.type = "application/ld+json";
+    s.setAttribute("data-seo-jsonld", "1");
+    s.textContent = JSON.stringify(opts.jsonLd);
+    document.head.appendChild(s);
+  }
+}
 
 const coverageTypes = [
   {
@@ -197,6 +258,46 @@ const heroFeatures = [
 ];
 
 export function HomePage() {
+  useEffect(() => {
+    const jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "InsuranceAgency",
+      name: "1Life Coverage Solutions",
+      url: absUrl("/"),
+      logo: absUrl("/logo.svg"),
+      sameAs: [
+        "https://www.facebook.com/",
+        "https://www.linkedin.com/",
+        "https://x.com/"
+      ]
+    };
+    setHead({
+      title: "One Life. Total Coverage.",
+      description:
+        "Compare auto, home, life, and business insurance with 1Life Coverage Solutions. Fast quotes and trusted protection.",
+      canonicalPath: "/",
+      ogImage: "/og/default.jpg",
+      jsonLd,
+    });
+    // Attempt DB override
+    (async () => {
+      const { data } = await supabase
+        .from("pages_seo")
+        .select("title,description,canonical_url,og_image,json_ld")
+        .eq("path", "/")
+        .maybeSingle();
+      if (data) {
+        setHead({
+          title: data.title || "One Life. Total Coverage.",
+          description: data.description || undefined,
+          canonicalPath: data.canonical_url || "/",
+          ogImage: data.og_image || "/og/default.jpg",
+          jsonLd: data.json_ld || jsonLd,
+        });
+      }
+    })();
+  }, []);
+
   return (
     <div>
       {/* Enhanced Hero Section with animated elements */}

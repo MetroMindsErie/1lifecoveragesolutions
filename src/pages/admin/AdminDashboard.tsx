@@ -5,6 +5,17 @@ import { Button } from "../../components/ui/button";
 import { X, Mail, Phone, Copy, ExternalLink } from "lucide-react"; // NEW
 import { useNavigate, useLocation } from "react-router-dom"; // NEW
 
+function setAdminHead() {
+  const SITE = "1Life Coverage Solutions";
+  const title = "Admin Dashboard";
+  document.title = `${title} | ${SITE}`;
+  let robots = document.head.querySelector('meta[name="robots"]') as HTMLMetaElement | null;
+  if (!robots) { robots = document.createElement("meta"); robots.setAttribute("name","robots"); document.head.appendChild(robots); }
+  robots.setAttribute("content","noindex,nofollow");
+  // clear JSON-LD injected previously
+  document.head.querySelectorAll('script[data-seo-jsonld="1"]').forEach(n => n.remove());
+}
+
 export default function AdminDashboard() {
   const [session, setSession] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);

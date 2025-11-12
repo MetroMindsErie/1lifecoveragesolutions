@@ -28,6 +28,16 @@ const allowedTables = new Set([
   "bop_quotes",
 ]);
 
+function setAdminDetailHead() {
+  const SITE = "1Life Coverage Solutions";
+  const title = "Admin Quote Detail";
+  document.title = `${title} | ${SITE}`;
+  let robots = document.head.querySelector('meta[name="robots"]') as HTMLMetaElement | null;
+  if (!robots) { robots = document.createElement("meta"); robots.setAttribute("name","robots"); document.head.appendChild(robots); }
+  robots.setAttribute("content","noindex,nofollow");
+  document.head.querySelectorAll('script[data-seo-jsonld="1"]').forEach(n => n.remove());
+}
+
 export default function AdminQuoteDetailPage() {
   const navigate = useNavigate();
   const { id, srcTable } = useParams<{ id: string; srcTable: string }>();
@@ -159,6 +169,8 @@ export default function AdminQuoteDetailPage() {
   };
 
   const sections = useMemo(() => sectionize(item), [item]);
+
+  useEffect(() => { setAdminDetailHead(); }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-[#E9F3FB] to-[#D9ECFF]">

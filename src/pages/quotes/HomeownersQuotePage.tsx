@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
@@ -7,8 +7,55 @@ import { Textarea } from "../../components/ui/textarea";
 import { CheckCircle2, Home } from "lucide-react";
 import { QuoteLayout } from "../../components/quotes/QuoteLayout";
 import { submitQuote } from "../../lib/submit";
+import { supabase } from "../../lib/supabaseClient";
+import { SelectWithOther } from "../../components/quotes/SelectWithOther";
+
+function absUrl(path: string) {
+  const base = (import.meta as any).env?.VITE_SITE_URL || window.location.origin;
+  return path.startsWith("http") ? path : `${base}${path.startsWith("/") ? "" : "/"}${path}`;
+}
+function setHead({ title, description, canonicalPath, jsonLd }: { title: string; description?: string; canonicalPath?: string; jsonLd?: any; }) {
+  const SITE = "1Life Coverage Solutions";
+  const url = absUrl(canonicalPath || window.location.pathname);
+  document.title = `${title} | ${SITE}`;
+  if (description) { let d=document.head.querySelector('meta[name="description"]') as HTMLMetaElement|null; if(!d){d=document.createElement("meta"); d.setAttribute("name","description"); document.head.appendChild(d);} d.setAttribute("content",description); }
+  let c=document.head.querySelector('link[rel="canonical"]') as HTMLLinkElement|null; if(!c){c=document.createElement("link"); c.setAttribute("rel","canonical"); document.head.appendChild(c);} c.setAttribute("href",url);
+  document.head.querySelectorAll('script[data-seo-jsonld="1"]').forEach(n => n.remove());
+  if (jsonLd) { const s=document.createElement("script"); s.type="application/ld+json"; s.setAttribute("data-seo-jsonld","1"); s.textContent=JSON.stringify(jsonLd); document.head.appendChild(s); }
+}
 
 export function HomeownersQuotePage() {
+  useEffect(() => {
+    const jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      serviceType: "Homeowners Insurance Quote",
+      provider: { "@type": "InsuranceAgency", name: "1Life Coverage Solutions" },
+      url: absUrl("/quote/homeowners"),
+      areaServed: "US",
+      description: "Get a homeowners insurance quote with tailored coverage recommendations."
+    };
+    setHead({
+      title: "Homeowners Insurance Quote",
+      description: "Share property details to get accurate homeowners coverage recommendations.",
+      canonicalPath: "/quote/homeowners",
+      jsonLd
+    });
+    (async () => {
+      const { data } = await supabase
+        .from("pages_seo").select("title,description,canonical_url,json_ld")
+        .eq("path", "/quote/homeowners").maybeSingle();
+      if (data) {
+        setHead({
+          title: data.title || "Homeowners Insurance Quote",
+          description: data.description || undefined,
+          canonicalPath: data.canonical_url || "/quote/homeowners",
+          jsonLd: data.json_ld || jsonLd
+        });
+      }
+    })();
+  }, []);
+
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false); // NEW
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -157,7 +204,8 @@ export function HomeownersQuotePage() {
                 </div>
                 <div>
                   <Label>Preferred Contact Method</Label>
-                  <Input name="preferred_contact_method" placeholder="Phone / Email / Text" />
+                  {/* CHANGED */}
+                  <SelectWithOther name="preferred_contact_method" options={["Phone","Email","Text"]} />
                 </div>
                 <div className="sm:col-span-2">
                   <Label>Address of Property to be Insured</Label>
@@ -187,7 +235,11 @@ export function HomeownersQuotePage() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="sm:col-span-2">
                   <Label>Type of Home</Label>
-                  <Input name="home_type" placeholder="Single Family / Condo / Townhome / Manufactured/Mobile / Other" />
+                  {/* CHANGED */}
+                  <SelectWithOther
+                    name="home_type"
+                    options={["Single Family","Condo","Townhome","Manufactured/Mobile"]}
+                  />
                 </div>
                 <div>
                   <Label>Year Built</Label>
@@ -207,11 +259,19 @@ export function HomeownersQuotePage() {
                 </div>
                 <div>
                   <Label>Foundation Type</Label>
-                  <Input name="foundation_type" placeholder="Slab / Crawl Space / Basement" />
+                  {/* CHANGED */}
+                  <SelectWithOther
+                    name="foundation_type"
+                    options={["Slab","Crawl Space","Basement"]}
+                  />
                 </div>
                 <div className="sm:col-span-2">
                   <Label>If basement, is it finished?</Label>
-                  <Input name="basement_finished" placeholder="Yes / No / Partially Finished" />
+                  {/* CHANGED */}
+                  <SelectWithOther
+                    name="basement_finished"
+                    options={["Yes","No","Partially Finished"]}
+                  />
                 </div>
                 <div className="sm:col-span-2">
                   <Label>Exterior Construction</Label>
@@ -227,15 +287,18 @@ export function HomeownersQuotePage() {
                 </div>
                 <div>
                   <Label>Fireplace or Wood Stove?</Label>
-                  <Input name="fireplace_or_woodstove" placeholder="Yes / No" />
+                  {/* CHANGED */}
+                  <SelectWithOther name="fireplace_or_woodstove" options={["Yes","No"]} />
                 </div>
                 <div>
                   <Label>Garage</Label>
-                  <Input name="garage" placeholder="Attached / Detached / None" />
+                  {/* CHANGED */}
+                  <SelectWithOther name="garage" options={["Attached","Detached","None"]} />
                 </div>
                 <div>
                   <Label>Garage Capacity</Label>
-                  <Input name="garage_capacity" placeholder="1-Car / 2-Car / 3+ Car" />
+                  {/* CHANGED */}
+                  <SelectWithOther name="garage_capacity" options={["1-Car","2-Car","3+ Car"]} />
                 </div>
               </div>
             </div>
@@ -249,35 +312,43 @@ export function HomeownersQuotePage() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <Label>Central Fire Alarm</Label>
-                  <Input name="central_fire_alarm" placeholder="Yes / No" />
+                  {/* CHANGED */}
+                  <SelectWithOther name="central_fire_alarm" options={["Yes","No"]} />
                 </div>
                 <div>
                   <Label>Central Burglar Alarm</Label>
-                  <Input name="central_burglar_alarm" placeholder="Yes / No" />
+                  {/* CHANGED */}
+                  <SelectWithOther name="central_burglar_alarm" options={["Yes","No"]} />
                 </div>
                 <div>
                   <Label>Fire Extinguisher</Label>
-                  <Input name="fire_extinguisher" placeholder="Yes / No" />
+                  {/* CHANGED */}
+                  <SelectWithOther name="fire_extinguisher" options={["Yes","No"]} />
                 </div>
                 <div>
                   <Label>Deadbolts on Exterior Doors</Label>
-                  <Input name="deadbolts" placeholder="Yes / No" />
+                  {/* CHANGED */}
+                  <SelectWithOther name="deadbolts" options={["Yes","No"]} />
                 </div>
                 <div>
                   <Label>Swimming Pool on Property?</Label>
-                  <Input name="pool" placeholder="Yes / No" />
+                  {/* CHANGED */}
+                  <SelectWithOther name="pool" options={["Yes","No"]} />
                 </div>
                 <div>
                   <Label>If pool, is it fenced?</Label>
-                  <Input name="pool_fenced" placeholder="Yes / No" />
+                  {/* CHANGED */}
+                  <SelectWithOther name="pool_fenced" options={["Yes","No"]} />
                 </div>
                 <div>
                   <Label>Pool Type</Label>
-                  <Input name="pool_type" placeholder="Above Ground / Inground" />
+                  {/* CHANGED */}
+                  <SelectWithOther name="pool_type" options={["Above Ground","Inground"]} />
                 </div>
                 <div>
                   <Label>Trampoline on Property?</Label>
-                  <Input name="trampoline" placeholder="Yes / No" />
+                  {/* CHANGED */}
+                  <SelectWithOther name="trampoline" options={["Yes","No"]} />
                 </div>
               </div>
             </div>
@@ -291,11 +362,13 @@ export function HomeownersQuotePage() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <Label>Do you have pets?</Label>
-                  <Input name="pets_have" placeholder="Yes / No" />
+                  {/* CHANGED */}
+                  <SelectWithOther name="pets_have" options={["Yes","No"]} />
                 </div>
                 <div>
                   <Label>Type of Pets</Label>
-                  <Input name="pets_type" placeholder="Dog / Cat / Other" />
+                  {/* CHANGED */}
+                  <SelectWithOther name="pets_type" options={["Dog","Cat","Other"]} />
                 </div>
                 <div>
                   <Label>Number of Pets</Label>
@@ -307,7 +380,8 @@ export function HomeownersQuotePage() {
                 </div>
                 <div className="sm:col-span-2">
                   <Label>Any pets with a history of bites/claims?</Label>
-                  <Input name="pets_bite_history" placeholder="Yes / No" />
+                  {/* CHANGED */}
+                  <SelectWithOther name="pets_bite_history" options={["Yes","No"]} />
                 </div>
               </div>
             </div>
@@ -333,11 +407,17 @@ export function HomeownersQuotePage() {
                 </div>
                 <div>
                   <Label>Desired Deductible ($)</Label>
-                  <Input name="desired_deductible" />
+                  {/* CHANGED */}
+                  <SelectWithOther
+                    name="desired_deductible"
+                    options={["500","1000","2500"]}
+                    otherLabel="Custom"
+                  />
                 </div>
                 <div className="sm:col-span-2">
                   <Label>Any claims in the last 5 years?</Label>
-                  <Input name="claims_last_5_years" placeholder="Yes / No" />
+                  {/* CHANGED */}
+                  <SelectWithOther name="claims_last_5_years" options={["Yes","No"]} />
                 </div>
                 <div className="sm:col-span-2">
                   <Label>If yes, please describe</Label>
@@ -361,7 +441,8 @@ export function HomeownersQuotePage() {
               className="space-y-4 rounded-xl border border-gray-200 bg-white/60 backdrop-blur-sm p-6 shadow-sm"
             >
               <Label>How did you hear about us?</Label>
-              <Input name="referral_source" />
+              {/* CHANGED */}
+              <SelectWithOther name="referral_source" options={["Google","Referral","Social Media","Advertising"]} />
             </div>
 
             <div className="flex justify-end">

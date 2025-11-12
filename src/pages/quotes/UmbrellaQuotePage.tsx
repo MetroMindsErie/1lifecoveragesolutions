@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
 	Card,
 	CardContent,
@@ -13,8 +13,91 @@ import { Textarea } from "../../components/ui/textarea";
 import { CheckCircle2, Umbrella } from "lucide-react";
 import { QuoteLayout } from "../../components/quotes/QuoteLayout";
 import { submitQuote } from "../../lib/submit";
+import { supabase } from "../../lib/supabaseClient";
+import { SelectWithOther } from "../../components/quotes/SelectWithOther";
+
+function absUrl(path: string) {
+	const base = (import.meta as any).env?.VITE_SITE_URL || window.location.origin;
+	return path.startsWith("http") ? path : `${base}${path.startsWith("/") ? "" : "/"}${path}`;
+}
+function setHead({
+	title,
+	description,
+	canonicalPath,
+	jsonLd,
+}: {
+	title: string;
+	description?: string;
+	canonicalPath?: string;
+	jsonLd?: any;
+}) {
+	const SITE = "1Life Coverage Solutions";
+	const url = absUrl(canonicalPath || window.location.pathname);
+	document.title = `${title} | ${SITE}`;
+	if (description) {
+		let d = document.head.querySelector('meta[name="description"]') as
+			| HTMLMetaElement
+			| null;
+		if (!d) {
+			d = document.createElement("meta");
+			d.setAttribute("name", "description");
+			document.head.appendChild(d);
+		}
+		d.setAttribute("content", description);
+	}
+	let c = document.head.querySelector('link[rel="canonical"]') as
+		| HTMLLinkElement
+		| null;
+	if (!c) {
+		c = document.createElement("link");
+		c.setAttribute("rel", "canonical");
+		document.head.appendChild(c);
+	}
+	c.setAttribute("href", url);
+	document.head.querySelectorAll('script[data-seo-jsonld="1"]').forEach((n) => n.remove());
+	if (jsonLd) {
+		const s = document.createElement("script");
+		s.type = "application/ld+json";
+		s.setAttribute("data-seo-jsonld", "1");
+		s.textContent = JSON.stringify(jsonLd);
+		document.head.appendChild(s);
+	}
+}
 
 export function UmbrellaQuotePage() {
+	useEffect(() => {
+		const jsonLd = {
+			"@context": "https://schema.org",
+			"@type": "Service",
+			serviceType: "Personal Umbrella Insurance Quote",
+			provider: { "@type": "InsuranceAgency", name: "1Life Coverage Solutions" },
+			url: absUrl("/quote/umbrella"),
+			areaServed: "US",
+			description: "Request a personal umbrella quote for extra liability protection.",
+		};
+		setHead({
+			title: "Personal Umbrella Insurance Quote",
+			description: "Extra liability protection over your home and auto policies.",
+			canonicalPath: "/quote/umbrella",
+			jsonLd,
+		});
+		(async () => {
+			const { data } = await supabase
+				.from("pages_seo")
+				.select("title,description,canonical_url,json_ld")
+				.eq("path", "/quote/umbrella")
+				.maybeSingle();
+			if (data) {
+				setHead({
+					title: data.title || "Personal Umbrella Insurance Quote",
+					description: data.description || undefined,
+					canonicalPath: data.canonical_url || "/quote/umbrella",
+					jsonLd: data.json_ld || jsonLd,
+				});
+			}
+		})();
+	}, []);
+
 	const [submitted, setSubmitted] = useState(false);
 	const [submitting, setSubmitting] = useState(false); // NEW
 	const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -192,7 +275,11 @@ export function UmbrellaQuotePage() {
 								</div>
 								<div>
 									<Label>Preferred Contact Method</Label>
-									<Input name="preferred_contact_method" placeholder="Phone / Email / Text" />
+									{/* CHANGED */}
+									<SelectWithOther
+										name="preferred_contact_method"
+										options={["Phone", "Email", "Text"]}
+									/>
 								</div>
 								<div className="sm:col-span-2">
 									<Label>Address</Label>
@@ -218,8 +305,14 @@ export function UmbrellaQuotePage() {
 								Current Insurance Coverage
 							</h3>
 							<div className="grid gap-4">
-								<Input name="current_coverages" placeholder="Do you have Homeowners / Renters / Auto / Watercraft / Other?" />
-								<Input name="current_coverage_limits" placeholder="Current Coverage Limits" />
+								<Input
+									name="current_coverages"
+									placeholder="Do you have Homeowners / Renters / Auto / Watercraft / Other?"
+								/>
+								<Input
+									name="current_coverage_limits"
+									placeholder="Current Coverage Limits"
+								/>
 								<div>
 									<Label>Policy Expiration Date</Label>
 									<Input type="date" name="policy_expiration" />
@@ -238,23 +331,39 @@ export function UmbrellaQuotePage() {
 							<div className="grid gap-4 sm:grid-cols-2">
 								<div>
 									<Label>Number of Drivers in Household</Label>
-									<Input name="household_drivers" />
+									<SelectWithOther
+										name="household_drivers"
+										options={["1","2","3","4","5","6+"]}
+										otherLabel="Other"
+									/>
 								</div>
 								<div>
 									<Label>Number of Vehicles</Label>
-									<Input name="household_vehicles" />
+									<SelectWithOther
+										name="household_vehicles"
+										options={["1","2","3","4","5","6+"]}
+										otherLabel="Other"
+									/>
 								</div>
 								<div className="sm:col-span-2">
 									<Label>High-value items? Describe if yes</Label>
-									<Textarea name="valuables_description" placeholder="Jewelry, art, collectibles, etc." />
+									<Textarea
+										name="valuables_description"
+										placeholder="Jewelry, art, collectibles, etc."
+									/>
 								</div>
 								<div>
 									<Label>Rental Properties?</Label>
-									<Input name="rental_properties" placeholder="Yes / No" />
+									{/* CHANGED */}
+									<SelectWithOther
+										name="rental_properties"
+										options={["Yes", "No"]}
+									/>
 								</div>
 								<div>
 									<Label>Watercraft/Boats?</Label>
-									<Input name="watercraft" placeholder="Yes / No" />
+									{/* CHANGED */}
+									<SelectWithOther name="watercraft" options={["Yes", "No"]} />
 								</div>
 							</div>
 						</div>
@@ -270,11 +379,16 @@ export function UmbrellaQuotePage() {
 							<div className="grid gap-4 sm:grid-cols-2">
 								<div>
 									<Label>Do you have pets?</Label>
-									<Input name="pets_have" placeholder="Yes / No" />
+									{/* CHANGED */}
+									<SelectWithOther name="pets_have" options={["Yes", "No"]} />
 								</div>
 								<div>
 									<Label>Type of Pet(s)</Label>
-									<Input name="pets_type" placeholder="Dog / Cat / Other" />
+									{/* CHANGED */}
+									<SelectWithOther
+										name="pets_type"
+										options={["Dog", "Cat", "Bird", "Reptile"]}
+									/>
 								</div>
 								<div>
 									<Label>Number of Pets</Label>
@@ -285,10 +399,11 @@ export function UmbrellaQuotePage() {
 									<Input name="dog_breeds" />
 								</div>
 								<div className="sm:col-span-2">
-									<Label>
-										Any pets with a history of bites/claims?
-									</Label>
-									<Input name="pets_bite_history" placeholder="Yes / No" />
+									<Label>Any pets with a history of bites/claims?</Label>
+									<SelectWithOther
+										name="pets_bite_history"
+										options={["Yes","No"]}
+									/>
 								</div>
 							</div>
 						</div>
@@ -304,17 +419,25 @@ export function UmbrellaQuotePage() {
 							<div className="grid gap-4 sm:grid-cols-2">
 								<div>
 									<Label>Desired Umbrella Policy Limit ($)</Label>
-									<Input name="desired_limit" />
+									{/* CHANGED */}
+									<SelectWithOther
+										name="desired_limit"
+										options={["1000000", "2000000", "3000000", "5000000"]}
+										otherLabel="Custom"
+									/>
 								</div>
 								<div>
 									<Label>Desired Deductible ($)</Label>
-									<Input name="desired_deductible" />
+									{/* CHANGED */}
+									<SelectWithOther
+										name="desired_deductible"
+										options={["0", "250", "500", "1000", "2500"]}
+										otherLabel="Custom"
+									/>
 								</div>
 								<div className="sm:col-span-2">
-									<Label>
-										Any prior claims or liability incidents?
-									</Label>
-									<Input name="prior_claims" placeholder="Yes / No" />
+									<Label>Any prior claims or liability incidents?</Label>
+									<SelectWithOther name="prior_claims" options={["Yes","No"]} />
 								</div>
 								<div className="sm:col-span-2">
 									<Label>If yes, please describe</Label>
@@ -335,7 +458,11 @@ export function UmbrellaQuotePage() {
 								Interested in additional quotes? (Auto / Homeowners / Renters /
 								Life / Business)
 							</Label>
-							<Input name="additional_quotes_interest" />
+							{/* CHANGED */}
+							<SelectWithOther
+								name="additional_quotes_interest"
+								options={["Auto", "Homeowners", "Renters", "Life", "Business", "Umbrella"]}
+							/>
 						</div>
 
 						{/* Referral */}
@@ -347,7 +474,11 @@ export function UmbrellaQuotePage() {
 								Referral
 							</h3>
 							<Label>How did you hear about us?</Label>
-							<Input name="referral_source" />
+							{/* CHANGED */}
+							<SelectWithOther
+								name="referral_source"
+								options={["Google", "Referral", "Social Media", "Advertising"]}
+							/>
 						</div>
 
 						<div className="flex justify-end">

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
 	Card,
 	CardContent,
@@ -13,8 +13,96 @@ import { Textarea } from "../../components/ui/textarea";
 import { CheckCircle2, Heart } from "lucide-react";
 import { QuoteLayout } from "../../components/quotes/QuoteLayout";
 import { submitQuote } from "../../lib/submit";
+import { supabase } from "../../lib/supabaseClient";
+import { SelectWithOther } from "../../components/quotes/SelectWithOther";
+
+function absUrl(path: string) {
+	const base = (import.meta as any).env?.VITE_SITE_URL || window.location.origin;
+	return path.startsWith("http")
+		? path
+		: `${base}${path.startsWith("/") ? "" : "/"}${path}`;
+}
+function setHead({
+	title,
+	description,
+	canonicalPath,
+	jsonLd,
+}: {
+	title: string;
+	description?: string;
+	canonicalPath?: string;
+	jsonLd?: any;
+}) {
+	const SITE = "1Life Coverage Solutions";
+	const url = absUrl(canonicalPath || window.location.pathname);
+	document.title = `${title} | ${SITE}`;
+	if (description) {
+		let d = document.head.querySelector('meta[name="description"]') as
+			| HTMLMetaElement
+			| null;
+		if (!d) {
+			d = document.createElement("meta");
+			d.setAttribute("name", "description");
+			document.head.appendChild(d);
+		}
+		d.setAttribute("content", description);
+	}
+	let c = document.head.querySelector('link[rel="canonical"]') as
+		| HTMLLinkElement
+		| null;
+	if (!c) {
+		c = document.createElement("link");
+		c.setAttribute("rel", "canonical");
+		document.head.appendChild(c);
+	}
+	c.setAttribute("href", url);
+	document.head.querySelectorAll('script[data-seo-jsonld="1"]').forEach(
+		(n) => n.remove()
+	);
+	if (jsonLd) {
+		const s = document.createElement("script");
+		s.type = "application/ld+json";
+		s.setAttribute("data-seo-jsonld", "1");
+		s.textContent = JSON.stringify(jsonLd);
+		document.head.appendChild(s);
+	}
+}
 
 export function LifeQuotePage() {
+	useEffect(() => {
+		const jsonLd = {
+			"@context": "https://schema.org",
+			"@type": "Service",
+			serviceType: "Life Insurance Quote",
+			provider: { "@type": "InsuranceAgency", name: "1Life Coverage Solutions" },
+			url: absUrl("/quote/life"),
+			areaServed: "US",
+			description: "Explore term and whole life insurance options.",
+		};
+		setHead({
+			title: "Life Insurance Quote",
+			description:
+				"Explore term and whole life options tailored to your goals and budget.",
+			canonicalPath: "/quote/life",
+			jsonLd,
+		});
+		(async () => {
+			const { data } = await supabase
+				.from("pages_seo")
+				.select("title,description,canonical_url,json_ld")
+				.eq("path", "/quote/life")
+				.maybeSingle();
+			if (data) {
+				setHead({
+					title: data.title || "Life Insurance Quote",
+					description: data.description || undefined,
+					canonicalPath: data.canonical_url || "/quote/life",
+					jsonLd: data.json_ld || jsonLd,
+				});
+			}
+		})();
+	}, []);
+
 	const [submitted, setSubmitted] = useState(false);
 	const [submitting, setSubmitting] = useState(false); // NEW
 	const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -196,7 +284,11 @@ export function LifeQuotePage() {
 								</div>
 								<div>
 									<Label>Gender</Label>
-									<Input name="gender" />
+									{/* CHANGED */}
+									<SelectWithOther
+										name="gender"
+										options={["Male", "Female", "Non-Binary", "Prefer Not to Say"]}
+									/>
 								</div>
 								<div>
 									<Label>Phone Number</Label>
@@ -228,15 +320,30 @@ export function LifeQuotePage() {
 							<div className="grid gap-4 sm:grid-cols-2">
 								<div>
 									<Label>Type of Life Insurance</Label>
-									<Input name="policy_type" />
+									{/* CHANGED */}
+									<SelectWithOther
+										name="policy_type"
+										options={["Term", "Whole Life", "Universal Life", "Guaranteed UL", "Final Expense", "No-Exam"]}
+									/>
 								</div>
 								<div>
 									<Label>Desired Coverage Amount ($)</Label>
-									<Input name="coverage_amount" />
+									<SelectWithOther
+										name="coverage_amount"
+										options={[
+											"100000","250000","500000","750000","1000000","2000000","3000000"
+										]}
+										otherLabel="Custom"
+									/>
 								</div>
 								<div>
 									<Label>Desired Policy Term (years)</Label>
-									<Input name="term_years" />
+									{/* CHANGED */}
+									<SelectWithOther
+										name="term_years"
+										options={["10", "15", "20", "25", "30", "35", "40"]}
+										otherLabel="Custom"
+									/>
 								</div>
 								<div className="sm:col-span-2">
 									<Label>Beneficiaries (Name & Relationship)</Label>
@@ -244,7 +351,11 @@ export function LifeQuotePage() {
 								</div>
 								<div>
 									<Label>Current Life Insurance Policies?</Label>
-									<Input name="current_policies" />
+									{/* CHANGED */}
+									<SelectWithOther
+										name="current_policies"
+										options={["Yes", "No"]}
+									/>
 								</div>
 								<div className="sm:col-span-2">
 									<Label>
@@ -254,7 +365,11 @@ export function LifeQuotePage() {
 								</div>
 								<div>
 									<Label>Any life insurance applications pending?</Label>
-									<Input name="applications_pending" />
+									{/* CHANGED */}
+									<SelectWithOther
+										name="applications_pending"
+										options={["Yes", "No"]}
+									/>
 								</div>
 							</div>
 						</div>
@@ -278,11 +393,19 @@ export function LifeQuotePage() {
 								</div>
 								<div>
 									<Label>Tobacco Use</Label>
-									<Input name="tobacco_use" />
+									{/* CHANGED */}
+									<SelectWithOther
+										name="tobacco_use"
+										options={["Never", "Former", "Current"]}
+									/>
 								</div>
 								<div>
 									<Label>Alcohol Use</Label>
-									<Input name="alcohol_use" />
+									{/* CHANGED */}
+									<SelectWithOther
+										name="alcohol_use"
+										options={["None", "Social", "Moderate", "High"]}
+									/>
 								</div>
 								<div className="sm:col-span-2">
 									<Label>Medical Conditions (current or past)</Label>
@@ -319,11 +442,17 @@ export function LifeQuotePage() {
 							<div className="grid gap-4">
 								<div>
 									<Label>High-risk hobbies or activities</Label>
-									<Textarea name="high_risk_hobbies" placeholder="skydiving, scuba, racing, etc." />
+									<Textarea
+										name="high_risk_hobbies"
+										placeholder="skydiving, scuba, racing, etc."
+									/>
 								</div>
 								<div>
 									<Label>Travel Outside the U.S.</Label>
-									<Textarea name="travel" placeholder="frequency & countries" />
+									<Textarea
+										name="travel"
+										placeholder="frequency & countries"
+									/>
 								</div>
 							</div>
 						</div>
@@ -338,7 +467,11 @@ export function LifeQuotePage() {
 							</h3>
 							<div className="space-y-4">
 								<Label>How did you hear about us?</Label>
-								<Input name="referral_source" />
+								{/* CHANGED */}
+								<SelectWithOther
+									name="referral_source"
+									options={["Google", "Referral", "Social Media", "Advertising"]}
+								/>
 							</div>
 						</div>
 

@@ -1,8 +1,77 @@
 // Updated to act as a hub that links to each specific quote form
 import { Shield, Lock, Clock, Car, Home, Umbrella, Heart, Building2, Briefcase } from "lucide-react";
 import { CoverageCard } from "../components/CoverageCard";
+import { useEffect } from "react";
+import { supabase } from "../lib/supabaseClient";
+
+function absUrl(path: string) {
+  const base = (import.meta as any).env?.VITE_SITE_URL || window.location.origin;
+  return path.startsWith("http") ? path : `${base}${path.startsWith("/") ? "" : "/"}${path}`;
+}
+function setHeadBasic({ title, description, canonicalPath, jsonLd }: { title: string; description?: string; canonicalPath?: string; jsonLd?: any; }) {
+  const SITE = "1Life Coverage Solutions";
+  const url = absUrl(canonicalPath || window.location.pathname);
+  document.title = `${title} | ${SITE}`;
+  if (description) {
+    let d = document.head.querySelector('meta[name="description"]') as HTMLMetaElement | null;
+    if (!d) { d = document.createElement("meta"); d.setAttribute("name","description"); document.head.appendChild(d); }
+    d.setAttribute("content", description);
+  }
+  let c = document.head.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+  if (!c) { c = document.createElement("link"); c.setAttribute("rel","canonical"); document.head.appendChild(c); }
+  c.setAttribute("href", url);
+  const up = (sel: any, val: string) => {
+    let el = document.head.querySelector(sel) as HTMLMetaElement | null;
+    if (!el) { el = document.createElement("meta"); document.head.appendChild(el); }
+    if (sel.includes('property')) el.setAttribute("property", sel.split('"')[1]);
+    if (sel.includes('name')) el.setAttribute("name", sel.split('"')[1]);
+    el.setAttribute("content", val);
+  };
+  up('meta[property="og:site_name"]', SITE);
+  up('meta[property="og:type"]', "website");
+  up('meta[property="og:title"]', `${title} | ${SITE}`);
+  if (description) up('meta[property="og:description"]', description);
+  up('meta[property="og:url"]', url);
+  up('meta[name="twitter:card"]', "summary_large_image");
+  document.head.querySelectorAll('script[data-seo-jsonld="1"]').forEach(n => n.remove());
+  if (jsonLd) {
+    const s = document.createElement("script");
+    s.type = "application/ld+json"; s.setAttribute("data-seo-jsonld","1");
+    s.textContent = JSON.stringify(jsonLd);
+    document.head.appendChild(s);
+  }
+}
 
 export function QuotePage() {
+  useEffect(() => {
+    const jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      name: "Insurance Quotes",
+      url: absUrl("/quote"),
+      description: "Start your auto, homeowners, umbrella, life, and business insurance quotes."
+    };
+    setHeadBasic({
+      title: "Start Your Insurance Quote",
+      description: "Choose auto, homeowners, umbrella, life, or business to get a fast quote.",
+      canonicalPath: "/quote",
+      jsonLd
+    });
+    (async () => {
+      const { data } = await supabase
+        .from("pages_seo").select("title,description,canonical_url,og_image,json_ld")
+        .eq("path", "/quote").maybeSingle();
+      if (data) {
+        setHeadBasic({
+          title: data.title || "Start Your Insurance Quote",
+          description: data.description || undefined,
+          canonicalPath: data.canonical_url || "/quote",
+          jsonLd: data.json_ld || jsonLd
+        });
+      }
+    })();
+  }, []);
+
   const quoteTypes = [
     {
       title: "Auto Insurance",

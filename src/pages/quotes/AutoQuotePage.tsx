@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
 	Card,
 	CardContent,
@@ -13,6 +13,71 @@ import { Textarea } from "../../components/ui/textarea";
 import { CheckCircle2, Car } from "lucide-react";
 import { QuoteLayout } from "../../components/quotes/QuoteLayout";
 import { submitQuote } from "../../lib/submit";
+import { supabase } from "../../lib/supabaseClient";
+import { SelectWithOther } from "../../components/quotes/SelectWithOther";
+
+function absUrl(path: string) {
+	const base = (import.meta as any).env?.VITE_SITE_URL || window.location.origin;
+	return path.startsWith("http") ? path : `${base}${path.startsWith("/") ? "" : "/"}${path}`;
+}
+function setHead({
+	title,
+	description,
+	canonicalPath,
+	jsonLd,
+}: {
+	title: string;
+	description?: string;
+	canonicalPath?: string;
+	jsonLd?: any;
+}) {
+	const SITE = "1Life Coverage Solutions";
+	const url = absUrl(canonicalPath || window.location.pathname);
+	document.title = `${title} | ${SITE}`;
+	if (description) {
+		let d = document.head.querySelector(
+			'meta[name="description"]'
+		) as HTMLMetaElement | null;
+		if (!d) {
+			d = document.createElement("meta");
+			d.setAttribute("name", "description");
+			document.head.appendChild(d);
+		}
+		d.setAttribute("content", description);
+	}
+	let c = document.head.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+	if (!c) {
+		c = document.createElement("link");
+		c.setAttribute("rel", "canonical");
+		document.head.appendChild(c);
+	}
+	c.setAttribute("href", url);
+	const up = (n: string, v: string, p = false) => {
+		const sel = p ? `meta[property="${n}"]` : `meta[name="${n}"]`;
+		let el = document.head.querySelector(sel) as HTMLMetaElement | null;
+		if (!el) {
+			el = document.createElement("meta");
+			if (p) el.setAttribute("property", n);
+			else el.setAttribute("name", n);
+			document.head.appendChild(el);
+		}
+		el.setAttribute("content", v);
+	};
+	up("og:site_name", "1Life Coverage Solutions", true);
+	up("og:type", "website", true);
+	up("og:title", `${title} | 1Life Coverage Solutions`, true);
+	if (description) up("og:description", description, true);
+	up("og:url", url, true);
+	up("twitter:card", "summary_large_image");
+	document.head.querySelectorAll('script[data-seo-jsonld="1"]').forEach((n) => n.remove());
+	if (jsonLd) {
+		const s = document.createElement("script");
+		s.type = "application/ld+json";
+		s.setAttribute("data-seo-jsonld", "1");
+		s.textContent = JSON.stringify(jsonLd);
+		document.head.appendChild(s);
+	}
+}
 
 function Section({
 	title,
@@ -35,6 +100,39 @@ function Section({
 }
 
 export function AutoQuotePage() {
+	useEffect(() => {
+		const jsonLd = {
+			"@context": "https://schema.org",
+			"@type": "Service",
+			serviceType: "Auto Insurance Quote",
+			provider: { "@type": "InsuranceAgency", name: "1Life Coverage Solutions" },
+			url: absUrl("/quote/auto"),
+			areaServed: "US",
+			description: "Start your auto insurance quote and compare coverage options.",
+		};
+		setHead({
+			title: "Auto Insurance Quote",
+			description: "Start your auto insurance quote and compare coverage options.",
+			canonicalPath: "/quote/auto",
+			jsonLd,
+		});
+		(async () => {
+			const { data } = await supabase
+				.from("pages_seo")
+				.select("title,description,canonical_url,json_ld")
+				.eq("path", "/quote/auto")
+				.maybeSingle();
+			if (data) {
+				setHead({
+					title: data.title || "Auto Insurance Quote",
+					description: data.description || undefined,
+					canonicalPath: data.canonical_url || "/quote/auto",
+					jsonLd: data.json_ld || jsonLd,
+				});
+			}
+		})();
+	}, []);
+
 	const [submitted, setSubmitted] = useState(false);
 	const [submitting, setSubmitting] = useState(false); // NEW
 	const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -219,7 +317,11 @@ export function AutoQuotePage() {
 							</div>
 							<div>
 								<Label>Preferred Contact Method</Label>
-								<Input placeholder="Phone / Email" name="preferred_contact_method" />
+								{/* CHANGED */}
+								<SelectWithOther
+									name="preferred_contact_method"
+									options={["Phone", "Email", "Text"]}
+								/>
 							</div>
 							<div className="sm:col-span-2">
 								<Label>Address</Label>
@@ -267,11 +369,19 @@ export function AutoQuotePage() {
 						<div className="grid gap-4 sm:grid-cols-2">
 							<div>
 								<Label>Primary Vehicle Use</Label>
-								<Input name="primary_vehicle_use" />
+								{/* CHANGED */}
+								<SelectWithOther
+									name="primary_vehicle_use"
+									options={["Commute", "Pleasure", "Business", "Rideshare"]}
+								/>
 							</div>
 							<div>
 								<Label>Length of Primary Vehicle Ownership</Label>
-								<Input name="vehicle_ownership_length" />
+								{/* CHANGED */}
+								<SelectWithOther
+									name="vehicle_ownership_length"
+									options={["<1 year", "1-3 years", "3-5 years", "5+ years"]}
+								/>
 							</div>
 							<div>
 								<Label>Miles Driven One Way for Commute</Label>
@@ -287,7 +397,8 @@ export function AutoQuotePage() {
 							</div>
 							<div>
 								<Label>Used for Rideshare?</Label>
-								<Input name="rideshare_use" />
+								{/* CHANGED */}
+								<SelectWithOther name="rideshare_use" options={["Yes", "No"]} />
 							</div>
 						</div>
 					</Section>
@@ -305,7 +416,8 @@ export function AutoQuotePage() {
 						<div className="grid gap-4 sm:grid-cols-2">
 							<div>
 								<Label>Currently Insured?</Label>
-								<Input name="currently_insured" />
+								{/* CHANGED */}
+								<SelectWithOther name="currently_insured" options={["Yes", "No"]} />
 							</div>
 							<div>
 								<Label>Current Policy Expiration Date</Label>

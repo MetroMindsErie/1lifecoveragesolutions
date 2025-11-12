@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
 	Card,
 	CardContent,
@@ -13,8 +13,95 @@ import { Textarea } from "../../components/ui/textarea";
 import { CheckCircle2, Briefcase } from "lucide-react";
 import { QuoteLayout } from "../../components/quotes/QuoteLayout";
 import { submitQuote } from "../../lib/submit";
+import { supabase } from "../../lib/supabaseClient";
+import { SelectWithOther } from "../../components/quotes/SelectWithOther";
+
+function absUrl(path: string) {
+	const base = (import.meta as any).env?.VITE_SITE_URL || window.location.origin;
+	return path.startsWith("http")
+		? path
+		: `${base}${path.startsWith("/") ? "" : "/"}${path}`;
+}
+function setHead({
+	title,
+	description,
+	canonicalPath,
+	jsonLd,
+}: {
+	title: string;
+	description?: string;
+	canonicalPath?: string;
+	jsonLd?: any;
+}) {
+	const SITE = "1Life Coverage Solutions";
+	const url = absUrl(canonicalPath || window.location.pathname);
+	document.title = `${title} | ${SITE}`;
+	if (description) {
+		let d = document.head.querySelector('meta[name="description"]') as
+			| HTMLMetaElement
+			| null;
+		if (!d) {
+			d = document.createElement("meta");
+			d.setAttribute("name", "description");
+			document.head.appendChild(d);
+		}
+		d.setAttribute("content", description);
+	}
+	let c = document.head.querySelector('link[rel="canonical"]') as
+		| HTMLLinkElement
+		| null;
+	if (!c) {
+		c = document.createElement("link");
+		c.setAttribute("rel", "canonical");
+		document.head.appendChild(c);
+	}
+	c.setAttribute("href", url);
+	document.head.querySelectorAll('script[data-seo-jsonld="1"]').forEach((n) =>
+		n.remove()
+	);
+	if (jsonLd) {
+		const s = document.createElement("script");
+		s.type = "application/ld+json";
+		s.setAttribute("data-seo-jsonld", "1");
+		s.textContent = JSON.stringify(jsonLd);
+		document.head.appendChild(s);
+	}
+}
 
 export function BopQuotePage() {
+	useEffect(() => {
+		const jsonLd = {
+			"@context": "https://schema.org",
+			"@type": "Service",
+			serviceType: "Business Owners Policy (BOP) Quote",
+			provider: { "@type": "InsuranceAgency", name: "1Life Coverage Solutions" },
+			url: absUrl("/quote/bop"),
+			areaServed: "US",
+			description: "Bundle property and liability protection tailored to your operations.",
+		};
+		setHead({
+			title: "Business Owners Policy (BOP) Quote",
+			description: "Bundle property and liability protection tailored to your operations.",
+			canonicalPath: "/quote/bop",
+			jsonLd,
+		});
+		(async () => {
+			const { data } = await supabase
+				.from("pages_seo")
+				.select("title,description,canonical_url,json_ld")
+				.eq("path", "/quote/bop")
+				.maybeSingle();
+			if (data) {
+				setHead({
+					title: data.title || "Business Owners Policy (BOP) Quote",
+					description: data.description || undefined,
+					canonicalPath: data.canonical_url || "/quote/bop",
+					jsonLd: data.json_ld || jsonLd,
+				});
+			}
+		})();
+	}, []);
+
 	const [submitted, setSubmitted] = useState(false);
 	const [submitting, setSubmitting] = useState(false); // NEW
 	const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -262,11 +349,19 @@ export function BopQuotePage() {
 								</div>
 								<div>
 									<Label>Property Type</Label>
-									<Input placeholder="Owned / Leased / Rented" name="property_type" />
+									{/* CHANGED */}
+									<SelectWithOther
+										name="property_type"
+										options={["Owned", "Leased", "Rented"]}
+									/>
 								</div>
 								<div>
 									<Label>Building Construction</Label>
-									<Input placeholder="Brick / Wood / Metal / Other" name="building_construction" />
+									{/* CHANGED */}
+									<SelectWithOther
+										name="building_construction"
+										options={["Brick", "Wood", "Metal", "Concrete"]}
+									/>
 								</div>
 								<div>
 									<Label>Year Built</Label>
@@ -282,15 +377,21 @@ export function BopQuotePage() {
 								</div>
 								<div>
 									<Label>Fire Protection/Sprinklers</Label>
-									<Input placeholder="Yes / No" name="sprinklers" />
+									{/* CHANGED */}
+									<SelectWithOther name="sprinklers" options={["Yes", "No"]} />
 								</div>
 								<div>
 									<Label>Security Systems</Label>
-									<Input placeholder="Yes / No" name="security_systems" />
+									{/* CHANGED */}
+									<SelectWithOther name="security_systems" options={["Yes", "No"]} />
 								</div>
 								<div className="sm:col-span-2">
 									<Label>Any hazardous materials on site?</Label>
-									<Input placeholder="Yes / No" name="hazardous_materials" />
+									{/* CHANGED */}
+									<SelectWithOther
+										name="hazardous_materials"
+										options={["Yes", "No"]}
+									/>
 								</div>
 							</div>
 						</div>
@@ -322,13 +423,18 @@ export function BopQuotePage() {
 								</div>
 								<div>
 									<Label>Any seasonal operations?</Label>
-									<Input placeholder="Yes / No" name="seasonal" />
+									{/* CHANGED */}
+									<SelectWithOther name="seasonal" options={["Yes", "No"]} />
 								</div>
 								<div className="sm:col-span-2">
 									<Label>
 										Any previous claims or losses in last 5 years?
 									</Label>
-									<Input placeholder="Yes / No" name="prior_claims" />
+									{/* CHANGED */}
+									<SelectWithOther
+										name="prior_claims"
+										options={["Yes", "No"]}
+									/>
 								</div>
 								<div className="sm:col-span-2">
 									<Label>If yes, please describe</Label>
@@ -348,7 +454,10 @@ export function BopQuotePage() {
 							<div className="grid gap-4 sm:grid-cols-2">
 								<div className="sm:col-span-2">
 									<Label>Desired Coverage Types</Label>
-									<Input placeholder="Property / Liability / Business Interruption / Equipment Breakdown / Other" name="desired_coverage_types" />
+									<Input
+										placeholder="Property / Liability / Business Interruption / Equipment Breakdown / Other"
+										name="desired_coverage_types"
+									/>
 								</div>
 								<div>
 									<Label>Desired Coverage Limits ($)</Label>
@@ -356,7 +465,12 @@ export function BopQuotePage() {
 								</div>
 								<div>
 									<Label>Deductible Preference ($)</Label>
-									<Input name="deductible" />
+									{/* CHANGED */}
+									<SelectWithOther
+										name="deductible"
+										options={["500", "1000", "2500", "5000"]}
+										otherLabel="Custom"
+									/>
 								</div>
 							</div>
 						</div>
@@ -372,11 +486,16 @@ export function BopQuotePage() {
 							<div className="grid gap-4 sm:grid-cols-2">
 								<div>
 									<Label>Vehicles used for operations?</Label>
-									<Input placeholder="Yes / No" name="vehicles_for_operations" />
+									{/* CHANGED */}
+									<SelectWithOther
+										name="vehicles_for_operations"
+										options={["Yes", "No"]}
+									/>
 								</div>
 								<div>
 									<Label>Subcontractors?</Label>
-									<Input placeholder="Yes / No" name="subcontractors" />
+									{/* CHANGED */}
+									<SelectWithOther name="subcontractors" options={["Yes", "No"]} />
 								</div>
 								<div className="sm:col-span-2">
 									<Label>Special endorsements needed?</Label>
@@ -396,7 +515,11 @@ export function BopQuotePage() {
 							<div className="grid gap-4 sm:grid-cols-2">
 								<div>
 									<Label>How did you hear about us?</Label>
-									<Input name="referral_source" />
+									{/* CHANGED */}
+									<SelectWithOther
+										name="referral_source"
+										options={["Google", "Referral", "Social Media", "Advertising"]}
+									/>
 								</div>
 							</div>
 						</div>

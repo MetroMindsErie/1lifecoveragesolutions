@@ -17,6 +17,16 @@ interface Contact {
   utm?: { source?: string; medium?: string; campaign?: string } | null;
 }
 
+function setAdminDetailHead() {
+  const SITE = "1Life Coverage Solutions";
+  const title = "Admin Contact Detail";
+  document.title = `${title} | ${SITE}`;
+  let robots = document.head.querySelector('meta[name="robots"]') as HTMLMetaElement | null;
+  if (!robots) { robots = document.createElement("meta"); robots.setAttribute("name","robots"); document.head.appendChild(robots); }
+  robots.setAttribute("content","noindex,nofollow");
+  document.head.querySelectorAll('script[data-seo-jsonld="1"]').forEach(n => n.remove());
+}
+
 export default function AdminContactDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -58,6 +68,8 @@ export default function AdminContactDetailPage() {
       window.scrollTo(0, 0);
     })();
   }, [id]);
+
+  useEffect(() => { setAdminDetailHead(); }, []);
 
   const displayName = item
     ? ([item.first_name, item.last_name].filter(Boolean).join(" ").trim() || item.name || "Unnamed")
