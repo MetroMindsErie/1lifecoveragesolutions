@@ -1,14 +1,23 @@
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { Button } from "./ui/button";
-import { Logo } from "./Logo";
 import { Link } from "react-router-dom"; // NEW
+import logo from "../assets/c1916fca24a402e9827626e05b952c97898461d8.png"; // NEW
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // GA4: inject + track SPA navigation, clicks, scroll depth, engagement time
   useEffect(() => {
+    // NEW: expose coral theme color and a few tints as CSS variables for app-wide use
+    const BRAND_CORAL = "#FF6B61";
+    try {
+      document.documentElement.style.setProperty("--brand-coral", BRAND_CORAL);
+      document.documentElement.style.setProperty("--brand-coral-10", "rgba(255,107,97,0.08)"); // subtle bg tint
+      document.documentElement.style.setProperty("--brand-coral-16", "rgba(255,107,97,0.16)");
+      document.documentElement.style.setProperty("--brand-coral-40", "rgba(255,107,97,0.40)");
+    } catch {}
+
     // Use env var if set, otherwise your GA4 ID (from snippet)
     const GA_ID = (import.meta as any).env?.VITE_GA_ID || "G-RPP8SC71BH"; // CHANGED
     if (!GA_ID) return;
@@ -179,10 +188,21 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
       <nav className="mx-auto flex max-w-7xl items-center justify-between p-4 lg:px-8">
-        <div className="flex lg:flex-1">
-          {/* CHANGED: use Link instead of <a href="/"> */}
-          <Link to="/">
-            <Logo size="sm" />
+        <div className="flex lg:flex-1 items-center">
+          {/* Small logo visible only on small screens */}
+          <Link to="/" className="mr-2 block lg:hidden">
+            <img
+              src={logo}
+              alt="1Life Coverage"
+              className="h-8 w-8 rounded-md shadow-lg object-cover bg-white"
+              width={32}
+              height={32}
+            />
+          </Link>
+
+          {/* Logo text (keeps visible as before) */}
+          <Link to="/" className="text-lg font-semibold" style={{ color: "var(--brand-coral, #FF6B61)" }}>
+            1Life Coverage
           </Link>
         </div>
 

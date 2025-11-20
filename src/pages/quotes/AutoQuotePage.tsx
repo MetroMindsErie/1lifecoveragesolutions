@@ -207,83 +207,6 @@ export function AutoQuotePage() {
 				},
 			]}
 		>
-			{/* NEW: Coverage Overview */}
-			<Card
-				data-step="Coverage Overview"
-				className="mx-auto mb-8 max-w-3xl rounded-xl border border-gray-200 bg-white/70 backdrop-blur-sm shadow-sm"
-			>
-				<CardHeader>
-					<CardTitle>Auto Coverage Overview</CardTitle>
-					<CardDescription>
-						Understand policy options before you submit your info.
-					</CardDescription>
-				</CardHeader>
-				<CardContent className="space-y-6 text-sm text-[#6c757d]">
-					<div>
-						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
-							Core Coverages
-						</h4>
-						<ul className="grid gap-2 sm:grid-cols-2">
-							<li>Liability (BI / PD)</li>
-							<li>Uninsured / Underinsured Motorist</li>
-							<li>Personal Injury Protection / MedPay</li>
-							<li>Comprehensive (fire, theft, weather)</li>
-							<li>Collision (vehicle damage)</li>
-							<li>Roadside Assistance (optional)</li>
-						</ul>
-					</div>
-					<div>
-						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
-							Common Endorsements
-						</h4>
-						<ul className="grid gap-2 sm:grid-cols-2">
-							<li>Rental Reimbursement</li>
-							<li>Gap Coverage</li>
-							<li>Custom Equipment</li>
-							<li>Rideshare / Delivery Use</li>
-							<li>Accident Forgiveness</li>
-							<li>Glass / Windshield Waiver</li>
-						</ul>
-					</div>
-					<div>
-						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
-							Discount Insights
-						</h4>
-						<p className="text-xs leading-relaxed">
-							Multi-vehicle, safe driver, telematics, good student, paid-in-full,
-							defensive driving, and bundle (home / umbrella) discounts may apply.
-						</p>
-					</div>
-					<div>
-						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
-							Sample Claim Scenarios
-						</h4>
-						<ul className="space-y-1">
-							<li>
-								<span className="text-[#1a1a1a] font-medium">
-									Rear-End Collision:
-								</span>{" "}
-								Collision + liability protect both parties.
-							</li>
-							<li>
-								<span className="text-[#1a1a1a] font-medium">
-									Storm Damage:
-								</span>{" "}
-								Comprehensive handles hail / fallen tree.
-							</li>
-							<li>
-								<span className="text-[#1a1a1a] font-medium">
-									Hit-and-Run:
-								</span>{" "}
-								UM/UIM may respond if at-fault driver unknown.
-							</li>
-						</ul>
-					</div>
-					<p className="text-[11px]">
-						Final eligibility & pricing depend on underwriting guidelines.
-					</p>
-				</CardContent>
-			</Card>
 			<form onSubmit={onSubmit} className="space-y-8 p-8">
 				{/* Honeypot fields (hidden) */}
 				<input
@@ -443,6 +366,83 @@ export function AutoQuotePage() {
 					</div>
 				</div>
 			</form>
+			{/* Moved: Coverage Overview (now shown after client form) */}
+			<Card
+				data-step="Coverage Overview"
+				className="mx-auto mb-8 max-w-3xl rounded-xl border border-gray-200 bg-white/70 backdrop-blur-sm shadow-sm"
+			>
+				<CardHeader>
+					<CardTitle>Auto Coverage Overview</CardTitle>
+					<CardDescription>
+						Understand policy options before you submit your info.
+					</CardDescription>
+				</CardHeader>
+				<CardContent className="space-y-6 text-sm text-[#6c757d]">
+					<div>
+						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
+							Core Coverages
+						</h4>
+						<ul className="grid gap-2 sm:grid-cols-2">
+							<li>Liability (BI / PD)</li>
+							<li>Uninsured / Underinsured Motorist</li>
+							<li>Personal Injury Protection / MedPay</li>
+							<li>Comprehensive (fire, theft, weather)</li>
+							<li>Collision (vehicle damage)</li>
+							<li>Roadside Assistance (optional)</li>
+						</ul>
+					</div>
+					<div>
+						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
+							Common Endorsements
+						</h4>
+						<ul className="grid gap-2 sm:grid-cols-2">
+							<li>Rental Reimbursement</li>
+							<li>Gap Coverage</li>
+							<li>Custom Equipment</li>
+							<li>Rideshare / Delivery Use</li>
+							<li>Accident Forgiveness</li>
+							<li>Glass / Windshield Waiver</li>
+						</ul>
+					</div>
+					<div>
+						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
+							Discount Insights
+						</h4>
+						<p className="text-xs leading-relaxed">
+							Multi-vehicle, safe driver, telematics, good student, paid-in-full,
+							defensive driving, and bundle (home / umbrella) discounts may apply.
+						</p>
+					</div>
+					<div>
+						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
+							Sample Claim Scenarios
+						</h4>
+						<ul className="space-y-1">
+							<li>
+								<span className="text-[#1a1a1a] font-medium">
+									Rear-End Collision:
+								</span>{" "}
+								Collision + liability protect both parties.
+							</li>
+							<li>
+								<span className="text-[#1a1a1a] font-medium">
+									Storm Damage:
+								</span>{" "}
+								Comprehensive handles hail / fallen tree.
+							</li>
+							<li>
+								<span className="text-[#1a1a1a] font-medium">
+									Hit-and-Run:
+								</span>{" "}
+								UM/UIM may respond if at-fault driver unknown.
+							</li>
+						</ul>
+					</div>
+					<p className="text-[11px]">
+						Final eligibility & pricing depend on underwriting guidelines.
+					</p>
+				</CardContent>
+			</Card>
 		</QuoteLayout>
 	);
 }

@@ -113,6 +113,12 @@ export function BlogPage() {
     { id: string; title: string; link: string; date?: string; image?: string; excerpt?: string }[]
   >([]);
 
+  // Newsletter subscribe state
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterLoading, setNewsletterLoading] = useState(false);
+  const [newsletterSuccess, setNewsletterSuccess] = useState<string | null>(null);
+  const [newsletterError, setNewsletterError] = useState<string | null>(null);
+
   // Fetch RSS on mount
   useEffect(() => {
     let cancelled = false;
@@ -189,6 +195,37 @@ export function BlogPage() {
   const rssFeatured = !rssLoading && !rssError ? filteredItems.slice(0, 3) : [];
   const rssMore = !rssLoading && !rssError ? filteredItems.slice(3) : [];
 
+  async function subscribeNewsletter() {
+    setNewsletterError(null);
+    setNewsletterSuccess(null);
+    const email = (newsletterEmail || "").trim().toLowerCase();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setNewsletterError("Please enter a valid email address.");
+      return;
+    }
+    setNewsletterLoading(true);
+    try {
+      const { error } = await supabase
+        .from("newsletter_subscribers")
+        .insert([{ email, subscribed_at: new Date().toISOString() }]);
+      if (error) {
+        // handle unique constraint / duplicate gracefully
+        if (error.code === "23505" || /duplicate/i.test(error.message || "")) {
+          setNewsletterSuccess("You're already subscribed.");
+        } else {
+          setNewsletterError(error.message || "Failed to subscribe.");
+        }
+      } else {
+        setNewsletterSuccess("Thanks — you are subscribed!");
+        setNewsletterEmail("");
+      }
+    } catch (e: any) {
+      setNewsletterError(e?.message || "Failed to subscribe.");
+    } finally {
+      setNewsletterLoading(false);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -204,8 +241,8 @@ export function BlogPage() {
         </div>
       </section>
 
-      {/* Search and Filter */}
-      <section className="border-b bg-gray-50 py-8">
+      {/* Search and Filter (coral-tinted background) */}
+      <section className="border-b py-8" style={{ background: "var(--brand-coral-10)" }}>
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
           <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="relative flex-1 md:max-w-md">
@@ -240,9 +277,9 @@ export function BlogPage() {
         </div>
       </section>
 
-      {/* Latest Articles */}
+      {/* Latest Articles (coral-tinted background to reduce white) */}
       {(rssLoading || rssError || !hasActiveFilter || rssMore.length > 0) && (
-        <section className="border-b bg-white py-16">
+        <section className="border-b py-16" style={{ background: "var(--brand-coral-10)" }}>
           <div className="mx-auto max-w-7xl px-4 lg:px-8">
             <div className="mb-6 flex items-end justify-between gap-4">
               <h2 className="text-2xl text-[#1a1a1a]">Latest from Insurance Journal</h2>
@@ -311,9 +348,9 @@ export function BlogPage() {
         </section>
       )}
 
-      {/* Featured Articles */}
+      {/* Featured Articles (coral-tinted background) */}
       {rssFeatured.length > 0 && (
-        <section className="border-b bg-white py-16">
+        <section className="border-b py-16" style={{ background: "var(--brand-coral-10)" }}>
           <div className="mx-auto max-w-7xl px-4 lg:px-8">
             <h2 className="mb-8 text-2xl text-[#1a1a1a]">Featured Articles</h2>
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
@@ -373,9 +410,26 @@ export function BlogPage() {
             Subscribe to our newsletter for the latest insurance tips, industry news, and exclusive offers.
           </p>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-center">
-            <Input type="email" placeholder="Enter your email" className="sm:w-80" />
-            <Button className="bg-[#1B5A8E] hover:bg-[#144669]">Subscribe</Button>
+            <Input
+              type="email"
+              placeholder="Enter your email"
+              className="sm:w-80"
+              value={newsletterEmail}
+              onChange={(e) => setNewsletterEmail(e.target.value)}
+              aria-label="Newsletter email"
+            />
+            <Button
+              className="bg-[#1B5A8E] hover:bg-[#144669]"
+              onClick={subscribeNewsletter}
+              disabled={newsletterLoading}
+            >
+              {newsletterLoading ? "Subscribing…" : "Subscribe"}
+            </Button>
           </div>
+          <div className="mt-3 text-sm">
+            {newsletterSuccess && <div className="text-sm text-green-600">{newsletterSuccess}</div>}
+            {newsletterError && <div className="text-sm text-red-600">{newsletterError}</div>}
+           </div>
         </div>
       </section>
     </div>

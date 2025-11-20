@@ -24,7 +24,7 @@ import {
   Umbrella,
   Briefcase
 } from "lucide-react";
-import { PartnerTicker } from "../components/PartnerTicker";
+// import { PartnerTicker } from "../components/PartnerTicker";
 import { useEffect } from "react";
 import { supabase } from "../lib/supabaseClient";
 
@@ -257,6 +257,9 @@ const heroFeatures = [
   { icon: Target, text: "Custom Coverage" },
 ];
 
+// NEW: additional theme color (coral)
+const BRAND_CORAL = "#FF6B61";
+
 export function HomePage() {
   useEffect(() => {
     const jsonLd = {
@@ -279,6 +282,8 @@ export function HomePage() {
       ogImage: "/og/default.jpg",
       jsonLd,
     });
+    // ensure coral is available even if Header useEffect not run yet
+    try { document.documentElement.style.setProperty("--brand-coral", BRAND_CORAL); } catch {}
     // Attempt DB override
     (async () => {
       const { data } = await supabase
@@ -302,10 +307,23 @@ export function HomePage() {
     <div>
       {/* Enhanced Hero Section with animated elements */}
       <section className="relative isolate overflow-hidden bg-gradient-to-br from-[#1B5A8E] via-[#2C7DB8] to-[#1B5A8E]">
-        {/* Animated background pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMSI+PHBhdGggZD0iTTM2IDE2YzAtMS4xMDUtLjg5NS0yLTItMnMtMiAuODk1LTIgMiAuODk1IDIgMiAyIDItLjg5NSAyLTJ6bTAgMjhjMC0xLjEwNS0uODk1LTItMi0ycy0yIC44OTUtMiAyIC44OTUgMiAyIDIgMi0uODk1IDItMnoiLz48L2c+PC9nPjwvc3ZnPg==')] animate-pulse" />
+        {/* NEW: subtle coral decorative circle behind the logo (upper-left) */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute left-4 top-8 -z-10 h-44 w-44 rounded-full"
+          style={{ background: `${BRAND_CORAL}22` /* 13% alpha */ }}
+        />
+        {/* Hero logo (visible on lg+ only) — slightly larger on desktop */}
+        <div
+          className="hidden lg:flex absolute left-6 top-6 z-40 pointer-events-none rounded-lg p-2 lg:left-8 lg:top-8 lg:p-3 xl:left-10 xl:top-10 xl:p-4 shadow-md bg-white/8 backdrop-blur-sm h-20 w-20 lg:h-40 lg:w-40 xl:h-40 xl:w-40 2xl:h-36 2xl:w-36 items-center justify-center"
+        >
+          <img
+            src="src/assets/c1916fca24a402e9827626e05b952c97898461d8.png"
+            alt="1Life Coverage Solutions"
+            className="max-h-full max-w-full object-contain rounded-md"
+          />
         </div>
+        
 
         {/* Floating animated shapes */}
         <motion.div
@@ -340,7 +358,8 @@ export function HomePage() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6 }}
-              className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/10 px-6 py-3 backdrop-blur-sm"
+              className="mb-6 inline-flex items-center gap-2 rounded-full px-6 py-3 backdrop-blur-sm"
+              style={{ background: `linear-gradient(90deg, ${BRAND_CORAL}, #1B5A8E)` }}
             >
               <Sparkles className="h-5 w-5 text-white" />
               <span className="text-sm text-white">Trusted by 500,000+ customers nationwide</span>
@@ -400,7 +419,8 @@ export function HomePage() {
               <Button
                 size="lg"
                 variant="outline"
-                className="w-full border-2 border-white bg-transparent text-white hover:bg-white hover:text-[#1B5A8E] sm:w-auto transition-all"
+                className="w-full bg-transparent text-white hover:bg-white hover:text-[#1B5A8E] sm:w-auto transition-all"
+                style={{ borderColor: `var(--brand-coral, ${BRAND_CORAL})` }}
                 asChild
               >
                 <a href="#coverage">Explore Coverage</a>
@@ -414,10 +434,10 @@ export function HomePage() {
       </section>
 
       {/* NEW: Partner / Carrier Ticker */}
-      <PartnerTicker />
+      {/* <PartnerTicker /> */}
 
-      {/* Stats Section - Subtle entrance animation */}
-      <section className="border-b bg-white py-16">
+      {/* Stats Section - subtle coral tint background */}
+      <section className="border-b py-16" style={{ background: "var(--brand-coral-10)" }}>
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
           <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
             {stats.map((stat, index) => (
@@ -444,8 +464,8 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* Value Proposition */}
-      <section className="bg-gray-50 py-24">
+      {/* Value Proposition (coral-tinted background) */}
+      <section className="py-24" style={{ background: "var(--brand-coral-10)" }}>
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
           <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-16 items-center">
             <motion.div
@@ -519,8 +539,8 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* Coverage Section - Staggered Animation */}
-      <section id="coverage" className="bg-white py-24">
+      {/* Coverage Section - coral tint to reduce large white blocks */}
+      <section id="coverage" className="py-24" style={{ background: "var(--brand-coral-10)" }}>
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -559,8 +579,8 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* Industries We Serve */}
-      <section className="border-y bg-gray-50 py-24">
+      {/* Industries We Serve (subtle coral background) */}
+      <section className="border-y py-24" style={{ background: "var(--brand-coral-10)" }}>
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -599,8 +619,8 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* Why Choose Us Section */}
-      <section className="bg-white py-24">
+      {/* Why Choose Us Section (coral tint) */}
+      <section className="py-24" style={{ background: "var(--brand-coral-10)" }}>
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -648,45 +668,37 @@ export function HomePage() {
         description="Join thousands of satisfied customers who trust 1Life Coverage Solutions"
       />
 
-      {/* CTA Section */}
-      <section className="relative overflow-hidden bg-[#1B5A8E] py-24">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1zbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDE2YzAtMS4xMDUtLjg5NS0yLTItMnMtMiAuODk1LTIgMiAuODk1IDIgMiAyIDItLjg5NSAyLTJ6bTAgMjhjMC0xLjEwNS0uODk1LTItMi0ycy0yIC44OTUtMiAyIC44OTUgMiAyIDIgMi0uODk1IDItMnoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-40" />
-        <div className="mx-auto max-w-7xl px-4 text-center lg:px-8 relative">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="mb-4 text-3xl text-white sm:text-4xl">
-              Ready to Get Started?
-            </h2>
-            <p className="mb-8 text-lg text-white/90">
-              Get a personalized quote in minutes and start protecting what matters most.
-            </p>
-            <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Button
-                size="lg"
-                className="w-full bg-white text-[#1B5A8E] hover:bg-white/90 sm:w-auto transition-all hover:scale-105 shadow-xl"
-                asChild
-              >
-                <a href="/quote">
-                  Get Your Free Quote
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </a>
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="w-full border-2 border-white bg-transparent text-white hover:bg-white hover:text-[#1B5A8E] sm:w-auto"
-                asChild
-              >
-                <a href="/contact">Contact an Agent</a>
-              </Button>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-    </div>
-  );
-}
+      {/* CTA Section (use coral→blue gradient so footer shows coral) */}
+            <section className="relative overflow-hidden py-24" style={{ background: `linear-gradient(90deg, var(--brand-coral), #1B5A8E)` }}>
+              <div className="absolute inset-0 opacity-40" aria-hidden="true" />
+              <div className="mx-auto max-w-7xl px-4 text-center lg:px-8 relative">
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6 }}
+                  viewport={{ once: true }}
+                  className="mx-auto max-w-2xl"
+                >
+                  <h2 className="mb-4 text-3xl font-semibold text-white sm:text-4xl">
+                    Ready to protect what matters?
+                  </h2>
+                  <p className="mb-8 text-lg text-white/90">
+                    Get an instant quote or speak with an agent today to find coverage that fits your needs and budget.
+                  </p>
+                  <div className="flex items-center justify-center gap-4">
+                    <Button size="lg" className="bg-white text-[#1B5A8E] hover:bg-white/90" asChild>
+                      <a href="/quote">
+                        Get a Free Quote
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </a>
+                    </Button>
+                    <Button size="lg" variant="outline" className="text-white border-white/40 hover:bg-white/10 text-[#1B5A8E]" asChild>
+                      <a href="/contact">Contact an Agent</a>
+                    </Button>
+                  </div>
+                </motion.div>
+              </div>
+            </section>
+          </div>
+        );
+      }

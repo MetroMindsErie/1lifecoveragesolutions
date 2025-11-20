@@ -173,69 +173,7 @@ export function CommercialBuildingQuotePage() {
 				},
 			]}
 		>
-			{/* NEW: Coverage Overview */}
-			<Card
-				data-step="Coverage Overview"
-				className="mx-auto mb-8 max-w-4xl rounded-xl border border-gray-200 bg-white/70 backdrop-blur-sm shadow-sm"
-			>
-				<CardHeader>
-					<CardTitle>Commercial Property Overview</CardTitle>
-					<CardDescription>
-						Core components & enhancement options.
-					</CardDescription>
-				</CardHeader>
-				<CardContent className="space-y-6 text-sm text-[#6c757d]">
-					<div>
-						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
-							Core Coverage Areas
-						</h4>
-						<ul className="grid gap-2 sm:grid-cols-2">
-							<li>Building</li>
-							<li>Business Personal Property</li>
-							<li>Tenant Improvements</li>
-							<li>Loss of Business Income</li>
-							<li>General Liability</li>
-							<li>Equipment Breakdown</li>
-						</ul>
-					</div>
-					<div>
-						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
-							Common Endorsements
-						</h4>
-						<ul className="grid gap-2 sm:grid-cols-2">
-							<li>Ordinance or Law</li>
-							<li>Outdoor Signs</li>
-							<li>Cyber Liability</li>
-							<li>Flood / Earthquake (separate)</li>
-							<li>Spoilage / Utility Services</li>
-							<li>Hired &amp; Non-Owned Auto</li>
-						</ul>
-					</div>
-					<div>
-						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
-							Underwriting Focus
-						</h4>
-						<p className="text-xs leading-relaxed">
-							Construction class, protection (alarms/sprinklers), occupancy type,
-							neighboring exposures, updates to roof / HVAC / wiring / plumbing.
-						</p>
-					</div>
-					<div>
-						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
-							Claim Examples
-						</h4>
-						<ul className="space-y-1">
-							<li>Fire loss &amp; business interruption</li>
-							<li>Wind or hail exterior damage</li>
-							<li>Slip-and-fall liability claim</li>
-						</ul>
-					</div>
-					<p className="text-[11px]">
-						Vacancy, specialty manufacturing, or hazardous storage may require
-						specialty markets.
-					</p>
-				</CardContent>
-			</Card>
+			{/* Main Quote Card (form) - unchanged */}
 			<Card className="mx-auto max-w-4xl">
 				<CardHeader>
 					<CardTitle>Commercial Building Insurance Quote</CardTitle>
@@ -488,6 +426,70 @@ export function CommercialBuildingQuotePage() {
 							</Button>
 						</div>
 					</form>
+				</CardContent>
+			</Card>
+
+			{/* Moved: Coverage Overview (now shown after client form) */}
+			<Card
+				data-step="Coverage Overview"
+				className="mx-auto mb-8 max-w-4xl rounded-xl border border-gray-200 bg-white/70 backdrop-blur-sm shadow-sm"
+			>
+				<CardHeader>
+					<CardTitle>Commercial Property Overview</CardTitle>
+					<CardDescription>
+						Core components & enhancement options.
+					</CardDescription>
+				</CardHeader>
+				<CardContent className="space-y-6 text-sm text-[#6c757d]">
+					<div>
+						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
+							Core Coverage Areas
+						</h4>
+						<ul className="grid gap-2 sm:grid-cols-2">
+							<li>Building</li>
+							<li>Business Personal Property</li>
+							<li>Tenant Improvements</li>
+							<li>Loss of Business Income</li>
+							<li>General Liability</li>
+							<li>Equipment Breakdown</li>
+						</ul>
+					</div>
+					<div>
+						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
+							Common Endorsements
+						</h4>
+						<ul className="grid gap-2 sm:grid-cols-2">
+							<li>Ordinance or Law</li>
+							<li>Outdoor Signs</li>
+							<li>Cyber Liability</li>
+							<li>Flood / Earthquake (separate)</li>
+							<li>Spoilage / Utility Services</li>
+							<li>Hired &amp; Non-Owned Auto</li>
+						</ul>
+					</div>
+					<div>
+						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
+							Underwriting Focus
+						</h4>
+						<p className="text-xs leading-relaxed">
+							Construction class, protection (alarms/sprinklers), occupancy type,
+							neighboring exposures, updates to roof / HVAC / wiring / plumbing.
+						</p>
+					</div>
+					<div>
+						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
+							Claim Examples
+						</h4>
+						<ul className="space-y-1">
+							<li>Fire loss &amp; business interruption</li>
+							<li>Wind or hail exterior damage</li>
+							<li>Slip-and-fall liability claim</li>
+						</ul>
+					</div>
+					<p className="text-[11px]">
+						Vacancy, specialty manufacturing, or hazardous storage may require
+						specialty markets.
+					</p>
 				</CardContent>
 			</Card>
 		</QuoteLayout>

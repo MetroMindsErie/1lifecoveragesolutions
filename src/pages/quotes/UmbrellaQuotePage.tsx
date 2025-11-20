@@ -171,63 +171,7 @@ export function UmbrellaQuotePage() {
 				},
 			]}
 		>
-			{/* NEW: Coverage Overview */}
-			<Card
-				data-step="Coverage Overview"
-				className="mx-auto mb-8 max-w-4xl rounded-xl border border-gray-200 bg-white/70 backdrop-blur-sm shadow-sm"
-			>
-				<CardHeader>
-					<CardTitle>Personal Umbrella Overview</CardTitle>
-					<CardDescription>Extended liability protection explained.</CardDescription>
-				</CardHeader>
-				<CardContent className="space-y-6 text-sm text-[#6c757d]">
-					<div>
-						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
-							Purpose
-						</h4>
-						<p className="text-xs leading-relaxed">
-							Adds excess liability limits above home, auto, rental, and certain
-							recreational policies when underlying limits are exhausted.
-						</p>
-					</div>
-					<div>
-						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
-							Typical Underlying Requirements
-						</h4>
-						<ul className="grid gap-2 sm:grid-cols-2">
-							<li>Auto: 250/500 BI, 100 PD</li>
-							<li>Home: $300K Liability</li>
-							<li>Rental Property: $300K Liability</li>
-							<li>Watercraft limits vary</li>
-						</ul>
-					</div>
-					<div>
-						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
-							Common Triggers
-						</h4>
-						<ul className="space-y-1">
-							<li>Serious auto bodily injury claim</li>
-							<li>Premises liability lawsuit</li>
-							<li>Defamation / personal injury (varies)</li>
-						</ul>
-					</div>
-					<div>
-						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
-							Not Typically Covered
-						</h4>
-						<ul className="grid gap-2 sm:grid-cols-2">
-							<li>Business pursuits</li>
-							<li>Intentional acts</li>
-							<li>Professional liability</li>
-							<li>Workers comp exposures</li>
-						</ul>
-					</div>
-					<p className="text-[11px]">
-						Eligibility depends on driving history, property count, and prior
-						losses.
-					</p>
-				</CardContent>
-			</Card>
+			{/* Main Quote Card (form) - unchanged */}
 			<Card className="mx-auto max-w-4xl">
 				<CardHeader>
 					<CardTitle>Personal Umbrella Insurance Quote</CardTitle>
@@ -491,6 +435,64 @@ export function UmbrellaQuotePage() {
 							</Button>
 						</div>
 					</form>
+				</CardContent>
+			</Card>
+
+			{/* Moved: Coverage Overview (now shown after client form) */}
+			<Card
+				data-step="Coverage Overview"
+				className="mx-auto mb-8 max-w-4xl rounded-xl border border-gray-200 bg-white/70 backdrop-blur-sm shadow-sm"
+			>
+				<CardHeader>
+					<CardTitle>Personal Umbrella Overview</CardTitle>
+					<CardDescription>Extended liability protection explained.</CardDescription>
+				</CardHeader>
+				<CardContent className="space-y-6 text-sm text-[#6c757d]">
+					<div>
+						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
+							Purpose
+						</h4>
+						<p className="text-xs leading-relaxed">
+							Adds excess liability limits above home, auto, rental, and certain
+							recreational policies when underlying limits are exhausted.
+						</p>
+					</div>
+					<div>
+						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
+							Typical Underlying Requirements
+						</h4>
+						<ul className="grid gap-2 sm:grid-cols-2">
+							<li>Auto: 250/500 BI, 100 PD</li>
+							<li>Home: $300K Liability</li>
+							<li>Rental Property: $300K Liability</li>
+							<li>Watercraft limits vary</li>
+						</ul>
+					</div>
+					<div>
+						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
+							Common Triggers
+						</h4>
+						<ul className="space-y-1">
+							<li>Serious auto bodily injury claim</li>
+							<li>Premises liability lawsuit</li>
+							<li>Defamation / personal injury (varies)</li>
+						</ul>
+					</div>
+					<div>
+						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
+							Not Typically Covered
+						</h4>
+						<ul className="grid gap-2 sm:grid-cols-2">
+							<li>Business pursuits</li>
+							<li>Intentional acts</li>
+							<li>Professional liability</li>
+							<li>Workers comp exposures</li>
+						</ul>
+					</div>
+					<p className="text-[11px]">
+						Eligibility depends on driving history, property count, and prior
+						losses.
+					</p>
 				</CardContent>
 			</Card>
 		</QuoteLayout>

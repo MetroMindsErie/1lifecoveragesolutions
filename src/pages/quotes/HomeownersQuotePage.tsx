@@ -124,55 +124,6 @@ export function HomeownersQuotePage() {
         },
       ]}
     >
-      {/* NEW: Coverage Overview */}
-      <Card
-        data-step="Coverage Overview"
-        className="mx-auto mb-8 max-w-4xl rounded-xl border border-gray-200 bg-white/70 backdrop-blur-sm shadow-sm"
-      >
-        <CardHeader>
-          <CardTitle>Homeowners Coverage Overview</CardTitle>
-          <CardDescription>Key protections & optional enhancements.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6 text-sm text-[#6c757d]">
-          <div>
-            <h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">Primary Sections</h4>
-            <ul className="grid gap-2 sm:grid-cols-3">
-              <li>Dwelling (Coverage A)</li>
-              <li>Other Structures (B)</li>
-              <li>Personal Property (C)</li>
-              <li>Loss of Use (D)</li>
-              <li>Personal Liability (E)</li>
-              <li>Medical Payments (F)</li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">Popular Endorsements</h4>
-            <ul className="grid gap-2 sm:grid-cols-2">
-              <li>Replacement Cost on Contents</li>
-              <li>Water Backup / Sump Overflow</li>
-              <li>Scheduled Jewelry & Valuables</li>
-              <li>Equipment Breakdown</li>
-              <li>Cyber / ID Theft</li>
-              <li>Inflation Guard</li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">Risk & Rating Factors</h4>
-            <p className="text-xs leading-relaxed">
-              Age of roof, wiring, plumbing & HVAC updates, location fire protection class, prior claims, protective devices, credit-based insurance score (where allowed).
-            </p>
-          </div>
-          <div>
-            <h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">Claim Examples</h4>
-            <ul className="space-y-1">
-              <li><span className="font-medium text-[#1a1a1a]">Kitchen Fire:</span> Dwelling + contents + loss of use.</li>
-              <li><span className="font-medium text-[#1a1a1a]">Wind Roof Damage:</span> Dwelling repairs / mitigation.</li>
-              <li><span className="font-medium text-[#1a1a1a]">Slip & Fall Guest:</span> Liability / medical payments.</li>
-            </ul>
-          </div>
-          <p className="text-[11px]">Flood & earthquake typically excluded—ask about separate policies.</p>
-        </CardContent>
-      </Card>
       <Card className="mx-auto max-w-4xl">
         <CardHeader>
           <CardTitle>Homeowners Insurance Quote</CardTitle>
@@ -455,6 +406,56 @@ export function HomeownersQuotePage() {
               </Button>
             </div>
           </form>
+        </CardContent>
+      </Card>
+
+      {/* Moved: Coverage Overview (now shown after client form) */}
+      <Card
+        data-step="Coverage Overview"
+        className="mx-auto mb-8 max-w-4xl rounded-xl border border-gray-200 bg-white/70 backdrop-blur-sm shadow-sm"
+      >
+        <CardHeader>
+          <CardTitle>Homeowners Coverage Overview</CardTitle>
+          <CardDescription>Key protections & optional enhancements.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6 text-sm text-[#6c757d]">
+          <div>
+            <h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">Primary Sections</h4>
+            <ul className="grid gap-2 sm:grid-cols-3">
+              <li>Dwelling (Coverage A)</li>
+              <li>Other Structures (B)</li>
+              <li>Personal Property (C)</li>
+              <li>Loss of Use (D)</li>
+              <li>Personal Liability (E)</li>
+              <li>Medical Payments (F)</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">Popular Endorsements</h4>
+            <ul className="grid gap-2 sm:grid-cols-2">
+              <li>Replacement Cost on Contents</li>
+              <li>Water Backup / Sump Overflow</li>
+              <li>Scheduled Jewelry & Valuables</li>
+              <li>Equipment Breakdown</li>
+              <li>Cyber / ID Theft</li>
+              <li>Inflation Guard</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">Risk & Rating Factors</h4>
+            <p className="text-xs leading-relaxed">
+              Age of roof, wiring, plumbing & HVAC updates, location fire protection class, prior claims, protective devices, credit-based insurance score (where allowed).
+            </p>
+          </div>
+          <div>
+            <h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">Claim Examples</h4>
+            <ul className="space-y-1">
+              <li><span className="font-medium text-[#1a1a1a]">Kitchen Fire:</span> Dwelling + contents + loss of use.</li>
+              <li><span className="font-medium text-[#1a1a1a]">Wind Roof Damage:</span> Dwelling repairs / mitigation.</li>
+              <li><span className="font-medium text-[#1a1a1a]">Slip & Fall Guest:</span> Liability / medical payments.</li>
+            </ul>
+          </div>
+          <p className="text-[11px]">Flood & earthquake typically excluded—ask about separate policies.</p>
         </CardContent>
       </Card>
     </QuoteLayout>

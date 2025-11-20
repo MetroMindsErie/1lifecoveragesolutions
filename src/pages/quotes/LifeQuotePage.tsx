@@ -180,67 +180,7 @@ export function LifeQuotePage() {
 				},
 			]}
 		>
-			{/* NEW: Coverage Overview */}
-			<Card
-				data-step="Coverage Overview"
-				className="mx-auto mb-8 max-w-4xl rounded-xl border border-gray-200 bg-white/70 backdrop-blur-sm shadow-sm"
-			>
-				<CardHeader>
-					<CardTitle>Life Insurance Overview</CardTitle>
-					<CardDescription>Compare term & permanent options.</CardDescription>
-				</CardHeader>
-				<CardContent className="space-y-6 text-sm text-[#6c757d]">
-					<div>
-						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
-							Policy Types
-						</h4>
-						<ul className="grid gap-2 sm:grid-cols-2">
-							<li>Term (10–40 yrs)</li>
-							<li>Whole Life</li>
-							<li>Universal Life</li>
-							<li>Guaranteed UL</li>
-							<li>Final Expense</li>
-							<li>No-Exam / Simplified</li>
-						</ul>
-					</div>
-					<div>
-						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
-							Use Cases
-						</h4>
-						<ul className="space-y-1">
-							<li>Income replacement</li>
-							<li>Mortgage protection</li>
-							<li>Estate / legacy planning</li>
-							<li>Business buy-sell funding</li>
-						</ul>
-					</div>
-					<div>
-						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
-							Key Underwriting Factors
-						</h4>
-						<p className="text-xs leading-relaxed">
-							Age, health history, build (height/weight), tobacco use, medications,
-							labs (if required), driving record.
-						</p>
-					</div>
-					<div>
-						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
-							Optional Riders
-						</h4>
-						<ul className="grid gap-2 sm:grid-cols-2">
-							<li>Accelerated Death Benefit</li>
-							<li>Child Term Rider</li>
-							<li>Waiver of Premium</li>
-							<li>Guaranteed Insurability</li>
-							<li>Return of Premium (Term)</li>
-							<li>Accidental Death Benefit</li>
-						</ul>
-					</div>
-					<p className="text-[11px]">
-						Carrier availability & rider costs vary by age and health class.
-					</p>
-				</CardContent>
-			</Card>
+			{/* Main Quote Card (form) - unchanged */}
 			<Card className="mx-auto max-w-4xl">
 				<CardHeader>
 					<CardTitle>Life Insurance Quote</CardTitle>
@@ -485,6 +425,68 @@ export function LifeQuotePage() {
 							</Button>
 						</div>
 					</form>
+				</CardContent>
+			</Card>
+
+			{/* Moved: Coverage Overview (now shown after client form) */}
+			<Card
+				data-step="Coverage Overview"
+				className="mx-auto mb-8 max-w-4xl rounded-xl border border-gray-200 bg-white/70 backdrop-blur-sm shadow-sm"
+			>
+				<CardHeader>
+					<CardTitle>Life Insurance Overview</CardTitle>
+					<CardDescription>Compare term & permanent options.</CardDescription>
+				</CardHeader>
+				<CardContent className="space-y-6 text-sm text-[#6c757d]">
+					<div>
+						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
+							Policy Types
+						</h4>
+						<ul className="grid gap-2 sm:grid-cols-2">
+							<li>Term (10–40 yrs)</li>
+							<li>Whole Life</li>
+							<li>Universal Life</li>
+							<li>Guaranteed UL</li>
+							<li>Final Expense</li>
+							<li>No-Exam / Simplified</li>
+						</ul>
+					</div>
+					<div>
+						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
+							Use Cases
+						</h4>
+						<ul className="space-y-1">
+							<li>Income replacement</li>
+							<li>Mortgage protection</li>
+							<li>Estate / legacy planning</li>
+							<li>Business buy-sell funding</li>
+						</ul>
+					</div>
+					<div>
+						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
+							Key Underwriting Factors
+						</h4>
+						<p className="text-xs leading-relaxed">
+							Age, health history, build (height/weight), tobacco use, medications,
+							labs (if required), driving record.
+						</p>
+					</div>
+					<div>
+						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
+							Optional Riders
+						</h4>
+						<ul className="grid gap-2 sm:grid-cols-2">
+							<li>Accelerated Death Benefit</li>
+							<li>Child Term Rider</li>
+							<li>Waiver of Premium</li>
+							<li>Guaranteed Insurability</li>
+							<li>Return of Premium (Term)</li>
+							<li>Accidental Death Benefit</li>
+						</ul>
+					</div>
+					<p className="text-[11px]">
+						Carrier availability & rider costs vary by age and health class.
+					</p>
 				</CardContent>
 			</Card>
 		</QuoteLayout>

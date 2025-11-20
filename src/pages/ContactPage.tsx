@@ -92,7 +92,7 @@ export function ContactPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ background: "var(--brand-coral-10)" }}>
       {/* Header */}
       <section className="border-b bg-white py-16">
         <div className="mx-auto max-w-7xl px-4 text-center lg:px-8">
@@ -118,7 +118,11 @@ export function ContactPage() {
                     </div>
                     <div>
                       <h3 className="mb-1 text-[#1a1a1a]">Phone</h3>
-                      <p className="text-[#6c757d]">(800) 555-0123</p>
+                      <p className="text-[#6c757d]">
+                        <a href="tel:18888268370" className="hover:underline">1-888-826-8370</a>
+                        <br />
+                        <a href="tel:2164557283" className="hover:underline">216-455-RATE (7283)</a>
+                      </p>
                       <p className="text-sm text-[#6c757d]">Mon-Fri 8am-8pm EST</p>
                     </div>
                   </div>
@@ -129,7 +133,13 @@ export function ContactPage() {
                     </div>
                     <div>
                       <h3 className="mb-1 text-[#1a1a1a]">Email</h3>
-                      <p className="text-[#6c757d]">support@1lifecoverage.com</p>
+                      <p className="text-[#6c757d]">
+                        <a href="mailto:Support@1lifecoverage.com" className="hover:underline">Support@1lifecoverage.com</a>
+                        <br />
+                        <a href="mailto:M.moore@1lifecoverage.com" className="hover:underline">M.moore@1lifecoverage.com</a>
+                        <br />
+                        <a href="mailto:A.glorioso@1lifecoverage.com" className="hover:underline">A.glorioso@1lifecoverage.com</a>
+                      </p>
                       <p className="text-sm text-[#6c757d]">We'll respond within 24 hours</p>
                     </div>
                   </div>
@@ -223,8 +233,8 @@ export function ContactPage() {
         </div>
       </section>
 
-      {/* Map Section - Placeholder */}
-      <section className="border-t bg-white py-16">
+      {/* Map Section - Placeholder (coral-tinted) */}
+      <section className="border-t py-16" style={{ background: "var(--brand-coral-10)" }}>
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
           <div className="overflow-hidden rounded-lg border border-gray-200">
             <div className="aspect-[21/9] bg-gray-100 flex items-center justify-center">

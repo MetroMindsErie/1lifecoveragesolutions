@@ -3,7 +3,7 @@ import { Card, CardContent } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
 import { LucideIcon, Shield, Lock, Clock, Phone } from "lucide-react";
 import { motion } from "motion/react";
-import { PartnerTicker } from "../../components/PartnerTicker";
+// import { PartnerTicker } from "../../components/PartnerTicker";
 
 interface QuoteLayoutProps {
   title: string;
@@ -184,7 +184,7 @@ export function QuoteLayout({
       </section>
 
       {/* NEW: Compact partner ticker */}
-      <PartnerTicker variant="compact" />
+      {/* <PartnerTicker variant="compact" /> */}
 
       {/* Main grid + subtle glass effect wrapper (NEW style tweaks) */}
       <section className="py-12">

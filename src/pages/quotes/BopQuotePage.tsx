@@ -176,66 +176,7 @@ export function BopQuotePage() {
 				},
 			]}
 		>
-			{/* NEW: Coverage Overview */}
-			<Card
-				data-step="Coverage Overview"
-				className="mx-auto mb-8 max-w-4xl rounded-xl border border-gray-200 bg-white/70 backdrop-blur-sm shadow-sm"
-			>
-				<CardHeader>
-					<CardTitle>BOP Coverage Overview</CardTitle>
-					<CardDescription>What’s bundled & typical add-ons.</CardDescription>
-				</CardHeader>
-				<CardContent className="space-y-6 text-sm text-[#6c757d]">
-					<div>
-						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
-							Bundled Protections
-						</h4>
-						<ul className="grid gap-2 sm:grid-cols-2">
-							<li>Property (building / contents)</li>
-							<li>General Liability</li>
-							<li>Business Income</li>
-							<li>Premises & Operations</li>
-							<li>Products / Completed Ops</li>
-							<li>Basic Equipment Breakdown</li>
-						</ul>
-					</div>
-					<div>
-						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
-							Popular Enhancements
-						</h4>
-						<ul className="grid gap-2 sm:grid-cols-2">
-							<li>Cyber Liability</li>
-							<li>Employment Practices Liability</li>
-							<li>Professional Liability (select)</li>
-							<li>Outdoor Signs / Property Off-Premises</li>
-							<li>Scheduled Tools / Inland Marine</li>
-							<li>Utility Services / Spoilage</li>
-						</ul>
-					</div>
-					<div>
-						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
-							Eligibility Notes
-						</h4>
-						<p className="text-xs leading-relaxed">
-							Revenue, class of business, loss history, manufacturing intensity, and
-							product liability exposure affect qualification.
-						</p>
-					</div>
-					<div>
-						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
-							Claim Examples
-						</h4>
-						<ul className="space-y-1">
-							<li>Small kitchen fire closing operations</li>
-							<li>Customer slip-and-fall in lobby</li>
-							<li>Equipment surge damages POS systems</li>
-						</ul>
-					</div>
-					<p className="text-[11px]">
-						Workers’ Compensation & Commercial Auto are separate policies.
-					</p>
-				</CardContent>
-			</Card>
+			{/* Main Quote Card (form) - unchanged */}
 			<Card className="mx-auto max-w-4xl">
 				<CardHeader>
 					<CardTitle>Business Owners Policy (BOP) Quote</CardTitle>
@@ -534,6 +475,67 @@ export function BopQuotePage() {
 							</Button>
 						</div>
 					</form>
+				</CardContent>
+			</Card>
+
+			{/* Moved: Coverage Overview (now shown after client form) */}
+			<Card
+				data-step="Coverage Overview"
+				className="mx-auto mb-8 max-w-4xl rounded-xl border border-gray-200 bg-white/70 backdrop-blur-sm shadow-sm"
+			>
+				<CardHeader>
+					<CardTitle>BOP Coverage Overview</CardTitle>
+					<CardDescription>What’s bundled & typical add-ons.</CardDescription>
+				</CardHeader>
+				<CardContent className="space-y-6 text-sm text-[#6c757d]">
+					<div>
+						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
+							Bundled Protections
+						</h4>
+						<ul className="grid gap-2 sm:grid-cols-2">
+							<li>Property (building / contents)</li>
+							<li>General Liability</li>
+							<li>Business Income</li>
+							<li>Premises & Operations</li>
+							<li>Products / Completed Ops</li>
+							<li>Basic Equipment Breakdown</li>
+						</ul>
+					</div>
+					<div>
+						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
+							Popular Enhancements
+						</h4>
+						<ul className="grid gap-2 sm:grid-cols-2">
+							<li>Cyber Liability</li>
+							<li>Employment Practices Liability</li>
+							<li>Professional Liability (select)</li>
+							<li>Outdoor Signs / Property Off-Premises</li>
+							<li>Scheduled Tools / Inland Marine</li>
+							<li>Utility Services / Spoilage</li>
+						</ul>
+					</div>
+					<div>
+						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
+							Eligibility Notes
+						</h4>
+						<p className="text-xs leading-relaxed">
+							Revenue, class of business, loss history, manufacturing intensity, and
+							product liability exposure affect qualification.
+						</p>
+					</div>
+					<div>
+						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
+							Claim Examples
+						</h4>
+						<ul className="space-y-1">
+							<li>Small kitchen fire closing operations</li>
+							<li>Customer slip-and-fall in lobby</li>
+							<li>Equipment surge damages POS systems</li>
+						</ul>
+					</div>
+					<p className="text-[11px]">
+						Workers’ Compensation & Commercial Auto are separate policies.
+					</p>
 				</CardContent>
 			</Card>
 		</QuoteLayout>
