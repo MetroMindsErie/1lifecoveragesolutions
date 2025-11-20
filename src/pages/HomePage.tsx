@@ -268,7 +268,7 @@ export function HomePage() {
       "@type": "InsuranceAgency",
       name: "1Life Coverage Solutions",
       url: absUrl("/"),
-      logo: absUrl("/logo.svg"),
+      logo: {logo},
       sameAs: [
         "https://www.facebook.com/",
         "https://www.linkedin.com/",
