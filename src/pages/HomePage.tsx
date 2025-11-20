@@ -4,6 +4,7 @@ import { Testimonials } from "../components/Testimonials";
 import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
 import { motion } from "motion/react";
+import logo from "../assets/c1916fca24a402e9827626e05b952c97898461d8.png"; // NEW
 import {
   Car,
   Building2,
@@ -318,7 +319,7 @@ export function HomePage() {
           className="hidden lg:flex absolute left-6 top-6 z-40 pointer-events-none rounded-lg p-2 lg:left-8 lg:top-8 lg:p-3 xl:left-10 xl:top-10 xl:p-4 shadow-md bg-white/8 backdrop-blur-sm h-20 w-20 lg:h-40 lg:w-40 xl:h-40 xl:w-40 2xl:h-36 2xl:w-36 items-center justify-center"
         >
           <img
-            src="src/assets/c1916fca24a402e9827626e05b952c97898461d8.png"
+            src={logo}
             alt="1Life Coverage Solutions"
             className="max-h-full max-w-full object-contain rounded-md"
           />
