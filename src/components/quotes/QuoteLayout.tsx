@@ -276,7 +276,7 @@ export function QuoteLayout({
                 <div className="flex flex-col gap-2">
                   {/* Make Call match the outline design */}
                   <Button variant="outline" asChild>
-                    <a href="tel:1-800-555-0123">Call (800) 555-0123</a>
+                    <a href="tel:1-800-555-0123">Call 1-888-826-8370</a>
                   </Button>
                   <Button variant="outline" asChild>
                     <a href="/contact">Contact an Agent</a>
