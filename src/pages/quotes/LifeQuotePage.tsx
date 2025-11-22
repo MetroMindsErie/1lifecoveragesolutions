@@ -10,11 +10,12 @@ import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { Textarea } from "../../components/ui/textarea";
-import { CheckCircle2, Heart } from "lucide-react";
+import { CheckCircle2, Heart, ArrowRight, ArrowLeft } from "lucide-react";
 import { QuoteLayout } from "../../components/quotes/QuoteLayout";
 import { submitQuote } from "../../lib/submit";
 import { supabase } from "../../lib/supabaseClient";
 import { SelectWithOther } from "../../components/quotes/SelectWithOther";
+import { motion, AnimatePresence } from "motion/react";
 
 function absUrl(path: string) {
 	const base = (import.meta as any).env?.VITE_SITE_URL || window.location.origin;
@@ -104,13 +105,134 @@ export function LifeQuotePage() {
 	}, []);
 
 	const [submitted, setSubmitted] = useState(false);
-	const [submitting, setSubmitting] = useState(false); // NEW
-	const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-		e.preventDefault();
+	const [submitting, setSubmitting] = useState(false);
+	const [currentStep, setCurrentStep] = useState(0);
+	const [formData, setFormData] = useState<Record<string, string>>({});
+
+	const steps = [
+		{
+			id: "personal-info",
+			title: "Let's start with your information",
+			subtitle: "Basic details to get started",
+			fields: [
+				{ name: "name", label: "What's your full name?", type: "text", required: true },
+				{ name: "dob", label: "Date of birth", type: "date", required: true },
+				{ name: "gender", label: "Gender", type: "select", options: ["Male","Female","Non-Binary","Prefer Not to Say"] },
+				{ name: "occupation", label: "Current occupation", type: "select", options: ["Professional","Skilled Trade","Manager","Sales","Service","Student","Retired","Other"] },
+			]
+		},
+		{
+			id: "contact-info",
+			title: "How can we reach you?",
+			subtitle: "We'll use this to send your quote",
+			fields: [
+				{ name: "phone", label: "Phone number", type: "tel", required: true },
+				{ name: "email", label: "Email address", type: "email", required: true },
+				{ name: "address", label: "Your address", type: "text" },
+			]
+		},
+		{
+			id: "coverage-needs",
+			title: "What type of coverage do you need?",
+			subtitle: "Help us understand your goals",
+			fields: [
+				{ name: "policy_type", label: "Type of life insurance", type: "select", options: ["Term", "Whole Life", "Universal Life", "Guaranteed UL", "Final Expense", "No-Exam"] },
+				{ name: "coverage_amount", label: "Desired coverage amount ($)", type: "select", options: ["100000", "250000", "500000", "750000", "1000000", "2000000", "3000000"], otherLabel: "Custom" },
+				{ name: "term_years", label: "Desired policy term (years)", type: "select", options: ["10", "15", "20", "25", "30", "35", "40"], otherLabel: "Custom" },
+			]
+		},
+		{
+			id: "beneficiaries",
+			title: "Who are your beneficiaries?",
+			subtitle: "Optional - you can update this later",
+			fields: [
+				{ name: "beneficiaries", label: "Beneficiaries (Name & Relationship)", type: "textarea", placeholder: "Jane Doe, Spouse\nJohn Doe Jr., Child" },
+				{ name: "current_policies", label: "Do you have existing life insurance?", type: "select", options: ["Yes", "No"] },
+				{ name: "current_policies_details", label: "If yes, provide carrier and coverage amount", type: "textarea" },
+			]
+		},
+		{
+			id: "health-basics",
+			title: "Tell us about your health",
+			subtitle: "This helps us find accurate rates",
+			fields: [
+				{ name: "height", label: "Height", type: "select", options: ["<5'0\"","5'0\"-5'5\"","5'6\"-5'9\"","5'10\"-6'1\"","6'2\"+"] },
+				{ name: "weight", label: "Weight (lbs)", type: "select", options: ["<120","120-149","150-179","180-209","210-239","240+"] },
+				{ name: "tobacco_use", label: "Tobacco use", type: "select", options: ["Never","Former","Current"] },
+				{ name: "alcohol_use", label: "Alcohol use", type: "select", options: ["None","Social","Moderate","High"] },
+			]
+		},
+		{
+			id: "medical-history",
+			title: "Medical history",
+			subtitle: "Help us understand any health conditions",
+			fields: [
+				{ name: "medical_conditions", label: "Current or past medical conditions", type: "textarea", placeholder: "Optional - list any diagnosed conditions" },
+				{ name: "medications", label: "Current medications", type: "textarea", placeholder: "Optional" },
+				{ name: "hospitalizations", label: "Hospitalizations or surgeries (last 5 years)", type: "textarea", placeholder: "Optional" },
+				{ name: "family_history", label: "Family medical history", type: "textarea", placeholder: "Heart disease, cancer, diabetes, etc." },
+			]
+		},
+		{
+			id: "final",
+			title: "Almost done!",
+			subtitle: "Just a couple more questions",
+			fields: [
+				{ name: "high_risk_hobbies", label: "High-risk hobbies or activities", type: "textarea", placeholder: "Skydiving, scuba, racing, etc." },
+				{ name: "travel", label: "Frequent travel outside the U.S.?", type: "textarea", placeholder: "Countries and frequency" },
+				{ name: "referral_source", label: "How did you hear about us?", type: "select", options: ["Google", "Referral", "Social Media", "Advertising"] },
+			]
+		},
+	];
+
+	const totalSteps = steps.length;
+	const progress = ((currentStep + 1) / totalSteps) * 100;
+
+	const handleFieldChange = (name: string, value: string) => {
+		setFormData(prev => ({ ...prev, [name]: value }));
+	};
+
+	const canContinue = () => {
+		const currentStepData = steps[currentStep];
+		const requiredFields = currentStepData.fields.filter(f => f.required);
+		return requiredFields.every(field => formData[field.name]?.trim());
+	};
+
+	const handleNext = () => {
+		if (currentStep < totalSteps - 1) {
+			setCurrentStep(prev => prev + 1);
+			window.scrollTo({ top: 0, behavior: 'smooth' });
+		}
+	};
+
+	const handlePrevious = () => {
+		if (currentStep > 0) {
+			setCurrentStep(prev => prev - 1);
+			window.scrollTo({ top: 0, behavior: 'smooth' });
+		}
+	};
+
+	const handleSubmit = async () => {
 		if (submitting) return;
 		setSubmitting(true);
 		try {
-			await submitQuote("life", e.currentTarget);
+			const form = document.createElement('form');
+			Object.entries(formData).forEach(([key, value]) => {
+				const input = document.createElement('input');
+				input.name = key;
+				input.value = value;
+				form.appendChild(input);
+			});
+			const hp1 = document.createElement('input');
+			hp1.name = 'hp_company';
+			hp1.value = '';
+			form.appendChild(hp1);
+			const hp2 = document.createElement('input');
+			hp2.name = 'hp_url';
+			hp2.value = '';
+			form.appendChild(hp2);
+
+			await submitQuote("life", form);
 			setSubmitted(true);
 			window.scrollTo(0, 0);
 		} catch (err: any) {
@@ -120,27 +242,28 @@ export function LifeQuotePage() {
 		}
 	};
 
+	useEffect(() => {
+		const firstField = steps[currentStep].fields[0]?.name;
+		if (firstField) {
+			const el = document.querySelector<HTMLInputElement | HTMLTextAreaElement>(`[name="${firstField}"]`);
+			el?.focus();
+		}
+	}, [currentStep]);
+
 	if (submitted) {
 		return (
-			<div className="min-h-screen bg-gradient-to-br from-white via-[#E9F3FB] to-[#D9ECFF] py-12">
+			<div className="min-h-screen bg-gradient-to-br from-white via-[#E9F3FB] to-[#D9ECFF] py-12 px-4">
 				<Card className="mx-auto max-w-2xl">
-					<CardContent className="p-12 text-center">
+					<CardContent className="p-8 sm:p-12 text-center">
 						<div className="mb-6 flex justify-center">
-							<div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-[#4f46e5] to-[#06b6d4]">
-								<CheckCircle2 className="h-10 w-10 text-white" />
+							<div className="flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-full bg-gradient-to-br from-[#4f46e5] to-[#06b6d4]">
+								<CheckCircle2 className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
 							</div>
 						</div>
-						<h2 className="mb-4 text-3xl text-[#1a1a1a]">
-							Life Insurance Quote Submitted
-						</h2>
-						<p className="text-[#6c757d]">
-							We’ll contact you within 24 hours.
-						</p>
+						<h2 className="mb-4 text-2xl sm:text-3xl text-[#1a1a1a]">Life Quote Submitted</h2>
+						<p className="text-[#6c757d]">We'll contact you with options within 24 hours.</p>
 						<div className="mt-8">
-							<Button
-								className="bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9]"
-								asChild
-							>
+							<Button className="bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] w-full sm:w-auto" asChild>
 								<a href="/">Return to Home</a>
 							</Button>
 						</div>
@@ -165,274 +288,142 @@ export function LifeQuotePage() {
 			faqs={[
 				{
 					question: "Do I need a medical exam?",
-					answer:
-						"Many carriers offer accelerated underwriting with no exam for eligible applicants.",
+					answer: "Many carriers offer accelerated underwriting with no exam for eligible applicants.",
 				},
 				{
-					question: "Term vs. whole life—what’s the difference?",
-					answer:
-						"Term provides coverage for a set period; whole life includes lifelong coverage with cash value.",
+					question: "Term vs. whole life—what's the difference?",
+					answer: "Term provides coverage for a set period; whole life includes lifelong coverage with cash value.",
 				},
 				{
 					question: "How fast can I get coverage?",
-					answer:
-						"Some policies can be approved in days, depending on underwriting.",
+					answer: "Some policies can be approved in days, depending on underwriting.",
 				},
 			]}
 		>
-			{/* Main Quote Card (form) - unchanged */}
-			<Card className="mx-auto max-w-4xl">
-				<CardHeader>
-					<CardTitle>Life Insurance Quote</CardTitle>
-					<CardDescription>
-						Tell us about yourself and desired coverage.
-					</CardDescription>
+			<Card className="mx-auto max-w-3xl rounded-2xl bg-white/80 backdrop-blur-sm shadow-lg">
+				<CardHeader className="p-6 sm:p-8 pb-4">
+					<div className="mb-4">
+						<div className="mb-2 flex items-center justify-between text-sm">
+							<span className="text-[#6c757d]">Step {currentStep + 1} of {totalSteps}</span>
+							<span className="text-[#1B5A8E] font-medium">{Math.round(progress)}%</span>
+						</div>
+						<div className="h-2 w-full rounded-full bg-gray-200 overflow-hidden">
+							<motion.div
+								className="h-full bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9]"
+								initial={{ width: 0 }}
+								animate={{ width: `${progress}%` }}
+								transition={{ duration: 0.3 }}
+							/>
+						</div>
+					</div>
+					<CardTitle className="text-xl sm:text-2xl">{steps[currentStep].title}</CardTitle>
+					<CardDescription className="text-sm sm:text-base">{steps[currentStep].subtitle}</CardDescription>
 				</CardHeader>
-				<CardContent>
-					<form onSubmit={onSubmit} className="space-y-8">
-						{/* Honeypot fields (hidden) */}
-						<input
-							type="text"
-							name="hp_company"
-							tabIndex={-1}
-							aria-hidden="true"
-							className="hidden"
-						/>
-						<input
-							type="url"
-							name="hp_url"
-							tabIndex={-1}
-							aria-hidden="true"
-							className="hidden"
-						/>
-						{/* Personal Information */}
-						<div
-							data-step="Personal Information"
-							className="space-y-4 rounded-xl border border-gray-200 bg-white/60 backdrop-blur-sm p-6 shadow-sm"
+				<CardContent className="p-6 sm:p-8 pt-0">
+					<AnimatePresence mode="wait">
+						<motion.div
+							key={currentStep}
+							initial={{ opacity: 0, x: 20 }}
+							animate={{ opacity: 1, x: 0 }}
+							exit={{ opacity: 0, x: -20 }}
+							transition={{ duration: 0.3 }}
+							className="space-y-6"
 						>
-							<h3 className="text-sm font-semibold tracking-wide text-[#1B5A8E] uppercase">
-								Personal Information
-							</h3>
-							<div className="grid gap-4 sm:grid-cols-2">
-								<div>
-									<Label>Full Name</Label>
-									<Input required name="name" />
-								</div>
-								<div>
-									<Label>Date of Birth</Label>
-									<Input type="date" required name="dob" />
-								</div>
-								<div>
-									<Label>Gender</Label>
-									{/* CHANGED */}
-									<SelectWithOther
-										name="gender"
-										options={["Male", "Female", "Non-Binary", "Prefer Not to Say"]}
-									/>
-								</div>
-								<div>
-									<Label>Phone Number</Label>
-									<Input type="tel" name="phone" />
-								</div>
-								<div>
-									<Label>Email Address</Label>
-									<Input type="email" name="email" />
-								</div>
-								<div className="sm:col-span-2">
-									<Label>Address</Label>
-									<Input name="address" />
-								</div>
-								<div className="sm:col-span-2">
-									<Label>Occupation</Label>
-									<Input name="occupation" />
-								</div>
+							<div className="grid gap-5 sm:grid-cols-2">
+								{steps[currentStep].fields.map((field, idx) => (
+									<motion.div
+										key={field.name}
+										initial={{ opacity: 0, y: 10 }}
+										animate={{ opacity: 1, y: 0 }}
+										transition={{ delay: idx * 0.07 }}
+										className="space-y-2 p-4 rounded-lg border border-gray-200 bg-white/60"
+									>
+										<Label className="text-sm sm:text-base font-medium text-[#1a1a1a]">
+											{field.label}{field.required && <span className="text-red-500 ml-1">*</span>}
+										</Label>
+										{field.type === "select" && field.options ? (
+											<SelectWithOther
+												name={field.name}
+												options={field.options}
+												value={formData[field.name] || ""}
+												onChange={(v) => handleFieldChange(field.name, v)}
+												otherLabel={(field as any).otherLabel}
+											/>
+										) : field.type === "textarea" ? (
+											<Textarea
+												name={field.name}
+												placeholder={field.placeholder}
+												value={formData[field.name] || ""}
+												onChange={(e) => handleFieldChange(field.name, e.target.value)}
+												className="min-h-[110px] text-sm sm:text-base px-3 py-3"
+											/>
+										) : (
+											<Input
+												type={field.type}
+												name={field.name}
+												placeholder={field.placeholder}
+												value={formData[field.name] || ""}
+												onChange={(e) => handleFieldChange(field.name, e.target.value)}
+												required={field.required}
+												className="text-sm sm:text-base px-3 py-3"
+											/>
+										)}
+									</motion.div>
+								))}
 							</div>
-						</div>
+						</motion.div>
+					</AnimatePresence>
 
-						{/* Coverage Information */}
-						<div
-							data-step="Coverage Information"
-							className="space-y-4 rounded-xl border border-gray-200 bg-white/60 backdrop-blur-sm p-6 shadow-sm"
+					<div className="mt-8 sticky bottom-4 bg-white/90 backdrop-blur-md rounded-xl border border-gray-200 p-4 flex flex-col sm:flex-row gap-3 shadow-md">
+						<Button
+							type="button"
+							variant="outline"
+							onClick={handlePrevious}
+							disabled={currentStep === 0}
+							className="w-full sm:w-auto order-2 sm:order-1"
 						>
-							<h3 className="text-sm font-semibold tracking-wide text-[#1B5A8E] uppercase">
-								Coverage Information
-							</h3>
-							<div className="grid gap-4 sm:grid-cols-2">
-								<div>
-									<Label>Type of Life Insurance</Label>
-									{/* CHANGED */}
-									<SelectWithOther
-										name="policy_type"
-										options={["Term", "Whole Life", "Universal Life", "Guaranteed UL", "Final Expense", "No-Exam"]}
-									/>
-								</div>
-								<div>
-									<Label>Desired Coverage Amount ($)</Label>
-									<SelectWithOther
-										name="coverage_amount"
-										options={[
-											"100000","250000","500000","750000","1000000","2000000","3000000"
-										]}
-										otherLabel="Custom"
-									/>
-								</div>
-								<div>
-									<Label>Desired Policy Term (years)</Label>
-									{/* CHANGED */}
-									<SelectWithOther
-										name="term_years"
-										options={["10", "15", "20", "25", "30", "35", "40"]}
-										otherLabel="Custom"
-									/>
-								</div>
-								<div className="sm:col-span-2">
-									<Label>Beneficiaries (Name & Relationship)</Label>
-									<Textarea name="beneficiaries" />
-								</div>
-								<div>
-									<Label>Current Life Insurance Policies?</Label>
-									{/* CHANGED */}
-									<SelectWithOther
-										name="current_policies"
-										options={["Yes", "No"]}
-									/>
-								</div>
-								<div className="sm:col-span-2">
-									<Label>
-										If yes, provide carrier, coverage amount, and policy type
-									</Label>
-									<Textarea name="current_policies_details" />
-								</div>
-								<div>
-									<Label>Any life insurance applications pending?</Label>
-									{/* CHANGED */}
-									<SelectWithOther
-										name="applications_pending"
-										options={["Yes", "No"]}
-									/>
-								</div>
-							</div>
-						</div>
-
-						{/* Health Information */}
-						<div
-							data-step="Health Information"
-							className="space-y-4 rounded-xl border border-gray-200 bg-white/60 backdrop-blur-sm p-6 shadow-sm"
-						>
-							<h3 className="text-sm font-semibold tracking-wide text-[#1B5A8E] uppercase">
-								Health Information
-							</h3>
-							<div className="grid gap-4 sm:grid-cols-2">
-								<div>
-									<Label>Height</Label>
-									<Input name="height" />
-								</div>
-								<div>
-									<Label>Weight</Label>
-									<Input name="weight" />
-								</div>
-								<div>
-									<Label>Tobacco Use</Label>
-									{/* CHANGED */}
-									<SelectWithOther
-										name="tobacco_use"
-										options={["Never", "Former", "Current"]}
-									/>
-								</div>
-								<div>
-									<Label>Alcohol Use</Label>
-									{/* CHANGED */}
-									<SelectWithOther
-										name="alcohol_use"
-										options={["None", "Social", "Moderate", "High"]}
-									/>
-								</div>
-								<div className="sm:col-span-2">
-									<Label>Medical Conditions (current or past)</Label>
-									<Textarea name="medical_conditions" />
-								</div>
-								<div className="sm:col-span-2">
-									<Label>Medications</Label>
-									<Textarea name="medications" />
-								</div>
-								<div className="sm:col-span-2">
-									<Label>
-										Hospitalizations or Surgeries in the last 5 years
-									</Label>
-									<Textarea name="hospitalizations" />
-								</div>
-								<div className="sm:col-span-2">
-									<Label>Family Medical History</Label>
-									<Textarea
-										name="family_history"
-										placeholder="heart disease, cancer, diabetes, etc."
-									/>
-								</div>
-							</div>
-						</div>
-
-						{/* Lifestyle & Activities */}
-						<div
-							data-step="Lifestyle & Activities"
-							className="space-y-4 rounded-xl border border-gray-200 bg-white/60 backdrop-blur-sm p-6 shadow-sm"
-						>
-							<h3 className="text-sm font-semibold tracking-wide text-[#1B5A8E] uppercase">
-								Lifestyle & Activities
-							</h3>
-							<div className="grid gap-4">
-								<div>
-									<Label>High-risk hobbies or activities</Label>
-									<Textarea
-										name="high_risk_hobbies"
-										placeholder="skydiving, scuba, racing, etc."
-									/>
-								</div>
-								<div>
-									<Label>Travel Outside the U.S.</Label>
-									<Textarea
-										name="travel"
-										placeholder="frequency & countries"
-									/>
-								</div>
-							</div>
-						</div>
-
-						{/* Referral */}
-						<div
-							data-step="Referral"
-							className="space-y-4 rounded-xl border border-gray-200 bg-white/60 backdrop-blur-sm p-6 shadow-sm"
-						>
-							<h3 className="text-sm font-semibold tracking-wide text-[#1B5A8E] uppercase">
-								Referral
-							</h3>
-							<div className="space-y-4">
-								<Label>How did you hear about us?</Label>
-								{/* CHANGED */}
-								<SelectWithOther
-									name="referral_source"
-									options={["Google", "Referral", "Social Media", "Advertising"]}
-								/>
-							</div>
-						</div>
-
-						<div className="flex justify-end">
+							<ArrowLeft className="mr-2 h-4 w-4" /> Back
+						</Button>
+						{currentStep < totalSteps - 1 ? (
 							<Button
-								type="submit"
-								disabled={submitting}
-								className="bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] hover:opacity-90"
+								type="button"
+								onClick={handleNext}
+								disabled={!canContinue()}
+								className="w-full sm:w-auto bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] order-1 sm:order-2"
 							>
-								{submitting ? "Submitting..." : "Submit Life Quote"}
+								Continue <ArrowRight className="ml-2 h-4 w-4" />
 							</Button>
-						</div>
-					</form>
+						) : (
+							<Button
+								type="button"
+								onClick={handleSubmit}
+								disabled={submitting || !canContinue()}
+								className="w-full sm:w-auto bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] order-1 sm:order-2"
+							>
+								{submitting ? "Submitting..." : "Get My Quote"} <CheckCircle2 className="ml-2 h-4 w-4" />
+							</Button>
+						)}
+					</div>
+
+					<div className="mt-6 sm:mt-8 flex justify-center gap-2">
+						{steps.map((_, idx) => (
+							<div
+								key={idx}
+								className={`h-2 rounded-full transition-all ${
+									idx === currentStep
+										? "w-8 bg-gradient-to-r from-[#4f46e5] to-[#06b6d4]"
+										: idx < currentStep
+										? "w-2 bg-[#06b6d4]"
+										: "w-2 bg-gray-300"
+								}`}
+							/>
+						))}
+					</div>
 				</CardContent>
 			</Card>
 
-			{/* Moved: Coverage Overview (now shown after client form) */}
-			<Card
-				data-step="Coverage Overview"
-				className="mx-auto mb-8 max-w-4xl rounded-xl border border-gray-200 bg-white/70 backdrop-blur-sm shadow-sm"
-			>
+			{/* Coverage Overview */}
+			<Card className="mx-auto mt-6 sm:mt-8 max-w-3xl rounded-xl border border-gray-200 bg-white/70 backdrop-blur-sm shadow-sm">
 				<CardHeader>
 					<CardTitle>Life Insurance Overview</CardTitle>
 					<CardDescription>Compare term & permanent options.</CardDescription>

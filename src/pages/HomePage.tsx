@@ -28,6 +28,7 @@ import {
 // import { PartnerTicker } from "../components/PartnerTicker";
 import { useEffect } from "react";
 import { supabase } from "../lib/supabaseClient";
+import { PetQuoteCard } from "../components/quotes/PetQuoteCard";
 
 // SEO helpers
 function absUrl(path: string) {
@@ -576,6 +577,8 @@ export function HomePage() {
                 />
               </motion.div>
             ))}
+            {/* ADD: Pet Insurance Quote Card */}
+            <PetQuoteCard />
           </div>
         </div>
       </section>

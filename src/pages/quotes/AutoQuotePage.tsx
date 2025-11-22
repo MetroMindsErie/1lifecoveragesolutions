@@ -10,11 +10,12 @@ import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { Textarea } from "../../components/ui/textarea";
-import { CheckCircle2, Car } from "lucide-react";
+import { CheckCircle2, Car, ArrowRight, ArrowLeft } from "lucide-react";
 import { QuoteLayout } from "../../components/quotes/QuoteLayout";
 import { submitQuote } from "../../lib/submit";
 import { supabase } from "../../lib/supabaseClient";
 import { SelectWithOther } from "../../components/quotes/SelectWithOther";
+import { motion, AnimatePresence } from "motion/react";
 
 function absUrl(path: string) {
 	const base = (import.meta as any).env?.VITE_SITE_URL || window.location.origin;
@@ -134,13 +135,124 @@ export function AutoQuotePage() {
 	}, []);
 
 	const [submitted, setSubmitted] = useState(false);
-	const [submitting, setSubmitting] = useState(false); // NEW
-	const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-		e.preventDefault();
+	const [submitting, setSubmitting] = useState(false);
+	const [currentStep, setCurrentStep] = useState(0);
+	const [formData, setFormData] = useState<Record<string, string>>({});
+
+	const steps = [
+		{
+			id: "client-info",
+			title: "Let's start with your information",
+			subtitle: "We'll use this to contact you with your quote",
+			fields: [
+				{ name: "name", label: "What's your full name?", type: "text", required: true },
+				{ name: "email", label: "Your email address", type: "email", required: true },
+				{ name: "phone", label: "Phone number", type: "tel", required: true },
+				{ name: "preferred_contact_method", label: "How should we reach you?", type: "select", options: ["Phone", "Email", "Text"] },
+			]
+		},
+		{
+			id: "driver-details",
+			title: "Tell us about you as a driver",
+			subtitle: "This helps us calculate accurate rates",
+			fields: [
+				{ name: "address", label: "Your current address", type: "text", required: true },
+				{ name: "dob", label: "Date of birth", type: "date", required: true },
+				{ name: "drivers_license_number", label: "Driver's license number", type: "text" },
+				{ name: "occupation", label: "Current occupation", type: "select", options: ["Professional","Skilled Trade","Student","Retired","Self-Employed","Unemployed","Other"] },
+			]
+		},
+		{
+			id: "vehicle-info",
+			title: "What vehicles do you need to insure?",
+			subtitle: "Provide details for up to 3 vehicles",
+			fields: [
+				{ name: "vehicle_1", label: "Vehicle 1 (Year / Make / Model / VIN)", type: "text", required: true, placeholder: "2020 Honda Accord EX / 1HGCV1F30LA123456" },
+				{ name: "vehicle_2", label: "Vehicle 2 (optional)", type: "text", placeholder: "2018 Toyota Camry SE / 4T1BF1FK5JU123456" },
+				{ name: "vehicle_3", label: "Vehicle 3 (optional)", type: "text", placeholder: "2019 Ford F-150 XLT / 1FTEW1EP5KFA12345" },
+				{ name: "primary_vehicle_use", label: "Primary vehicle use", type: "select", options: ["Commute", "Pleasure", "Business", "Rideshare"] },
+			]
+		},
+		{
+			id: "driving-habits",
+			title: "Your driving habits",
+			subtitle: "This affects your premium calculation",
+			fields: [
+				{ name: "commute_one_way_miles", label: "Miles driven one-way for commute", type: "select", options: ["<5","5-9","10-14","15-24","25-34","35+"] },
+				{ name: "commute_days_per_week", label: "Days per week commuting", type: "select", options: ["1","2","3","4","5","6","7"] },
+				{ name: "annual_miles", label: "Estimated annual miles", type: "select", options: ["<6K","6K-9K","10K-12K","13K-15K","16K-20K","20K+"] },
+				{ name: "rideshare_use", label: "Used for rideshare/delivery?", type: "select", options: ["Yes","No"] },
+			]
+		},
+		{
+			id: "insurance-history",
+			title: "Your insurance history",
+			subtitle: "Help us find the best rates",
+			fields: [
+				{ name: "currently_insured", label: "Currently insured?", type: "select", options: ["Yes", "No"] },
+				{ name: "current_policy_expiration", label: "Current policy expiration date", type: "date" },
+				{ name: "additional_drivers", label: "Additional drivers (Name, DOB, Relationship)", type: "textarea", placeholder: "John Doe, 01/15/1995, Spouse\nJane Doe, 05/20/2005, Child" },
+			]
+		},
+		{
+			id: "final",
+			title: "Almost done!",
+			subtitle: "Just a couple more questions",
+			fields: [
+				{ name: "interested_in_other_coverages", label: "Interested in other insurance?", type: "select", options: ["Homeowners", "Renters", "Life", "Umbrella", "Business", "Pet", "None"] },
+				{ name: "referral_source", label: "How did you hear about us?", type: "select", options: ["Google", "Referral", "Social Media", "Advertising"] },
+			]
+		},
+	];
+
+	const totalSteps = steps.length;
+	const progress = ((currentStep + 1) / totalSteps) * 100;
+
+	const handleFieldChange = (name: string, value: string) => {
+		setFormData(prev => ({ ...prev, [name]: value }));
+	};
+
+	const canContinue = () => {
+		const currentStepData = steps[currentStep];
+		const requiredFields = currentStepData.fields.filter(f => f.required);
+		return requiredFields.every(field => formData[field.name]?.trim());
+	};
+
+	const handleNext = () => {
+		if (currentStep < totalSteps - 1) {
+			setCurrentStep(prev => prev + 1);
+			window.scrollTo({ top: 0, behavior: 'smooth' });
+		}
+	};
+
+	const handlePrevious = () => {
+		if (currentStep > 0) {
+			setCurrentStep(prev => prev - 1);
+			window.scrollTo({ top: 0, behavior: 'smooth' });
+		}
+	};
+
+	const handleSubmit = async () => {
 		if (submitting) return;
 		setSubmitting(true);
 		try {
-			await submitQuote("auto", e.currentTarget);
+			const form = document.createElement('form');
+			Object.entries(formData).forEach(([key, value]) => {
+				const input = document.createElement('input');
+				input.name = key;
+				input.value = value;
+				form.appendChild(input);
+			});
+			const hp1 = document.createElement('input');
+			hp1.name = 'hp_company';
+			hp1.value = '';
+			form.appendChild(hp1);
+			const hp2 = document.createElement('input');
+			hp2.name = 'hp_url';
+			hp2.value = '';
+			form.appendChild(hp2);
+
+			await submitQuote("auto", form);
 			setSubmitted(true);
 			window.scrollTo(0, 0);
 		} catch (err: any) {
@@ -150,25 +262,28 @@ export function AutoQuotePage() {
 		}
 	};
 
+	useEffect(() => {
+		const firstField = steps[currentStep].fields[0]?.name;
+		if (firstField) {
+			const el = document.querySelector<HTMLInputElement | HTMLTextAreaElement>(`[name="${firstField}"]`);
+			el?.focus();
+		}
+	}, [currentStep]);
+
 	if (submitted) {
 		return (
-			<div className="min-h-screen bg-gradient-to-br from-white via-[#E9F3FB] to-[#D9ECFF] py-12">
+			<div className="min-h-screen bg-gradient-to-br from-white via-[#E9F3FB] to-[#D9ECFF] py-12 px-4">
 				<Card className="mx-auto max-w-2xl">
-					<CardContent className="p-12 text-center">
+					<CardContent className="p-8 sm:p-12 text-center">
 						<div className="mb-6 flex justify-center">
-							<div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-[#4f46e5] to-[#06b6d4]">
-								<CheckCircle2 className="h-10 w-10 text-white" />
+							<div className="flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-full bg-gradient-to-br from-[#4f46e5] to-[#06b6d4]">
+								<CheckCircle2 className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
 							</div>
 						</div>
-						<h2 className="mb-4 text-3xl text-[#1a1a1a]">
-							Auto Quote Request Sent
-						</h2>
-						<p className="text-[#6c757d]">We’ll contact you within 24 hours.</p>
+						<h2 className="mb-4 text-2xl sm:text-3xl text-[#1a1a1a">Auto Quote Submitted</h2>
+						<p className="text-[#6c757d]">We'll contact you with options within 24 hours.</p>
 						<div className="mt-8">
-							<Button
-								className="bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9]"
-								asChild
-							>
+							<Button className="bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] w-full sm:w-auto" asChild>
 								<a href="/">Return to Home</a>
 							</Button>
 						</div>
@@ -180,7 +295,7 @@ export function AutoQuotePage() {
 
 	return (
 		<QuoteLayout
-			title="Personal Auto Insurance Quote"
+			title="Auto Insurance Quote"
 			description="Tailored auto protection with discount optimization."
 			icon={Car}
 			accentColor="#1B5A8E"
@@ -191,186 +306,137 @@ export function AutoQuotePage() {
 				"Local claims support",
 			]}
 			faqs={[
-				{
-					question: "What information should I have ready?",
-					answer:
-						"Driver details, vehicle info (VIN if available), current coverage, and estimated annual mileage.",
-				},
-				{
-					question: "Do you run a credit check?",
-					answer:
-						"Some carriers may use credit-based insurance scores where allowed by law.",
-				},
-				{
-					question: "Can I add rideshare coverage?",
-					answer: "Yes. Tell us if you drive for Uber, Lyft, or delivery apps.",
-				},
+				{ question: "What information should I have ready?", answer: "Driver details, vehicle info (VIN if available), current coverage, and estimated annual mileage." },
+				{ question: "Do you run a credit check?", answer: "Some carriers may use credit-based insurance scores where allowed by law." },
+				{ question: "Can I add rideshare coverage?", answer: "Yes. Tell us if you drive for Uber, Lyft, or delivery apps." },
 			]}
 		>
-			<form onSubmit={onSubmit} className="space-y-8 p-8">
-				{/* Honeypot fields (hidden) */}
-				<input
-					type="text"
-					name="hp_company"
-					tabIndex={-1}
-					aria-hidden="true"
-					className="hidden"
-				/>
-				<input
-					type="url"
-					name="hp_url"
-					tabIndex={-1}
-					aria-hidden="true"
-					className="hidden"
-				/>
-				<div className="mx-auto max-w-3xl space-y-8">
-					<Section title="Client Information">
-						<div className="grid gap-4 sm:grid-cols-2">
-							<div>
-								<Label>Full Name</Label>
-								<Input required name="name" />
-							</div>
-							<div>
-								<Label>Email Address</Label>
-								<Input type="email" required name="email" />
-							</div>
-							<div>
-								<Label>Phone Number</Label>
-								<Input type="tel" required name="phone" />
-							</div>
-							<div>
-								<Label>Preferred Contact Method</Label>
-								{/* CHANGED */}
-								<SelectWithOther
-									name="preferred_contact_method"
-									options={["Phone", "Email", "Text"]}
-								/>
-							</div>
-							<div className="sm:col-span-2">
-								<Label>Address</Label>
-								<Input name="address" />
-							</div>
-							<div>
-								<Label>Date of Birth</Label>
-								<Input type="date" name="dob" />
-							</div>
-							<div>
-								<Label>Driver’s License Number</Label>
-								<Input name="drivers_license_number" />
-							</div>
-							<div className="sm:col-span-2">
-								<Label>Primary Residence</Label>
-								<Input name="primary_residence" />
-							</div>
+			<Card className="mx-auto max-w-3xl rounded-2xl bg-white/80 backdrop-blur-sm shadow-lg">
+				<CardHeader className="p-6 sm:p-8 pb-4">
+					<div className="mb-4">
+						<div className="mb-2 flex items-center justify-between text-sm">
+							<span className="text-[#6c757d]">Step {currentStep + 1} of {totalSteps}</span>
+							<span className="text-[#1B5A8E] font-medium">{Math.round(progress)}%</span>
 						</div>
-					</Section>
-					<Section title="Occupation & Education">
-						<div className="grid gap-4 sm:grid-cols-2">
-							<div>
-								<Label>Current Occupation</Label>
-								<Input name="occupation" />
-							</div>
-							<div>
-								<Label>Highest Level of Education</Label>
-								<Input name="education_level" />
-							</div>
+						<div className="h-2 w-full rounded-full bg-gray-200 overflow-hidden">
+							<motion.div
+								className="h-full bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9]"
+								initial={{ width: 0 }}
+								animate={{ width: `${progress}%` }}
+								transition={{ duration: 0.3 }}
+							/>
 						</div>
-					</Section>
-					<Section title="Vehicle Information">
-						<p className="text-sm text-[#6c757d]">
-							List up to three vehicles (Year / Make / Model / VIN)
-						</p>
-						<div className="grid gap-4">
-							{[1, 2, 3].map((i) => (
-								<Input
-									key={i}
-									placeholder={`${i}. Year / Make / Model / VIN`}
-									name={`vehicle_${i}`}
-								/>
-							))}
-						</div>
-						<div className="grid gap-4 sm:grid-cols-2">
-							<div>
-								<Label>Primary Vehicle Use</Label>
-								{/* CHANGED */}
-								<SelectWithOther
-									name="primary_vehicle_use"
-									options={["Commute", "Pleasure", "Business", "Rideshare"]}
-								/>
-							</div>
-							<div>
-								<Label>Length of Primary Vehicle Ownership</Label>
-								{/* CHANGED */}
-								<SelectWithOther
-									name="vehicle_ownership_length"
-									options={["<1 year", "1-3 years", "3-5 years", "5+ years"]}
-								/>
-							</div>
-							<div>
-								<Label>Miles Driven One Way for Commute</Label>
-								<Input name="commute_one_way_miles" />
-							</div>
-							<div>
-								<Label>Number of Days per Week Commuting</Label>
-								<Input name="commute_days_per_week" />
-							</div>
-							<div>
-								<Label>Annual Miles per Year</Label>
-								<Input name="annual_miles" />
-							</div>
-							<div>
-								<Label>Used for Rideshare?</Label>
-								{/* CHANGED */}
-								<SelectWithOther name="rideshare_use" options={["Yes", "No"]} />
-							</div>
-						</div>
-					</Section>
-					<Section title="Additional Drivers">
-						<p className="text-sm text-[#6c757d]">
-							List full name, date of birth, and relationship to primary driver
-						</p>
-						<div className="grid gap-4">
-							{[1, 2, 3].map((i) => (
-								<Textarea key={i} name={`additional_driver_${i}`} />
-							))}
-						</div>
-					</Section>
-					<Section title="Insurance History">
-						<div className="grid gap-4 sm:grid-cols-2">
-							<div>
-								<Label>Currently Insured?</Label>
-								{/* CHANGED */}
-								<SelectWithOther name="currently_insured" options={["Yes", "No"]} />
-							</div>
-							<div>
-								<Label>Current Policy Expiration Date</Label>
-								<Input type="date" name="current_policy_expiration" />
-							</div>
-						</div>
-					</Section>
-					<Section title="Additional Coverage">
-						<Input name="interested_in_other_coverages" />
-					</Section>
-					<Section title="Referral">
-						<Label>How did you hear about us?</Label>
-						<Input name="referral_source" />
-					</Section>
-					<div className="flex justify-end">
-						<Button
-							type="submit"
-							disabled={submitting}
-							className="bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] hover:opacity-90"
-						>
-							{submitting ? "Submitting..." : "Submit Auto Quote"}
-						</Button>
 					</div>
-				</div>
-			</form>
-			{/* Moved: Coverage Overview (now shown after client form) */}
-			<Card
-				data-step="Coverage Overview"
-				className="mx-auto mb-8 max-w-3xl rounded-xl border border-gray-200 bg-white/70 backdrop-blur-sm shadow-sm"
-			>
+					<CardTitle className="text-xl sm:text-2xl">{steps[currentStep].title}</CardTitle>
+					<CardDescription className="text-sm sm:text-base">{steps[currentStep].subtitle}</CardDescription>
+				</CardHeader>
+				<CardContent className="p-6 sm:p-8 pt-0">
+					<AnimatePresence mode="wait">
+						<motion.div
+							key={currentStep}
+							initial={{ opacity: 0, x: 20 }}
+							animate={{ opacity: 1, x: 0 }}
+							exit={{ opacity: 0, x: -20 }}
+							transition={{ duration: 0.3 }}
+							className="space-y-6"
+						>
+							<div className="grid gap-5 sm:grid-cols-2">
+								{steps[currentStep].fields.map((field, idx) => (
+									<motion.div
+										key={field.name}
+										initial={{ opacity: 0, y: 10 }}
+										animate={{ opacity: 1, y: 0 }}
+										transition={{ delay: idx * 0.1 }}
+										className="space-y-2 p-4 rounded-lg border border-gray-200 bg-white/60"
+									>
+										<Label className="text-sm sm:text-base font-medium text-[#1a1a1a]">
+											{field.label}{field.required && <span className="text-red-500 ml-1">*</span>}
+										</Label>
+										{field.type === "select" && field.options ? (
+											<SelectWithOther
+												name={field.name}
+												options={field.options}
+												value={formData[field.name] || ""}
+												onChange={(v) => handleFieldChange(field.name, v)}
+											/>
+										) : field.type === "textarea" ? (
+											<Textarea
+												name={field.name}
+												placeholder={field.placeholder}
+												value={formData[field.name] || ""}
+												onChange={(e) => handleFieldChange(field.name, e.target.value)}
+												className="min-h-[100px] text-sm sm:text-base px-3 py-3"
+											/>
+										) : (
+											<Input
+												type={field.type}
+												name={field.name}
+												placeholder={field.placeholder}
+												value={formData[field.name] || ""}
+												onChange={(e) => handleFieldChange(field.name, e.target.value)}
+												required={field.required}
+												className="text-sm sm:text-base px-3 py-3"
+											/>
+										)}
+									</motion.div>
+								))}
+							</div>
+						</motion.div>
+					</AnimatePresence>
+
+					<div className="mt-8 sticky bottom-4 bg-white/90 backdrop-blur-md rounded-xl border border-gray-200 p-4 flex flex-col sm:flex-row gap-3 shadow-md">
+						<Button
+							type="button"
+							variant="outline"
+							onClick={handlePrevious}
+							disabled={currentStep === 0}
+							className="w-full sm:w-auto order-2 sm:order-1"
+						>
+							<ArrowLeft className="mr-2 h-4 w-4" />
+							Back
+						</Button>
+						{currentStep < totalSteps - 1 ? (
+							<Button
+								type="button"
+								onClick={handleNext}
+								disabled={!canContinue()}
+								className="w-full sm:w-auto bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] order-1 sm:order-2"
+							>
+								Continue
+								<ArrowRight className="ml-2 h-4 w-4" />
+							</Button>
+						) : (
+							<Button
+								type="button"
+								onClick={handleSubmit}
+								disabled={submitting || !canContinue()}
+								className="w-full sm:w-auto bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] order-1 sm:order-2"
+							>
+								{submitting ? "Submitting..." : "Get My Quote"}
+								<CheckCircle2 className="ml-2 h-4 w-4" />
+							</Button>
+						)}
+					</div>
+
+					<div className="mt-6 sm:mt-8 flex justify-center gap-2">
+						{steps.map((_, idx) => (
+							<div
+								key={idx}
+								className={`h-2 rounded-full transition-all ${
+									idx === currentStep
+										? "w-8 bg-gradient-to-r from-[#4f46e5] to-[#06b6d4]"
+										: idx < currentStep
+										? "w-2 bg-[#06b6d4]"
+										: "w-2 bg-gray-300"
+								}`}
+							/>
+						))}
+					</div>
+				</CardContent>
+			</Card>
+
+			{/* Coverage Overview - responsive spacing */}
+			<Card className="mx-auto mt-6 sm:mt-8 max-w-3xl rounded-xl border border-gray-200 bg-white/70 backdrop-blur-sm shadow-sm">
 				<CardHeader>
 					<CardTitle>Auto Coverage Overview</CardTitle>
 					<CardDescription>

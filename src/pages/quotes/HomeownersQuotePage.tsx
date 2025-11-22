@@ -1,28 +1,22 @@
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../components/ui/card";
+import {
+  Card, CardContent, CardHeader, CardTitle, CardDescription
+} from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { Textarea } from "../../components/ui/textarea";
-import { CheckCircle2, Home } from "lucide-react";
+import { CheckCircle2, Home, ArrowRight, ArrowLeft } from "lucide-react";
 import { QuoteLayout } from "../../components/quotes/QuoteLayout";
 import { submitQuote } from "../../lib/submit";
 import { supabase } from "../../lib/supabaseClient";
 import { SelectWithOther } from "../../components/quotes/SelectWithOther";
+import { motion, AnimatePresence } from "motion/react";
 
-function absUrl(path: string) {
-  const base = (import.meta as any).env?.VITE_SITE_URL || window.location.origin;
-  return path.startsWith("http") ? path : `${base}${path.startsWith("/") ? "" : "/"}${path}`;
-}
-function setHead({ title, description, canonicalPath, jsonLd }: { title: string; description?: string; canonicalPath?: string; jsonLd?: any; }) {
-  const SITE = "1Life Coverage Solutions";
-  const url = absUrl(canonicalPath || window.location.pathname);
-  document.title = `${title} | ${SITE}`;
-  if (description) { let d=document.head.querySelector('meta[name="description"]') as HTMLMetaElement|null; if(!d){d=document.createElement("meta"); d.setAttribute("name","description"); document.head.appendChild(d);} d.setAttribute("content",description); }
-  let c=document.head.querySelector('link[rel="canonical"]') as HTMLLinkElement|null; if(!c){c=document.createElement("link"); c.setAttribute("rel","canonical"); document.head.appendChild(c);} c.setAttribute("href",url);
-  document.head.querySelectorAll('script[data-seo-jsonld="1"]').forEach(n => n.remove());
-  if (jsonLd) { const s=document.createElement("script"); s.type="application/ld+json"; s.setAttribute("data-seo-jsonld","1"); s.textContent=JSON.stringify(jsonLd); document.head.appendChild(s); }
-}
+const YEAR_BUILT_OPTIONS = (() => {
+  const current = new Date().getFullYear();
+  return Array.from({ length: current - 1899 }, (_, i) => String(current - i));
+})();
 
 export function HomeownersQuotePage() {
   useEffect(() => {
@@ -31,39 +25,170 @@ export function HomeownersQuotePage() {
       "@type": "Service",
       serviceType: "Homeowners Insurance Quote",
       provider: { "@type": "InsuranceAgency", name: "1Life Coverage Solutions" },
-      url: absUrl("/quote/homeowners"),
+      url: window.location.origin + "/quote/homeowners",
       areaServed: "US",
       description: "Get a homeowners insurance quote with tailored coverage recommendations."
     };
-    setHead({
-      title: "Homeowners Insurance Quote",
-      description: "Share property details to get accurate homeowners coverage recommendations.",
-      canonicalPath: "/quote/homeowners",
-      jsonLd
-    });
-    (async () => {
-      const { data } = await supabase
-        .from("pages_seo").select("title,description,canonical_url,json_ld")
-        .eq("path", "/quote/homeowners").maybeSingle();
-      if (data) {
-        setHead({
-          title: data.title || "Homeowners Insurance Quote",
-          description: data.description || undefined,
-          canonicalPath: data.canonical_url || "/quote/homeowners",
-          jsonLd: data.json_ld || jsonLd
-        });
-      }
-    })();
   }, []);
 
+  const steps = [
+    {
+      id: "client-info",
+      title: "Your Information",
+      subtitle: "We'll use this to contact you",
+      fields: [
+        { name: "name", label: "Full Name", type: "text", required: true },
+        { name: "email", label: "Email", type: "email", required: true },
+        { name: "phone", label: "Phone", type: "tel", required: true },
+        { name: "preferred_contact_method", label: "Contact Method", type: "select", options: ["Phone", "Email", "Text"] }
+      ]
+    },
+    {
+      id: "property-address",
+      title: "Property Address",
+      subtitle: "Where is the home located?",
+      fields: [
+        { name: "property_address", label: "Property Address", type: "text", required: true },
+        { name: "mailing_address", label: "Mailing Address (if different)", type: "text" },
+        { name: "dob", label: "Date of Birth", type: "date" },
+        { name: "drivers_license_number", label: "Driver's License Number", type: "text" }
+      ]
+    },
+    {
+      id: "property-details",
+      title: "Home Details",
+      subtitle: "Basic characteristics",
+      fields: [
+        { name: "home_type", label: "Type of Home", type: "select", options: ["Single Family","Condo","Townhome","Manufactured/Mobile"] },
+        { name: "year_built", label: "Year Built", type: "select", options: YEAR_BUILT_OPTIONS },
+        { name: "square_footage", label: "Square Footage", type: "select", options: ["<1,000","1,000-1,999","2,000-2,999","3,000-3,999","4,000+"] },
+        { name: "stories", label: "Number of Stories", type: "select", options: ["1","1.5","2","2.5","3+"] },
+        { name: "roof_type_year", label: "Roof Type / Year Last Replaced", type: "text" },
+      ]
+    },
+    {
+      id: "construction-details",
+      title: "Construction & Systems",
+      subtitle: "Materials & major systems",
+      fields: [
+        { name: "foundation_type", label: "Foundation Type", type: "select", options: ["Slab","Crawl Space","Basement"] },
+        { name: "basement_finished", label: "If basement, is it finished?", type: "select", options: ["Yes","No","Partially Finished"] },
+        { name: "exterior_construction", label: "Exterior Construction", type: "select", options: ["Brick","Wood","Vinyl","Stucco","Mixed","Other"] },
+        { name: "heating_type", label: "Heating Type", type: "select", options: ["Gas","Electric","Heat Pump","Oil","Other"] },
+        { name: "heating_age_years", label: "Age of Heating System (years)", type: "select", options: ["<5","5-9","10-14","15-19","20+"] },
+      ]
+    },
+    {
+      id: "safety-features",
+      title: "Safety Features",
+      subtitle: "Protective devices present",
+      fields: [
+        { name: "central_fire_alarm", label: "Central Fire Alarm", type: "select", options: ["Yes", "No"] },
+        { name: "central_burglar_alarm", label: "Central Burglar Alarm", type: "select", options: ["Yes", "No"] },
+        { name: "fire_extinguisher", label: "Fire Extinguisher", type: "select", options: ["Yes", "No"] },
+        { name: "deadbolts", label: "Deadbolts on Exterior Doors", type: "select", options: ["Yes", "No"] },
+        { name: "pool", label: "Swimming Pool?", type: "select", options: ["Yes", "No"] },
+        { name: "pool_fenced", label: "If pool, is it fenced?", type: "select", options: ["Yes", "No"] },
+        { name: "pool_type", label: "Pool Type", type: "select", options: ["Above Ground", "Inground"] },
+        { name: "trampoline", label: "Trampoline?", type: "select", options: ["Yes", "No"] }
+      ]
+    },
+    {
+      id: "pets",
+      title: "Pets",
+      subtitle: "Pet info for liability considerations",
+      fields: [
+        { name: "pets_have", label: "Do you have pets?", type: "select", options: ["Yes", "No"] },
+        { name: "pets_type", label: "Type of Pets", type: "select", options: ["Dog", "Cat", "Other"] },
+        { name: "pets_count", label: "Number of Pets", type: "text" },
+        { name: "dog_breeds", label: "Dog Breeds (if applicable)", type: "text" },
+        { name: "pets_bite_history", label: "Any bite/claim history?", type: "select", options: ["Yes", "No"] }
+      ]
+    },
+    {
+      id: "coverage-info",
+      title: "Coverage Info",
+      subtitle: "Current & desired coverage",
+      fields: [
+        { name: "current_carrier", label: "Current Insurance Carrier", type: "text" },
+        { name: "policy_expiration", label: "Policy Expiration Date", type: "date" },
+        { name: "current_dwelling_coverage", label: "Current Dwelling Coverage Amount ($)", type: "select", options: ["100K","150K","200K","250K","300K","400K","500K","600K","700K","800K","900K","1M","Other"], otherLabel: "Custom" },
+        { name: "desired_deductible", label: "Desired Deductible ($)", type: "select", options: ["500","1000","2500"], otherLabel: "Custom" },
+        { name: "claims_last_5_years", label: "Any claims in the last 5 years?", type: "select", options: ["Yes","No"] },
+        { name: "claims_description", label: "If yes, please describe", type: "textarea" },
+      ]
+    },
+    {
+      id: "additional-coverages",
+      title: "Additional Coverages",
+      subtitle: "Optional interests",
+      fields: [
+        { name: "additional_coverages", label: "Additional Coverages Interested In", type: "text" }
+      ]
+    },
+    {
+      id: "referral",
+      title: "Referral Source",
+      subtitle: "How did you hear about us?",
+      fields: [
+        { name: "referral_source", label: "Referral Source", type: "select", options: ["Google", "Referral", "Social Media", "Advertising"] }
+      ]
+    },
+    {
+      id: "final",
+      title: "Review & Submit",
+      subtitle: "Submit your quote request",
+      fields: []
+    }
+  ];
+
   const [submitted, setSubmitted] = useState(false);
-  const [submitting, setSubmitting] = useState(false); // NEW
-  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const [submitting, setSubmitting] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [formData, setFormData] = useState<Record<string, string>>({});
+
+  const totalSteps = steps.length;
+  const progress = ((currentStep + 1) / totalSteps) * 100;
+
+  const handleFieldChange = (name: string, value: string) => {
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const canContinue = () => {
+    const required = steps[currentStep].fields.filter(f => f.required);
+    return required.every(f => (formData[f.name] || "").trim());
+  };
+
+  const handleNext = () => {
+    if (!canContinue()) return;
+    setCurrentStep(s => Math.min(s + 1, totalSteps - 1));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handlePrevious = () => {
+    setCurrentStep(s => Math.max(s - 1, 0));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleSubmit = async () => {
     if (submitting) return;
     setSubmitting(true);
     try {
-      await submitQuote("homeowners", e.currentTarget);
+      const form = document.createElement("form");
+      Object.entries(formData).forEach(([k, v]) => {
+        const input = document.createElement("input");
+        input.name = k;
+        input.value = v;
+        form.appendChild(input);
+      });
+      // honeypots
+      const hp1 = document.createElement("input");
+      hp1.name = "hp_company"; hp1.value = "";
+      const hp2 = document.createElement("input");
+      hp2.name = "hp_url"; hp2.value = "";
+      form.appendChild(hp1); form.appendChild(hp2);
+
+      await submitQuote("homeowners", form);
       setSubmitted(true);
       window.scrollTo(0, 0);
     } catch (err: any) {
@@ -73,17 +198,25 @@ export function HomeownersQuotePage() {
     }
   };
 
+  useEffect(() => {
+    const firstField = steps[currentStep].fields[0]?.name;
+    if (firstField) {
+      const el = document.querySelector<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(`[name="${firstField}"]`);
+      el?.focus();
+    }
+  }, [currentStep]);
+
   if (submitted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-white via-[#E9F3FB] to-[#D9ECFF] py-12">
+      <div className="min-h-screen bg-gradient-to-br from-white via-[#E9F3FB] to-[#D9ECFF] py-12 px-4">
         <Card className="mx-auto max-w-2xl">
-          <CardContent className="p-12 text-center">
+          <CardContent className="p-8 sm:p-12 text-center">
             <div className="mb-6 flex justify-center">
-              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-[#4f46e5] to-[#06b6d4]">
-                <CheckCircle2 className="h-10 w-10 text-white" />
+              <div className="flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-full bg-gradient-to-br from-[#4f46e5] to-[#06b6d4]">
+                <CheckCircle2 className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
               </div>
             </div>
-            <h2 className="mb-4 text-3xl text-[#1a1a1a]">Homeowners Quote Submitted</h2>
+            <h2 className="mb-4 text-2xl sm:text-3xl text-[#1a1a1a]">Homeowners Quote Submitted</h2>
             <p className="text-[#6c757d]">We’ll contact you within 24 hours.</p>
             <div className="mt-8">
               <Button className="bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9]" asChild>
@@ -104,316 +237,137 @@ export function HomeownersQuotePage() {
       accentColor="#1B5A8E"
       benefits={[
         "Replacement cost options",
-        "Bundle with auto for savings",
+        "Bundle for savings",
         "Storm & theft protection",
-        "Fast, fair claim support",
+        "Fast claim support"
       ]}
       faqs={[
-        {
-          question: "What affects my homeowners premium?",
-          answer:
-            "Home age, roof type, location, updates, claims history, security features, and coverage limits.",
-        },
-        {
-          question: "Do you insure condos and townhomes?",
-          answer: "Yes. We tailor coverage to HO-6 or HOA-required limits.",
-        },
-        {
-          question: "Can I get flood or earthquake coverage?",
-          answer: "Optional policies or endorsements are available in many areas.",
-        },
+        { question: "What affects my premium?", answer: "Age/updates of roof & systems, location, claims, protective devices, coverage limits." },
+        { question: "Do you insure condos?", answer: "Yes. We tailor coverage to HO-6 or HOA requirements." },
+        { question: "Flood / earthquake?", answer: "Separate policies or endorsements where available." }
       ]}
     >
-      <Card className="mx-auto max-w-4xl">
-        <CardHeader>
-          <CardTitle>Homeowners Insurance Quote</CardTitle>
-          <CardDescription>Provide property and coverage details for your quote.</CardDescription>
+      <Card className="mx-auto max-w-4xl rounded-2xl bg-white/80 backdrop-blur-sm shadow-lg">
+        <CardHeader className="p-6 sm:p-8 pb-4">
+          <div className="mb-4">
+            <div className="mb-2 flex items-center justify-between text-xs font-medium text-[#1B5A8E]">
+              <span>Step {currentStep + 1} of {totalSteps}</span>
+              <span>{Math.round(progress)}%</span>
+            </div>
+            <div className="h-3 rounded-full bg-gray-200 overflow-hidden">
+              <motion.div
+                className="h-full rounded-full bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9]"
+                initial={{ width: 0 }}
+                animate={{ width: `${progress}%` }}
+                transition={{ duration: 0.35 }}
+              />
+            </div>
+          </div>
+          <CardTitle className="text-xl sm:text-2xl">{steps[currentStep].title}</CardTitle>
+          <CardDescription className="text-sm sm:text-base">{steps[currentStep].subtitle}</CardDescription>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={onSubmit} className="space-y-8">
-            {/* Honeypot fields (hidden) */}
-            <input type="text" name="hp_company" tabIndex={-1} aria-hidden="true" className="hidden" />
-            <input type="url" name="hp_url" tabIndex={-1} aria-hidden="true" className="hidden" />
-            {/* Client Information */}
-            <div
-              data-step="Client Information"
-              className="space-y-4 rounded-xl border border-gray-200 bg-white/60 backdrop-blur-sm p-6 shadow-sm"
+        <CardContent className="p-6 sm:p-8 pt-0">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentStep}
+              initial={{ opacity: 0, x: 25 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -25 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-6"
             >
-              <h3 className="text-sm font-semibold tracking-wide text-[#1B5A8E] uppercase">Client Information</h3>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <Label>Full Name</Label>
-                  <Input required name="name" />
-                </div>
-                <div>
-                  <Label>Email Address</Label>
-                  <Input type="email" required name="email" />
-                </div>
-                <div>
-                  <Label>Phone Number</Label>
-                  <Input type="tel" required name="phone" />
-                </div>
-                <div>
-                  <Label>Preferred Contact Method</Label>
-                  {/* CHANGED */}
-                  <SelectWithOther name="preferred_contact_method" options={["Phone","Email","Text"]} />
-                </div>
-                <div className="sm:col-span-2">
-                  <Label>Address of Property to be Insured</Label>
-                  <Input required name="property_address" />
-                </div>
-                <div className="sm:col-span-2">
-                  <Label>Mailing Address (if different)</Label>
-                  <Input name="mailing_address" />
-                </div>
-                <div>
-                  <Label>Date of Birth</Label>
-                  <Input type="date" name="dob" />
-                </div>
-                <div>
-                  <Label>Driver’s License Number</Label>
-                  <Input name="drivers_license_number" />
-                </div>
+              <div className="grid gap-5 sm:grid-cols-2">
+                {steps[currentStep].fields.map((field, idx) => (
+                  <motion.div
+                    key={field.name}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.05 }}
+                    className="space-y-2 p-4 rounded-lg border border-gray-200 bg-white/60"
+                  >
+                    <Label className="text-sm font-medium text-[#1a1a1a]">
+                      {field.label}{field.required && <span className="text-red-500 ml-1">*</span>}
+                    </Label>
+                    {field.type === "select" && field.options ? (
+                      <SelectWithOther
+                        name={field.name}
+                        options={field.options}
+                        value={formData[field.name] || ""}
+                        onChange={(v) => handleFieldChange(field.name, v)}
+                      />
+                    ) : field.type === "textarea" ? (
+                      <Textarea
+                        name={field.name}
+                        value={formData[field.name] || ""}
+                        onChange={(e) => handleFieldChange(field.name, e.target.value)}
+                        className="min-h-[110px] px-3 py-3"
+                      />
+                    ) : (
+                      <Input
+                        type={field.type}
+                        name={field.name}
+                        value={formData[field.name] || ""}
+                        onChange={(e) => handleFieldChange(field.name, e.target.value)}
+                        required={field.required}
+                        className="px-3 py-3"
+                      />
+                    )}
+                  </motion.div>
+                ))}
               </div>
-            </div>
+            </motion.div>
+          </AnimatePresence>
 
-            {/* Property Details */}
-            <div
-              data-step="Property Details"
-              className="space-y-4 rounded-xl border border-gray-200 bg-white/60 backdrop-blur-sm p-6 shadow-sm"
+          <div className="mt-8 sticky bottom-4 bg-white/90 backdrop-blur-md border border-gray-200 rounded-xl p-4 flex flex-col sm:flex-row gap-3 shadow-md">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={currentStep === 0}
+              onClick={handlePrevious}
+              className="sm:w-auto w-full"
             >
-              <h3 className="text-sm font-semibold tracking-wide text-[#1B5A8E] uppercase">Property Details</h3>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="sm:col-span-2">
-                  <Label>Type of Home</Label>
-                  {/* CHANGED */}
-                  <SelectWithOther
-                    name="home_type"
-                    options={["Single Family","Condo","Townhome","Manufactured/Mobile"]}
-                  />
-                </div>
-                <div>
-                  <Label>Year Built</Label>
-                  <Input name="year_built" />
-                </div>
-                <div>
-                  <Label>Square Footage</Label>
-                  <Input name="square_footage" />
-                </div>
-                <div>
-                  <Label>Number of Stories</Label>
-                  <Input name="stories" />
-                </div>
-                <div>
-                  <Label>Roof Type / Year Last Replaced</Label>
-                  <Input name="roof_type_year" />
-                </div>
-                <div>
-                  <Label>Foundation Type</Label>
-                  {/* CHANGED */}
-                  <SelectWithOther
-                    name="foundation_type"
-                    options={["Slab","Crawl Space","Basement"]}
-                  />
-                </div>
-                <div className="sm:col-span-2">
-                  <Label>If basement, is it finished?</Label>
-                  {/* CHANGED */}
-                  <SelectWithOther
-                    name="basement_finished"
-                    options={["Yes","No","Partially Finished"]}
-                  />
-                </div>
-                <div className="sm:col-span-2">
-                  <Label>Exterior Construction</Label>
-                  <Input name="exterior_construction" placeholder="Brick / Siding / Wood / Stucco / Other" />
-                </div>
-                <div>
-                  <Label>Heating Type</Label>
-                  <Input name="heating_type" />
-                </div>
-                <div>
-                  <Label>Age of Heating System (years)</Label>
-                  <Input name="heating_age_years" />
-                </div>
-                <div>
-                  <Label>Fireplace or Wood Stove?</Label>
-                  {/* CHANGED */}
-                  <SelectWithOther name="fireplace_or_woodstove" options={["Yes","No"]} />
-                </div>
-                <div>
-                  <Label>Garage</Label>
-                  {/* CHANGED */}
-                  <SelectWithOther name="garage" options={["Attached","Detached","None"]} />
-                </div>
-                <div>
-                  <Label>Garage Capacity</Label>
-                  {/* CHANGED */}
-                  <SelectWithOther name="garage_capacity" options={["1-Car","2-Car","3+ Car"]} />
-                </div>
-              </div>
-            </div>
-
-            {/* Safety Features */}
-            <div
-              data-step="Safety Features"
-              className="space-y-4 rounded-xl border border-gray-200 bg-white/60 backdrop-blur-sm p-6 shadow-sm"
-            >
-              <h3 className="text-sm font-semibold tracking-wide text-[#1B5A8E] uppercase">Safety Features</h3>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <Label>Central Fire Alarm</Label>
-                  {/* CHANGED */}
-                  <SelectWithOther name="central_fire_alarm" options={["Yes","No"]} />
-                </div>
-                <div>
-                  <Label>Central Burglar Alarm</Label>
-                  {/* CHANGED */}
-                  <SelectWithOther name="central_burglar_alarm" options={["Yes","No"]} />
-                </div>
-                <div>
-                  <Label>Fire Extinguisher</Label>
-                  {/* CHANGED */}
-                  <SelectWithOther name="fire_extinguisher" options={["Yes","No"]} />
-                </div>
-                <div>
-                  <Label>Deadbolts on Exterior Doors</Label>
-                  {/* CHANGED */}
-                  <SelectWithOther name="deadbolts" options={["Yes","No"]} />
-                </div>
-                <div>
-                  <Label>Swimming Pool on Property?</Label>
-                  {/* CHANGED */}
-                  <SelectWithOther name="pool" options={["Yes","No"]} />
-                </div>
-                <div>
-                  <Label>If pool, is it fenced?</Label>
-                  {/* CHANGED */}
-                  <SelectWithOther name="pool_fenced" options={["Yes","No"]} />
-                </div>
-                <div>
-                  <Label>Pool Type</Label>
-                  {/* CHANGED */}
-                  <SelectWithOther name="pool_type" options={["Above Ground","Inground"]} />
-                </div>
-                <div>
-                  <Label>Trampoline on Property?</Label>
-                  {/* CHANGED */}
-                  <SelectWithOther name="trampoline" options={["Yes","No"]} />
-                </div>
-              </div>
-            </div>
-
-            {/* Pets */}
-            <div
-              data-step="Pets"
-              className="space-y-4 rounded-xl border border-gray-200 bg-white/60 backdrop-blur-sm p-6 shadow-sm"
-            >
-              <h3 className="text-sm font-semibold tracking-wide text-[#1B5A8E] uppercase">Pets</h3>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <Label>Do you have pets?</Label>
-                  {/* CHANGED */}
-                  <SelectWithOther name="pets_have" options={["Yes","No"]} />
-                </div>
-                <div>
-                  <Label>Type of Pets</Label>
-                  {/* CHANGED */}
-                  <SelectWithOther name="pets_type" options={["Dog","Cat","Other"]} />
-                </div>
-                <div>
-                  <Label>Number of Pets</Label>
-                  <Input name="pets_count" />
-                </div>
-                <div>
-                  <Label>Dog Breeds (if applicable)</Label>
-                  <Input name="dog_breeds" />
-                </div>
-                <div className="sm:col-span-2">
-                  <Label>Any pets with a history of bites/claims?</Label>
-                  {/* CHANGED */}
-                  <SelectWithOther name="pets_bite_history" options={["Yes","No"]} />
-                </div>
-              </div>
-            </div>
-
-            {/* Coverage Information */}
-            <div
-              data-step="Coverage Information"
-              className="space-y-4 rounded-xl border border-gray-200 bg-white/60 backdrop-blur-sm p-6 shadow-sm"
-            >
-              <h3 className="text-sm font-semibold tracking-wide text-[#1B5A8E] uppercase">Coverage Information</h3>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <Label>Current Insurance Carrier</Label>
-                  <Input name="current_carrier" />
-                </div>
-                <div>
-                  <Label>Policy Expiration Date</Label>
-                  <Input type="date" name="policy_expiration" />
-                </div>
-                <div>
-                  <Label>Current Dwelling Coverage Amount ($)</Label>
-                  <Input name="current_dwelling_coverage" />
-                </div>
-                <div>
-                  <Label>Desired Deductible ($)</Label>
-                  {/* CHANGED */}
-                  <SelectWithOther
-                    name="desired_deductible"
-                    options={["500","1000","2500"]}
-                    otherLabel="Custom"
-                  />
-                </div>
-                <div className="sm:col-span-2">
-                  <Label>Any claims in the last 5 years?</Label>
-                  {/* CHANGED */}
-                  <SelectWithOther name="claims_last_5_years" options={["Yes","No"]} />
-                </div>
-                <div className="sm:col-span-2">
-                  <Label>If yes, please describe</Label>
-                  <Textarea name="claims_description" />
-                </div>
-              </div>
-            </div>
-
-            {/* Additional Coverages */}
-            <div
-              data-step="Additional Coverages"
-              className="space-y-4 rounded-xl border border-gray-200 bg-white/60 backdrop-blur-sm p-6 shadow-sm"
-            >
-              <h3 className="text-sm font-semibold tracking-wide text-[#1B5A8E] uppercase">Additional Coverages</h3>
-              <Input name="additional_coverages" placeholder="Interested in: Personal Umbrella / Auto / Life / Business (optional)" />
-            </div>
-
-            {/* Referral */}
-            <div
-              data-step="Referral"
-              className="space-y-4 rounded-xl border border-gray-200 bg-white/60 backdrop-blur-sm p-6 shadow-sm"
-            >
-              <Label>How did you hear about us?</Label>
-              {/* CHANGED */}
-              <SelectWithOther name="referral_source" options={["Google","Referral","Social Media","Advertising"]} />
-            </div>
-
-            <div className="flex justify-end">
+              <ArrowLeft className="mr-2 h-4 w-4" /> Back
+            </Button>
+            {currentStep < totalSteps - 1 ? (
               <Button
-                type="submit"
-                disabled={submitting}
-                className="bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] hover:opacity-90"
+                type="button"
+                disabled={!canContinue()}
+                onClick={handleNext}
+                className="bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] sm:w-auto w-full"
               >
-                {submitting ? "Submitting..." : "Submit Homeowners Quote"}
+                Continue <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
-            </div>
-          </form>
+            ) : (
+              <Button
+                type="button"
+                onClick={handleSubmit}
+                disabled={submitting || !canContinue()}
+                className="bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] sm:w-auto w-full"
+              >
+                {submitting ? "Submitting..." : "Submit Quote"} <CheckCircle2 className="ml-2 h-4 w-4" />
+              </Button>
+            )}
+          </div>
+
+          <div className="mt-8 flex justify-center gap-2">
+            {steps.map((_, i) => (
+              <div
+                key={i}
+                className={`h-2 rounded-full transition-all ${
+                  i === currentStep
+                    ? "w-8 bg-gradient-to-r from-[#4f46e5] to-[#06b6d4]"
+                    : i < currentStep
+                    ? "w-2 bg-[#06b6d4]"
+                    : "w-2 bg-gray-300"
+                }`}
+              />
+            ))}
+          </div>
         </CardContent>
       </Card>
 
-      {/* Moved: Coverage Overview (now shown after client form) */}
-      <Card
-        data-step="Coverage Overview"
-        className="mx-auto mb-8 max-w-4xl rounded-xl border border-gray-200 bg-white/70 backdrop-blur-sm shadow-sm"
-      >
+      {/* Coverage Overview */}
+      <Card className="mx-auto mt-8 max-w-4xl rounded-xl border border-gray-200 bg-white/70 backdrop-blur-sm shadow-sm">
         <CardHeader>
           <CardTitle>Homeowners Coverage Overview</CardTitle>
           <CardDescription>Key protections & optional enhancements.</CardDescription>
@@ -422,30 +376,24 @@ export function HomeownersQuotePage() {
           <div>
             <h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">Primary Sections</h4>
             <ul className="grid gap-2 sm:grid-cols-3">
-              <li>Dwelling (Coverage A)</li>
+              <li>Dwelling (A)</li>
               <li>Other Structures (B)</li>
               <li>Personal Property (C)</li>
               <li>Loss of Use (D)</li>
-              <li>Personal Liability (E)</li>
+              <li>Liability (E)</li>
               <li>Medical Payments (F)</li>
             </ul>
           </div>
           <div>
             <h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">Popular Endorsements</h4>
             <ul className="grid gap-2 sm:grid-cols-2">
-              <li>Replacement Cost on Contents</li>
+              <li>Replacement Cost Contents</li>
               <li>Water Backup / Sump Overflow</li>
-              <li>Scheduled Jewelry & Valuables</li>
+              <li>Scheduled Jewelry / Valuables</li>
               <li>Equipment Breakdown</li>
               <li>Cyber / ID Theft</li>
               <li>Inflation Guard</li>
             </ul>
-          </div>
-          <div>
-            <h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">Risk & Rating Factors</h4>
-            <p className="text-xs leading-relaxed">
-              Age of roof, wiring, plumbing & HVAC updates, location fire protection class, prior claims, protective devices, credit-based insurance score (where allowed).
-            </p>
           </div>
           <div>
             <h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">Claim Examples</h4>
@@ -454,6 +402,12 @@ export function HomeownersQuotePage() {
               <li><span className="font-medium text-[#1a1a1a]">Wind Roof Damage:</span> Dwelling repairs / mitigation.</li>
               <li><span className="font-medium text-[#1a1a1a]">Slip & Fall Guest:</span> Liability / medical payments.</li>
             </ul>
+          </div>
+          <div>
+            <h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">Risk & Rating Factors</h4>
+            <p className="text-xs leading-relaxed">
+              Roof age, electrical/plumbing/HVAC updates, location fire class, prior claims, protective devices, credit-based insurance score (where allowed).
+            </p>
           </div>
           <p className="text-[11px]">Flood & earthquake typically excluded—ask about separate policies.</p>
         </CardContent>

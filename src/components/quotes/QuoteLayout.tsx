@@ -188,53 +188,46 @@ export function QuoteLayout({
 
       {/* Main grid + subtle glass effect wrapper (NEW style tweaks) */}
       <section className="py-12">
-        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-4 lg:grid-cols-3 lg:px-8">
-          <div className="lg:col-span-2 space-y-8">
+        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-4 lg:grid-cols-3 lg:px-8">
+          <div className="lg:col-span-2 space-y-10">
             {/* NEW: inline stepper */}
             {steps.length > 0 && (
-              <div className="sticky top-12 z-10 rounded-xl border border-white/60 bg-white/70 backdrop-blur-md px-4 py-3 shadow-sm flex flex-wrap gap-2">
+              <div className="sticky top-10 z-10 rounded-xl border border-white/60 bg-white/80 backdrop-blur-md px-4 py-4 shadow-md flex flex-wrap gap-3">
                 {steps.map((s, i) => (
-                  <div
+                  <button
                     key={s + i}
-                    role="button"
-                    tabIndex={0}
+                    type="button"
                     onClick={() => {
                       const target = document.querySelectorAll<HTMLElement>("[data-step]")[i];
                       target?.scrollIntoView({ behavior: "smooth", block: "start" });
                     }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        const target = document.querySelectorAll<HTMLElement>("[data-step]")[i];
-                        target?.scrollIntoView({ behavior: "smooth", block: "start" });
-                      }
-                    }}
-                    className={`flex items-center gap-2 text-xs font-medium px-3 py-1 rounded-full outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#4f46e5] transition
-                      ${i === activeStep
+                    className={`group flex items-center gap-2 text-xs font-medium px-4 py-2 rounded-full transition ${
+                      i === activeStep
                         ? "bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] text-white shadow"
-                        : "bg-white text-gray-600 border border-gray-200 hover:border-[#1B5A8E]"
-                      }`}
+                        : "bg-white text-gray-600 border border-gray-200 hover:border-[#4f46e5]"
+                    }`}
                   >
                     <span
                       className="flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-semibold"
                       style={{
-                        background: i === activeStep ? "rgba(255,255,255,0.25)" : accentColor,
+                        background: i === activeStep ? "rgba(255,255,255,0.25)" : "#1B5A8E",
                         color: "#fff"
                       }}
                     >
                       {i + 1}
                     </span>
-                    <span className="truncate max-w-[160px]">{s}</span>
-                  </div>
+                    <span className="truncate max-w-[150px]">{s}</span>
+                  </button>
                 ))}
               </div>
             )}
             {/* NEW: form glass panel wrapper */}
-            <div className="rounded-2xl bg-white/70 backdrop-blur-md shadow-sm ring-1 ring-gray-200/60">
+            <div className="rounded-2xl bg-white/80 backdrop-blur-md shadow-lg ring-1 ring-gray-200/70 px-6 sm:px-8 py-6 sm:py-8 space-y-8">
               {children}
             </div>
             {/* NEW: micro-disclaimer */}
             <p className="text-xs text-center text-gray-500">
-              By submitting, you consent to be contacted about insurance options. No spam, no resale of data.
+              Secure submission • Encrypted • Response within 24h
             </p>
           </div>
 

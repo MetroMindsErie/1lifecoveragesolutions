@@ -15,6 +15,7 @@ import { UmbrellaQuotePage } from "./pages/quotes/UmbrellaQuotePage";
 import { LifeQuotePage } from "./pages/quotes/LifeQuotePage";
 import { CommercialBuildingQuotePage } from "./pages/quotes/CommercialBuildingQuotePage";
 import { BopQuotePage } from "./pages/quotes/BopQuotePage";
+import { PetQuotePage } from "./pages/quotes/PetQuotePage";
 import { Routes, Route } from "react-router-dom";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminQuoteDetailPage from "./pages/admin/AdminQuoteDetailPage"; // NEW
@@ -34,6 +35,7 @@ function App() {
           <Route path="/quote/life" element={<LifeQuotePage />} />
           <Route path="/quote/commercial-building" element={<CommercialBuildingQuotePage />} />
           <Route path="/quote/bop" element={<BopQuotePage />} />
+          <Route path="/quote/pet" element={<PetQuotePage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/blog" element={<BlogPage />} />
