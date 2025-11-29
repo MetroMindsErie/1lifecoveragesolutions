@@ -162,6 +162,7 @@ export default function AdminDashboard() {
       { tbl: "life_quotes", type: "life" },
       { tbl: "commercial_building_quotes", type: "commercial-building" },
       { tbl: "bop_quotes", type: "bop" },
+      { tbl: "renters_quotes", type: "renters" },
     ];
 
     const requests = tables.map(t =>
@@ -356,6 +357,21 @@ export default function AdminDashboard() {
           ["desired_coverage_types","coverage_limits","deductible","vehicles_for_operations","subcontractors","special_endorsements","referral_source"],
           "Coverage Request"
         );
+        break;
+      case "renters_quotes":
+        pushItems(["name","email","phone"], "Client Information");
+        // Handle insureds JSONB array
+        if (q.insureds && Array.isArray(q.insureds)) {
+          const insuredItems = q.insureds.map((ins: any, idx: number) => ({
+            label: `Insured ${idx + 1}`,
+            value: `${ins.name || 'N/A'} (DOB: ${ins.dateOfBirth || 'N/A'})`
+          }));
+          if (insuredItems.length) sections.push({ title: "Insured Persons", items: insuredItems });
+          already.add("insureds");
+        }
+        pushItems(["address","zip"], "Property Information");
+        pushItems(["property_protection","deductible","liability_protection"], "Coverage Details");
+        pushItems(["referral_source"], "Referral");
         break;
       default:
         // fallback – show mapped basics only

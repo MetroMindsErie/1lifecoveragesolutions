@@ -196,14 +196,26 @@ export function AboutPage() {
 
 					<div className="grid grid-cols-1 gap-8 md:grid-cols-3">
 						{[
-							{ name: "Sarah Johnson", role: "Chief Executive Officer" },
-							{ name: "Michael Chen", role: "Chief Operations Officer" },
-							{ name: "Emily Rodriguez", role: "Chief Technology Officer" },
+							{ 
+								name: "Missy Moore", 
+								role: "Director of Property & Casualty",
+								image: "/images/mmoore_headshot.jpg"
+							},
+							{ name: "Team Member", role: "Chief Operations Officer" },
+							{ name: "Team Member", role: "Chief Financial Officer" },
 						].map((member, index) => (
 							<Card key={index} className="border-gray-200">
 								<CardContent className="p-6 text-center">
 									<div className="mb-4 flex justify-center">
-										<div className="h-24 w-24 rounded-full bg-gradient-to-br from-[#4f46e5] to-[#06b6d4]" />
+										{member.image ? (
+											<img 
+												src={member.image} 
+												alt={member.name}
+												className="h-24 w-24 rounded-full object-cover border-2 border-gray-200"
+											/>
+										) : (
+											<div className="h-24 w-24 rounded-full bg-gradient-to-br from-[#4f46e5] to-[#06b6d4]" />
+										)}
 									</div>
 									<h3 className="mb-1 text-xl text-[#1a1a1a]">{member.name}</h3>
 									<p className="text-sm text-[#6c757d]">{member.role}</p>

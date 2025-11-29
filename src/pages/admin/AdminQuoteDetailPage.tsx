@@ -26,6 +26,7 @@ const allowedTables = new Set([
   "life_quotes",
   "commercial_building_quotes",
   "bop_quotes",
+  "renters_quotes",
 ]);
 
 function setAdminDetailHead() {
@@ -145,6 +146,21 @@ export default function AdminQuoteDetailPage() {
         push(["property_address","property_type","building_construction","year_built","stories","square_footage","sprinklers","security_systems","hazardous_materials"], "Property");
         push(["annual_revenue","annual_payroll","locations","business_hours","seasonal","prior_claims","prior_claims_description"], "Operations & History");
         push(["desired_coverage_types","coverage_limits","deductible","vehicles_for_operations","subcontractors","special_endorsements","referral_source"], "Coverage Request");
+        break;
+      case "renters_quotes":
+        push(["name","email","phone"], "Client Information");
+        // Handle insureds JSONB array
+        if (q.insureds && Array.isArray(q.insureds)) {
+          const insuredItems = q.insureds.map((ins: any, idx: number) => ({
+            label: `Insured ${idx + 1}`,
+            value: `${ins.name || 'N/A'} (DOB: ${ins.dateOfBirth || 'N/A'})`
+          }));
+          if (insuredItems.length) sections.push({ title: "Insured Persons", items: insuredItems });
+          already.add("insureds");
+        }
+        push(["address","zip"], "Property Information");
+        push(["property_protection","deductible","liability_protection"], "Coverage Details");
+        push(["referral_source"], "Referral");
         break;
     }
 

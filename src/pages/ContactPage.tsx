@@ -4,7 +4,7 @@ import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { Textarea } from "../components/ui/textarea";
 import { Phone, Mail, MapPin, Clock } from "lucide-react";
-import { submit } from "../lib/submit";
+import { submitQuote } from "../lib/submit";
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabaseClient";
 
@@ -71,7 +71,7 @@ export function ContactPage() {
     if (submitting) return;
     setSubmitting(true);
     try {
-      await submit(e.currentTarget);
+      await submitQuote("contact", e.currentTarget);
       setSubmitted(true);
       window.scrollTo(0, 0);
     } catch (err: any) {
@@ -151,9 +151,9 @@ export function ContactPage() {
                     <div>
                       <h3 className="mb-1 text-[#1a1a1a]">Office</h3>
                       <p className="text-[#6c757d]">
-                        123 Insurance Plaza
+                        4853 Galaxy Parkway Suite K
                         <br />
-                        New York, NY 10001
+                        Cleveland, OH 44128
                       </p>
                     </div>
                   </div>
@@ -233,16 +233,20 @@ export function ContactPage() {
         </div>
       </section>
 
-      {/* Map Section - Placeholder (coral-tinted) */}
+      {/* Map Section */}
       <section className="border-t py-16" style={{ background: "var(--brand-coral-10)" }}>
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
-          <div className="overflow-hidden rounded-lg border border-gray-200">
-            <div className="aspect-[21/9] bg-gray-100 flex items-center justify-center">
-              <div className="text-center">
-                <MapPin className="mx-auto mb-2 h-12 w-12 text-[#6c757d]" />
-                <p className="text-[#6c757d]">Map placeholder</p>
-              </div>
-            </div>
+          <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2989.8!2d-81.5!3d41.45!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDHCsDI3JzAwLjAiTiA4McKwMzAnMDAuMCJX!5e0!3m2!1sen!2sus!4v1234567890!5m2!1sen!2sus&q=4853+Galaxy+Parkway+Suite+K,+Cleveland,+OH+44128"
+              width="100%"
+              height="450"
+              style={{ border: 0 }}
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title="1Life Coverage Solutions Office Location"
+            />
           </div>
         </div>
       </section>

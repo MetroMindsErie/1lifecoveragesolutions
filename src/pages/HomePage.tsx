@@ -29,6 +29,7 @@ import {
 import { useEffect } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { PetQuoteCard } from "../components/quotes/PetQuoteCard";
+import { RentersQuoteCard } from "../components/quotes/RentersQuoteCard";
 
 // SEO helpers
 function absUrl(path: string) {
@@ -312,17 +313,17 @@ export function HomePage() {
         {/* NEW: subtle coral decorative circle behind the logo (upper-left) */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute left-4 top-8 -z-10 h-44 w-44 rounded-full"
-          style={{ background: `${BRAND_CORAL}22` /* 13% alpha */ }}
+          className="pointer-events-none absolute left-4 top-8 -z-10 h-64 w-64 rounded-full blur-3xl"
+          style={{ background: `${BRAND_CORAL}40` }}
         />
         {/* Hero logo (visible on lg+ only) — slightly larger on desktop */}
         <div
-          className="hidden lg:flex absolute left-6 top-6 z-40 pointer-events-none rounded-lg p-2 lg:left-8 lg:top-8 lg:p-3 xl:left-10 xl:top-10 xl:p-4 shadow-md bg-white/8 backdrop-blur-sm h-20 w-20 lg:h-40 lg:w-40 xl:h-40 xl:w-40 2xl:h-36 2xl:w-36 items-center justify-center"
+          className="hidden lg:flex absolute left-8 top-8 z-40 pointer-events-none rounded-2xl p-4 shadow-2xl bg-white/10 backdrop-blur-md h-32 w-32 lg:h-56 lg:w-56 xl:h-64 xl:w-64 items-center justify-center border border-white/20"
         >
           <img
             src={logo}
             alt="1Life Coverage Solutions"
-            className="max-h-full max-w-full object-contain rounded-md"
+            className="max-h-full max-w-full object-contain drop-shadow-md"
           />
         </div>
         
@@ -360,27 +361,28 @@ export function HomePage() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6 }}
-              className="mb-6 inline-flex items-center gap-2 rounded-full px-6 py-3 backdrop-blur-sm"
-              style={{ background: `linear-gradient(90deg, ${BRAND_CORAL}, #1B5A8E)` }}
+              className="mb-6 inline-flex items-center gap-2 rounded-full px-6 py-2 backdrop-blur-md border border-white/20 shadow-lg"
+              style={{ background: `rgba(255, 255, 255, 0.1)` }}
             >
-              <Sparkles className="h-5 w-5 text-white" />
-              <span className="text-sm text-white">Trusted by 500,000+ customers nationwide</span>
+              <Sparkles className="h-5 w-5 text-[#FF6B61]" />
+              <span className="text-sm font-medium text-white">Trusted by 500,000+ customers nationwide</span>
             </motion.div>
 
             <motion.h1 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
-              className="mb-6 text-4xl tracking-tight text-white sm:text-6xl lg:text-7xl"
+              className="mb-6 text-5xl font-bold tracking-tight text-white sm:text-7xl lg:text-8xl drop-shadow-sm"
             >
-              One Life. Total Coverage.
+              One Life. <br/>
+              <span className="text-[#FF6B61]">Total Coverage.</span>
             </motion.h1>
 
             <motion.p 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="mb-8 text-lg text-white/90 sm:text-xl"
+              className="mb-8 text-lg text-white/90 sm:text-xl leading-relaxed"
             >
               Comprehensive insurance solutions for individuals, families, and businesses. Protect what matters most with trusted coverage and exceptional service.
             </motion.p>
@@ -393,7 +395,7 @@ export function HomePage() {
               className="mb-10 flex flex-wrap items-center justify-center gap-6"
             >
               {heroFeatures.map((feature, index) => (
-                <div key={index} className="flex items-center gap-2 text-white">
+                <div key={index} className="flex items-center gap-4 text-white">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
                     <feature.icon className="h-5 w-5" />
                   </div>
@@ -410,19 +412,18 @@ export function HomePage() {
             >
               <Button
                 size="lg"
-                className="w-full bg-white text-[#1B5A8E] hover:bg-white/90 sm:w-auto transition-all hover:scale-105 shadow-xl"
+                className="w-full bg-[#FF6B61] text-white hover:bg-[#E55A50] border-none sm:w-auto transition-all hover:scale-105 shadow-xl text-lg px-8 py-6 h-auto"
                 asChild
               >
                 <a href="/quote">
                   Get Your Free Quote
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                  <ArrowRight className="ml-2 h-5 w-5" />
                 </a>
               </Button>
               <Button
                 size="lg"
                 variant="outline"
-                className="w-full bg-transparent text-white hover:bg-white hover:text-[#1B5A8E] sm:w-auto transition-all"
-                style={{ borderColor: `var(--brand-coral, ${BRAND_CORAL})` }}
+                className="w-full bg-white/10 text-white border-white/30 hover:bg-white hover:text-[#1B5A8E] sm:w-auto transition-all text-lg px-8 py-6 h-auto backdrop-blur-sm"
                 asChild
               >
                 <a href="#coverage">Explore Coverage</a>
@@ -432,14 +433,14 @@ export function HomePage() {
         </div>
 
         {/* Bottom gradient fade */}
-        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-white to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white to-transparent" />
       </section>
 
       {/* NEW: Partner / Carrier Ticker */}
       {/* <PartnerTicker /> */}
 
       {/* Stats Section - subtle coral tint background */}
-      <section className="border-b py-16" style={{ background: "var(--brand-coral-10)" }}>
+      <section className="border-b py-16 bg-white">
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
           <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
             {stats.map((stat, index) => (
@@ -449,17 +450,17 @@ export function HomePage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                className="text-center"
+                className="text-center group"
               >
-                <div className="mb-3 flex justify-center">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#1B5A8E]">
-                    <stat.icon className="h-6 w-6 text-white" />
+                <div className="mb-4 flex justify-center">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#1B5A8E]/5 group-hover:bg-[#1B5A8E]/10 transition-colors">
+                    <stat.icon className="h-8 w-8 text-[#1B5A8E]" />
                   </div>
                 </div>
-                <div className="mb-1 text-3xl text-[#1B5A8E]">
+                <div className="mb-1 text-4xl font-bold text-[#1B5A8E]">
                   {stat.value}
                 </div>
-                <p className="text-sm text-[#6c757d]">{stat.label}</p>
+                <p className="text-sm font-medium text-[#6c757d] uppercase tracking-wider">{stat.label}</p>
               </motion.div>
             ))}
           </div>
@@ -467,7 +468,7 @@ export function HomePage() {
       </section>
 
       {/* Value Proposition (coral-tinted background) */}
-      <section className="py-24" style={{ background: "var(--brand-coral-10)" }}>
+      <section className="py-24 bg-[#F8F9FA]">
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
           <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-16 items-center">
             <motion.div
@@ -476,22 +477,22 @@ export function HomePage() {
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
             >
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[#1B5A8E]/10 px-4 py-2">
-                <Sparkles className="h-4 w-4 text-[#1B5A8E]" />
-                <span className="text-sm text-[#1B5A8E]">Trusted by 500,000+ customers</span>
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[#FF6B61]/10 px-4 py-2">
+                <Sparkles className="h-4 w-4 text-[#FF6B61]" />
+                <span className="text-sm font-medium text-[#FF6B61]">Trusted by 500,000+ customers</span>
               </div>
-              <h2 className="mb-6 text-3xl text-[#1a1a1a] sm:text-4xl">
+              <h2 className="mb-6 text-4xl font-bold text-[#1B5A8E] sm:text-5xl">
                 Insurance Made Simple
               </h2>
-              <p className="mb-6 text-lg text-[#6c757d]">
+              <p className="mb-6 text-lg text-[#6c757d] leading-relaxed">
                 At 1Life Coverage Solutions, we believe insurance should be straightforward, accessible, and tailored to your unique needs. Whether you're protecting your car, business, or loved ones, we're here to provide comprehensive coverage with exceptional service.
               </p>
-              <p className="mb-8 text-lg text-[#6c757d]">
+              <p className="mb-8 text-lg text-[#6c757d] leading-relaxed">
                 Our team of experienced advisors works with you to find the perfect balance of coverage and affordability, ensuring you're never overpaying or underinsured.
               </p>
               <div className="flex flex-col gap-4 sm:flex-row">
                 <Button 
-                  className="bg-[#1B5A8E] hover:bg-[#144669] transition-colors text-white"
+                  className="bg-[#1B5A8E] hover:bg-[#144669] transition-colors text-white px-8 py-6 h-auto text-lg"
                   asChild
                 >
                   <a href="/about">
@@ -501,7 +502,7 @@ export function HomePage() {
                 </Button>
                 <Button 
                   variant="outline"
-                  className="border-[#1B5A8E] text-[#1B5A8E] hover:bg-[#1B5A8E] hover:text-white"
+                  className="border-[#1B5A8E] text-[#1B5A8E] hover:bg-[#1B5A8E] hover:text-white px-8 py-6 h-auto text-lg"
                   asChild
                 >
                   <a href="/contact">Contact an Agent</a>
@@ -523,14 +524,15 @@ export function HomePage() {
                   transition={{ duration: 0.4, delay: index * 0.1 }}
                   viewport={{ once: true }}
                 >
-                  <Card className="border-gray-200 transition-all duration-300 hover:border-[#1B5A8E] hover:shadow-lg">
-                    <CardContent className="flex items-start gap-4 p-6">
-                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-[#1B5A8E]">
-                        <feature.icon className="h-6 w-6 text-white" />
+                  <Card className="border-none shadow-md hover:shadow-xl transition-all duration-300 bg-white overflow-hidden group">
+                    <div className="absolute top-0 left-0 w-1 h-full bg-[#FF6B61] opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <CardContent className="flex items-start gap-6 p-8">
+                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-[#1B5A8E]/10 group-hover:bg-[#1B5A8E] transition-colors">
+                        <feature.icon className="h-7 w-7 text-[#1B5A8E] group-hover:text-white transition-colors" />
                       </div>
                       <div>
-                        <h3 className="mb-2 text-lg text-[#1a1a1a]">{feature.title}</h3>
-                        <p className="text-sm text-[#6c757d]">{feature.description}</p>
+                        <h3 className="mb-2 text-xl font-semibold text-[#1a1a1a]">{feature.title}</h3>
+                        <p className="text-base text-[#6c757d] leading-relaxed">{feature.description}</p>
                       </div>
                     </CardContent>
                   </Card>
@@ -542,16 +544,17 @@ export function HomePage() {
       </section>
 
       {/* Coverage Section - coral tint to reduce large white blocks */}
-      <section id="coverage" className="py-24" style={{ background: "var(--brand-coral-10)" }}>
+      <section id="coverage" className="py-24 relative">
+        <div className="absolute inset-0 bg-[#1B5A8E]/5 skew-y-3 transform origin-top-left -z-10" />
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
-            className="mb-12 text-center"
+            className="mb-16 text-center"
           >
-            <h2 className="mb-4 text-3xl text-[#1a1a1a] sm:text-4xl">
+            <h2 className="mb-4 text-4xl font-bold text-[#1B5A8E] sm:text-5xl">
               Comprehensive Coverage Solutions
             </h2>
             <p className="mx-auto max-w-2xl text-lg text-[#6c757d]">
@@ -577,23 +580,25 @@ export function HomePage() {
                 />
               </motion.div>
             ))}
-            {/* ADD: Pet Insurance Quote Card */}
+            {/* Pet Insurance Quote Card */}
             <PetQuoteCard />
+            {/* Renters Insurance Quote Card */}
+            <RentersQuoteCard />
           </div>
         </div>
       </section>
 
       {/* Industries We Serve (subtle coral background) */}
-      <section className="border-y py-24" style={{ background: "var(--brand-coral-10)" }}>
+      <section className="border-y py-24 bg-white">
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
-            className="mb-12 text-center"
+            className="mb-16 text-center"
           >
-            <h2 className="mb-4 text-3xl text-[#1a1a1a] sm:text-4xl">
+            <h2 className="mb-4 text-4xl font-bold text-[#1B5A8E] sm:text-5xl">
               Industries We Serve
             </h2>
             <p className="mx-auto max-w-2xl text-lg text-[#6c757d]">
@@ -610,10 +615,12 @@ export function HomePage() {
                 transition={{ duration: 0.4, delay: index * 0.05 }}
                 viewport={{ once: true }}
               >
-                <Card className="border-gray-200 transition-all duration-300 hover:border-[#1B5A8E] hover:shadow-md">
+                <Card className="border-gray-100 shadow-sm transition-all duration-300 hover:border-[#FF6B61] hover:shadow-lg hover:-translate-y-1 group cursor-default">
                   <CardContent className="p-6 text-center">
-                    <Building2 className="mx-auto mb-3 h-8 w-8 text-[#1B5A8E]" />
-                    <h3 className="mb-1 text-sm text-[#1a1a1a]">{industry.name}</h3>
+                    <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#1B5A8E]/5 group-hover:bg-[#FF6B61]/10 transition-colors">
+                      <Building2 className="h-6 w-6 text-[#1B5A8E] group-hover:text-[#FF6B61] transition-colors" />
+                    </div>
+                    <h3 className="mb-1 text-sm font-semibold text-[#1a1a1a]">{industry.name}</h3>
                     <p className="text-xs text-[#6c757d]">{industry.count}</p>
                   </CardContent>
                 </Card>
@@ -624,19 +631,21 @@ export function HomePage() {
       </section>
 
       {/* Why Choose Us Section (coral tint) */}
-      <section className="py-24" style={{ background: "var(--brand-coral-10)" }}>
-        <div className="mx-auto max-w-7xl px-4 lg:px-8">
+      <section className="py-24 bg-[#1B5A8E] text-white relative overflow-hidden">
+         <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-[#2C7DB8] rounded-full opacity-50 blur-3xl"></div>
+         <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-96 h-96 bg-[#FF6B61] rounded-full opacity-20 blur-3xl"></div>
+        <div className="mx-auto max-w-7xl px-4 lg:px-8 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
-            className="mb-12 text-center"
+            className="mb-16 text-center"
           >
-            <h2 className="mb-4 text-3xl text-[#1a1a1a] sm:text-4xl">
+            <h2 className="mb-4 text-4xl font-bold text-white sm:text-5xl">
               Why Choose 1Life Coverage?
             </h2>
-            <p className="mx-auto max-w-2xl text-lg text-[#6c757d]">
+            <p className="mx-auto max-w-2xl text-lg text-white/80">
               We're not just another insurance company. We're your partner in protection.
             </p>
           </motion.div>
@@ -650,13 +659,13 @@ export function HomePage() {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
-                <Card className="h-full border-gray-200 transition-all duration-300 hover:border-[#1B5A8E] hover:shadow-lg hover:-translate-y-1">
-                  <CardContent className="p-6">
-                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-[#1B5A8E]">
-                      <item.icon className="h-6 w-6 text-white" />
+                <Card className="h-full border-none bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300 text-white">
+                  <CardContent className="p-8">
+                    <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-[#FF6B61] shadow-lg">
+                      <item.icon className="h-7 w-7 text-white" />
                     </div>
-                    <h3 className="mb-2 text-lg text-[#1a1a1a]">{item.title}</h3>
-                    <p className="text-sm text-[#6c757d]">{item.description}</p>
+                    <h3 className="mb-3 text-xl font-bold text-white">{item.title}</h3>
+                    <p className="text-sm text-white/80 leading-relaxed">{item.description}</p>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -673,30 +682,31 @@ export function HomePage() {
       />
 
       {/* CTA Section (use coral→blue gradient so footer shows coral) */}
-            <section className="relative overflow-hidden py-24" style={{ background: `linear-gradient(90deg, var(--brand-coral), #1B5A8E)` }}>
-              <div className="absolute inset-0 opacity-40" aria-hidden="true" />
-              <div className="mx-auto max-w-7xl px-4 text-center lg:px-8 relative">
+            <section className="relative overflow-hidden py-24">
+              <div className="absolute inset-0 bg-gradient-to-r from-[#FF6B61] to-[#1B5A8E]" />
+              <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+              <div className="mx-auto max-w-7xl px-4 text-center lg:px-8 relative z-10">
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6 }}
                   viewport={{ once: true }}
-                  className="mx-auto max-w-2xl"
+                  className="mx-auto max-w-3xl"
                 >
-                  <h2 className="mb-4 text-3xl font-semibold text-white sm:text-4xl">
+                  <h2 className="mb-6 text-4xl font-bold text-white sm:text-5xl">
                     Ready to protect what matters?
                   </h2>
-                  <p className="mb-8 text-lg text-white/90">
+                  <p className="mb-10 text-xl text-white/90">
                     Get an instant quote or speak with an agent today to find coverage that fits your needs and budget.
                   </p>
-                  <div className="flex items-center justify-center gap-4">
-                    <Button size="lg" className="bg-white text-[#1B5A8E] hover:bg-white/90" asChild>
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <Button size="lg" variant="outline" className="w-full sm:w-auto text-[#FF6B61] border-white hover:bg-white/10 text-lg px-8 py-6 h-auto" asChild>
                       <a href="/quote">
-                        Get a Free Quote
-                        <ArrowRight className="ml-2 h-4 w-4" />
+                      Get a Free Quote
+                      <ArrowRight className="ml-2 h-5 w-5" />
                       </a>
                     </Button>
-                    <Button size="lg" variant="outline" className="text-white border-white/40 hover:bg-white/10 text-[#1B5A8E]" asChild>
+                    <Button size="lg" variant="outline" className="w-full sm:w-auto text-[#FF6B61] border-white hover:bg-white/10 text-lg px-8 py-6 h-auto" asChild>
                       <a href="/contact">Contact an Agent</a>
                     </Button>
                   </div>

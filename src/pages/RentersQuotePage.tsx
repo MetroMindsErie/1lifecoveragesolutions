@@ -1,0 +1,88 @@
+import { RentersInsuranceForm } from "../components/quotes/RentersInsuranceForm";
+import { Card, CardContent } from "../components/ui/card";
+import { Home } from "lucide-react";
+import { useEffect } from "react";
+
+export function RentersQuotePage() {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+      {/* Header Section */}
+      <section className="bg-gradient-to-r from-[#1B5A8E] to-[#2C7DB8] py-16">
+        <div className="mx-auto max-w-7xl px-4 lg:px-8">
+          <div className="mx-auto max-w-3xl text-center">
+            <div className="mb-4 flex justify-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm">
+                <Home className="h-8 w-8 text-white" />
+              </div>
+            </div>
+            <h1 className="mb-4 text-4xl font-bold text-white sm:text-5xl">
+              Renters Insurance Quote
+            </h1>
+            <p className="text-lg text-white/90">
+              Protect your belongings and liability with comprehensive renters insurance coverage
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Form Section */}
+      <section className="py-12">
+        <div className="mx-auto max-w-4xl px-4 lg:px-8">
+          <Card className="border-none shadow-xl">
+            <CardContent className="p-8">
+              <div className="mb-8">
+                <h2 className="mb-2 text-2xl font-bold text-[#1B5A8E]">
+                  Get Your Free Quote
+                </h2>
+                <p className="text-[#6c757d]">
+                  Fill out the information below to receive a personalized renters insurance quote
+                </p>
+              </div>
+              <RentersInsuranceForm />
+            </CardContent>
+          </Card>
+
+          {/* Info Cards */}
+          <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">
+            <Card className="border-gray-200">
+              <CardContent className="p-6 text-center">
+                <h3 className="mb-2 text-lg font-semibold text-[#1B5A8E]">
+                  Property Protection
+                </h3>
+                <p className="text-sm text-[#6c757d]">
+                  Coverage for your personal belongings against theft, fire, and damage
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-gray-200">
+              <CardContent className="p-6 text-center">
+                <h3 className="mb-2 text-lg font-semibold text-[#1B5A8E]">
+                  Liability Coverage
+                </h3>
+                <p className="text-sm text-[#6c757d]">
+                  Protection against lawsuits for accidents that occur in your rental
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-gray-200">
+              <CardContent className="p-6 text-center">
+                <h3 className="mb-2 text-lg font-semibold text-[#1B5A8E]">
+                  Additional Living Expenses
+                </h3>
+                <p className="text-sm text-[#6c757d]">
+                  Coverage for temporary housing if your rental becomes uninhabitable
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}

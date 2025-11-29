@@ -52,6 +52,7 @@ function tableForQuoteType(quoteType: string) {
     case "life": return "life_quotes";
     case "commercial-building": return "commercial_building_quotes";
     case "bop": return "bop_quotes";
+    case "renters": return "renters_quotes";
     default: return "quotes"; // legacy fallback
   }
 }
@@ -276,80 +277,36 @@ export async function submitQuote(quoteType: string, form: HTMLFormElement) {
       special_endorsements: payload.special_endorsements,
       referral_source: payload.referral_source
     });
+  } else if (table === "renters_quotes") {
+    // Parse insureds from JSON if present
+    let insureds = null;
+    if (payload.insureds) {
+      try {
+        insureds = typeof payload.insureds === 'string' ? JSON.parse(payload.insureds) : payload.insureds;
+      } catch {
+        insureds = null;
+      }
+    }
+    
+    Object.assign(baseRow, {
+      insureds,
+      address: payload.address,
+      zip: payload.zip,
+      property_protection: payload.property_protection,
+      deductible: payload.deductible,
+      liability_protection: payload.liability_protection,
+      referral_source: payload.referral_source
+    });
   } else {
     // legacy quotes table expects quote_type
     baseRow.quote_type = quoteType;
-    }
+  }
+
+  const { error } = await supabase.from(table).insert([baseRow]);
+  if (error) {
+    console.error("Supabase insert error:", error);
+    throw new Error(error.message || "Failed to submit quote");
+  }
   
-    const { error } = await supabase.from(table).insert([baseRow]);
-    if (error) throw error;
-  }
-
-export async function submit(form: HTMLFormElement) {
-  for (const hp of honeypotFields) {
-    const el = form.querySelector<HTMLInputElement>(`[name="${hp}"]`);
-    if (el && el.value) throw new Error("Bot detected.");
-  }
-  const payload = serializeForm(form);
-
-  // Normalize contact fields
-  const firstName = payload.first_name || payload.firstName || "";
-  const lastName = payload.last_name || payload.lastName || "";
-  const email = payload.email || undefined;
-  const phone = payload.phone || undefined;
-  const subject = payload.subject || undefined;
-
-  const idCheck = baseSchema.refine((d) => !!(d.email || d.phone), {
-    message: "Provide email or phone.",
-    path: ["email"],
-  });
-  // We don't require "name" to exist in DB; validate only identity
-  idCheck.parse({
-    name: [firstName, lastName].filter(Boolean).join(" ").trim() || undefined,
-    email,
-    phone
-  });
-
-  const { referrer, utm, user_agent } = getAttribution();
-
-  // Start with the superset of columns we want to store.
-  // If the backend reports a column doesn't exist in schema cache, we drop it and retry.
-  const baseRow: Record<string, any> = {
-    first_name: firstName || null,
-    last_name: lastName || null,
-    // name intentionally omitted to avoid failures on instances without this column
-    email: email || null,
-    phone: phone || null,
-    subject: subject || null,
-    message: payload.message || null,
-    metadata: { raw: payload },
-    referrer,
-    utm,
-    user_agent,
-  };
-
-  // Progressive insert with schema-cache-aware retries
-  let row = { ...baseRow };
-  let tries = 0;
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
-    const { error } = await supabase.from("contacts").insert([row]);
-    if (!error) break;
-
-    const msg = error.message || "";
-    // Detect unknown column from PostgREST error variants
-    const m =
-      msg.match(/Could not find the '([^']+)' column/i) ||
-      msg.match(/column\s+"?([a-z_]+)"?\s+does not exist/i);
-    if (m) {
-      const missing = m[1];
-      if (missing in row) {
-        delete (row as any)[missing];
-        tries++;
-        if (tries < 8) continue;
-      }
-    }
-    // If we can't resolve by dropping columns, surface the error
-    throw error;
-  }
+  return { success: true };
 }

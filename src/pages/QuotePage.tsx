@@ -1,6 +1,8 @@
 // Updated to act as a hub that links to each specific quote form
 import { Shield, Lock, Clock, Car, Home, Umbrella, Heart, Building2, Briefcase } from "lucide-react";
 import { CoverageCard } from "../components/CoverageCard";
+import { PetQuoteCard } from "../components/quotes/PetQuoteCard";
+import { RentersQuoteCard } from "../components/quotes/RentersQuoteCard";
 import { useEffect } from "react";
 import { supabase } from "../lib/supabaseClient";
 
@@ -184,6 +186,11 @@ export function QuotePage() {
                 image={q.image}
               />
             ))}
+            {/* Add Pet Insurance Card */}
+            <PetQuoteCard />
+            
+            {/* Add Renters Insurance Card */}
+            <RentersQuoteCard />
           </div>
         </div>
       </section>
