@@ -323,19 +323,6 @@ export function HomePage() {
         {/* Gradient overlay to ensure text readability */}
         <div className="absolute inset-0 bg-gradient-to-br from-[#1B5A8E]/40 via-[#2C7DB8]/30 to-[#1B5A8E]/40" />
         
-        {/* Floating animated shapes */}
-        <motion.div
-          animate={{
-            y: [0, -20, 0],
-            rotate: [0, 180, 360],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-          className="absolute right-10 top-20 h-24 w-24 rounded-full bg-white/10 backdrop-blur-sm z-10"
-        />
         <motion.div
           animate={{
             y: [0, 30, 0],
