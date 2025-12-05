@@ -374,81 +374,87 @@ export function HomePage() {
 
             {/* Right side - Text content */}
             <div className="text-center lg:text-left">
-              {/* Frosted glass background container */}
-              <div className="rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30 p-6 sm:p-8 shadow-2xl">
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.6, delay: 0.2 }}
-                  className="mb-6 inline-flex items-center gap-2 rounded-full px-6 py-3 backdrop-blur-xl border border-white/40 shadow-lg"
-                  style={{ background: `rgba(255, 255, 255, 0.25)` }}
-                >
-                  <Sparkles className="h-6 w-6 text-[#FF6B61]" />
-                  <span className="text-base font-semibold text-white drop-shadow-md">Trusted by 500,000+ customers</span>
-                </motion.div>
+              {/* Frosted glass background container with branded accents */}
+              <div className="rounded-2xl bg-white/30 backdrop-blur-xl border-2 border-white/40 p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+                {/* Decorative gradient accent - top left */}
+                <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-[#FF6B61]/20 to-transparent rounded-full blur-2xl" />
+                {/* Decorative gradient accent - bottom right */}
+                <div className="absolute bottom-0 right-0 w-40 h-40 bg-gradient-to-tl from-[#1B5A8E]/15 to-transparent rounded-full blur-2xl" />
+                
+                {/* Content - positioned relative to stay above decorative elements */}
+                <div className="relative z-10">
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.6, delay: 0.2 }}
+                    className="mb-6 inline-flex items-center gap-2 rounded-full px-6 py-3 backdrop-blur-md border-2 border-white/50 shadow-lg bg-white/35"
+                  >
+                    <Sparkles className="h-6 w-6 text-[#FF6B61]" />
+                    <span className="text-base font-bold text-[#1B5A8E] drop-shadow-sm">Trusted by 500,000+ customers</span>
+                  </motion.div>
 
-                <motion.h1 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.3 }}
-                  className="mb-6 text-5xl font-bold tracking-tight text-white sm:text-6xl lg:text-7xl drop-shadow-[0_2px_10px_rgba(0,0,0,0.3)]"
-                >
-                  One Life. <br/>
-                  <span className="text-[#FF6B61] drop-shadow-[0_2px_10px_rgba(255,107,97,0.3)]">Total Coverage.</span>
-                </motion.h1>
+                  <motion.h1 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.3 }}
+                    className="mb-6 text-5xl font-bold tracking-tight text-white sm:text-6xl lg:text-7xl drop-shadow-[0_4px_12px_rgba(0,0,0,0.4)]"
+                  >
+                    One Life. <br/>
+                    <span className="text-[#FF6B61] drop-shadow-[0_4px_12px_rgba(255,107,97,0.4)]">Total Coverage.</span>
+                  </motion.h1>
 
-                <motion.p 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.4 }}
-                  className="mb-8 text-lg sm:text-xl leading-relaxed drop-shadow-md font-medium"
-                  style={{ color: "white" }}
-                >
-                  Comprehensive insurance solutions for individuals, families, and businesses. Protect what matters most with trusted coverage and exceptional service.
-                </motion.p>
+                  <motion.p 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.4 }}
+                    className="mb-8 text-lg sm:text-xl leading-relaxed font-semibold text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)]"
+                  >
+                    Comprehensive insurance solutions for individuals, families, and businesses. Protect what matters most with trusted coverage and exceptional service.
+                  </motion.p>
 
-                {/* Hero Features */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.5 }}
-                  className="mb-10 flex flex-wrap items-center justify-center lg:justify-start gap-6"
-                >
-                  {heroFeatures.map((feature, index) => (
-                    <div key={index} className="flex items-center gap-3 text-white">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/25 backdrop-blur-md">
-                        <feature.icon className="h-5 w-5" />
+                  {/* Hero Features with branded styling */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.5 }}
+                    className="mb-10 flex flex-wrap items-center justify-center lg:justify-start gap-6"
+                  >
+                    {heroFeatures.map((feature, index) => (
+                      <div key={index} className="flex items-center gap-3 bg-white/25 backdrop-blur-md rounded-full px-4 py-2 border border-white/40">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#FF6B61] to-[#E55A50] shadow-md">
+                          <feature.icon className="h-5 w-5 text-white" />
+                        </div>
+                        <span className="text-sm font-bold text-white drop-shadow-md">{feature.text}</span>
                       </div>
-                      <span className="text-sm font-semibold drop-shadow-md">{feature.text}</span>
-                    </div>
-                  ))}
-                </motion.div>
+                    ))}
+                  </motion.div>
 
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.6 }}
-                  className="flex flex-col items-center lg:items-start justify-center gap-4 sm:flex-row"
-                >
-                  <Button
-                    size="lg"
-                    className="w-full bg-[#FF6B61] text-white hover:bg-[#E55A50] border-none sm:w-auto transition-all hover:scale-105 shadow-xl text-lg px-8 py-6 h-auto"
-                    asChild
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.6 }}
+                    className="flex flex-col items-center lg:items-start justify-center gap-4 sm:flex-row"
                   >
-                    <a href="/quote">
-                      Get Your Free Quote
-                      <ArrowRight className="ml-2 h-5 w-5" />
-                    </a>
-                  </Button>
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="w-full bg-white/10 text-white border-white/30 hover:bg-white hover:text-[#1B5A8E] sm:w-auto transition-all text-lg px-8 py-6 h-auto backdrop-blur-sm"
-                    asChild
-                  >
-                    <a href="#coverage">Explore Coverage</a>
-                  </Button>
-                </motion.div>
+                    <Button
+                      size="lg"
+                      className="w-full bg-gradient-to-r from-[#FF6B61] to-[#E55A50] text-white hover:from-[#E55A50] hover:to-[#D44940] border-none sm:w-auto transition-all hover:scale-105 shadow-xl text-lg px-8 py-6 h-auto font-bold"
+                      asChild
+                    >
+                      <a href="/quote">
+                        Get Your Free Quote
+                        <ArrowRight className="ml-2 h-5 w-5" />
+                      </a>
+                    </Button>
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="w-full bg-white/20 text-white border-2 border-white/50 hover:bg-white hover:text-[#1B5A8E] sm:w-auto transition-all text-lg px-8 py-6 h-auto backdrop-blur-md font-bold shadow-lg"
+                      asChild
+                    >
+                      <a href="#coverage">Explore Coverage</a>
+                    </Button>
+                  </motion.div>
+                </div>
               </div>
             </div>
           </div>
@@ -704,37 +710,37 @@ export function HomePage() {
       />
 
       {/* CTA Section (use coral→blue gradient so footer shows coral) */}
-            <section className="relative overflow-hidden py-24">
-              <div className="absolute inset-0 bg-gradient-to-r from-[#FF6B61] to-[#1B5A8E]" />
-              <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
-              <div className="mx-auto max-w-7xl px-4 text-center lg:px-8 relative z-10">
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6 }}
-                  viewport={{ once: true }}
-                  className="mx-auto max-w-3xl"
-                >
-                  <h2 className="mb-6 text-4xl font-bold text-white sm:text-5xl">
-                    Ready to protect what matters?
-                  </h2>
-                  <p className="mb-10 text-xl text-white/90">
-                    Get an instant quote or speak with an agent today to find coverage that fits your needs and budget.
-                  </p>
-                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                    <Button size="lg" variant="outline" className="w-full sm:w-auto text-[#FF6B61] border-white hover:bg-white/10 text-lg px-8 py-6 h-auto" asChild>
-                      <a href="/quote">
-                      Get a Free Quote
-                      <ArrowRight className="ml-2 h-5 w-5" />
-                      </a>
-                    </Button>
-                    <Button size="lg" variant="outline" className="w-full sm:w-auto text-[#FF6B61] border-white hover:bg-white/10 text-lg px-8 py-6 h-auto" asChild>
-                      <a href="/contact">Contact an Agent</a>
-                    </Button>
-                  </div>
-                </motion.div>
-              </div>
-            </section>
-          </div>
-        );
-      }
+      <section className="relative overflow-hidden py-24">
+        <div className="absolute inset-0 bg-gradient-to-r from-[#FF6B61] to-[#1B5A8E]" />
+        <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+        <div className="mx-auto max-w-7xl px-4 text-center lg:px-8 relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="mx-auto max-w-3xl"
+          >
+            <h2 className="mb-6 text-4xl font-bold text-white sm:text-5xl">
+              Ready to protect what matters?
+            </h2>
+            <p className="mb-10 text-xl text-white/90">
+              Get an instant quote or speak with an agent today to find coverage that fits your needs and budget.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto text-[#FF6B61] border-white hover:bg-white/10 text-lg px-8 py-6 h-auto" asChild>
+                <a href="/quote">
+                  Get a Free Quote
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </a>
+              </Button>
+              <Button size="lg" variant="outline" className="w-full sm:w-auto text-[#FF6B61] border-white hover:bg-white/10 text-lg px-8 py-6 h-auto" asChild>
+                <a href="/contact">Contact an Agent</a>
+              </Button>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+    </div>
+  );
+}
