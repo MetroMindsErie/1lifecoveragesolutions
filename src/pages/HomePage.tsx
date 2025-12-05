@@ -310,24 +310,19 @@ export function HomePage() {
     <div>
       {/* Enhanced Hero Section with animated elements */}
       <section className="relative isolate overflow-hidden bg-gradient-to-br from-[#1B5A8E] via-[#2C7DB8] to-[#1B5A8E]">
-        {/* NEW: subtle coral decorative circle behind the logo (upper-left) */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute left-4 top-8 -z-10 h-64 w-64 rounded-full blur-3xl"
-          style={{ background: `${BRAND_CORAL}40` }}
+        {/* Background collage image */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center opacity-30"
+          style={{
+            backgroundImage: 'url(/images/insurance-2.jpg)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
         />
-        {/* Hero logo (visible on lg+ only) — slightly larger on desktop */}
-        <div
-          className="hidden lg:flex absolute left-8 top-8 z-40 pointer-events-none rounded-2xl p-4 shadow-2xl bg-white/10 backdrop-blur-md h-32 w-32 lg:h-56 lg:w-56 xl:h-64 xl:w-64 items-center justify-center border border-white/20"
-        >
-          <img
-            src={logo}
-            alt="1Life Coverage Solutions"
-            className="max-h-full max-w-full object-contain drop-shadow-md"
-          />
-        </div>
         
-
+        {/* Gradient overlay to ensure text readability */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#1B5A8E]/40 via-[#2C7DB8]/30 to-[#1B5A8E]/40" />
+        
         {/* Floating animated shapes */}
         <motion.div
           animate={{
@@ -339,7 +334,7 @@ export function HomePage() {
             repeat: Infinity,
             ease: "linear",
           }}
-          className="absolute right-10 top-20 h-24 w-24 rounded-full bg-white/10 backdrop-blur-sm"
+          className="absolute right-10 top-20 h-24 w-24 rounded-full bg-white/10 backdrop-blur-sm z-10"
         />
         <motion.div
           animate={{
@@ -351,84 +346,111 @@ export function HomePage() {
             repeat: Infinity,
             ease: "linear",
           }}
-          className="absolute left-10 bottom-32 h-32 w-32 rounded-full bg-white/5 backdrop-blur-sm"
+          className="absolute left-10 bottom-32 h-32 w-32 rounded-full bg-white/5 backdrop-blur-sm z-10"
         />
 
         {/* Content */}
-        <div className="relative mx-auto max-w-7xl px-4 py-24 sm:py-32 lg:px-8 lg:py-40">
-          <div className="mx-auto max-w-3xl text-center">
+        <div className="relative mx-auto max-w-7xl px-4 py-24 sm:py-32 lg:px-8 lg:py-40 z-20">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Left side - Logo */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6 }}
-              className="mb-6 inline-flex items-center gap-2 rounded-full px-6 py-2 backdrop-blur-md border border-white/20 shadow-lg"
-              style={{ background: `rgba(255, 255, 255, 0.1)` }}
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8 }}
+              className="flex justify-center lg:justify-start"
             >
-              <Sparkles className="h-5 w-5 text-[#FF6B61]" />
-              <span className="text-sm font-medium text-white">Trusted by 500,000+ customers nationwide</span>
-            </motion.div>
-
-            <motion.h1 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="mb-6 text-5xl font-bold tracking-tight text-white sm:text-7xl lg:text-8xl drop-shadow-sm"
-            >
-              One Life. <br/>
-              <span className="text-[#FF6B61]">Total Coverage.</span>
-            </motion.h1>
-
-            <motion.p 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="mb-8 text-lg text-white/90 sm:text-xl leading-relaxed"
-            >
-              Comprehensive insurance solutions for individuals, families, and businesses. Protect what matters most with trusted coverage and exceptional service.
-            </motion.p>
-
-            {/* Hero Features */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.25 }}
-              className="mb-10 flex flex-wrap items-center justify-center gap-6"
-            >
-              {heroFeatures.map((feature, index) => (
-                <div key={index} className="flex items-center gap-4 text-white">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
-                    <feature.icon className="h-5 w-5" />
-                  </div>
-                  <span className="text-sm">{feature.text}</span>
+              <div className="relative">
+                {/* Glow effect behind logo */}
+                <div className="absolute inset-0 bg-gradient-to-br from-[#FF6B61]/20 via-transparent to-[#1B5A8E]/20 blur-3xl" />
+                <div className="relative rounded-2xl p-6 shadow-[0_20px_60px_rgba(0,0,0,0.3)] bg-gradient-to-br from-white/15 via-white/10 to-white/5 backdrop-blur-xl border-2 border-white/20 w-72 h-72 sm:w-80 sm:h-80 lg:w-96 lg:h-96 flex items-center justify-center">
+                  <img
+                    src={logo}
+                    alt="1Life Coverage Solutions"
+                    className="max-h-full max-w-full object-contain drop-shadow-[0_10px_30px_rgba(0,0,0,0.4)] rounded-xl"
+                  />
                 </div>
-              ))}
+              </div>
             </motion.div>
 
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="flex flex-col items-center justify-center gap-4 sm:flex-row"
-            >
-              <Button
-                size="lg"
-                className="w-full bg-[#FF6B61] text-white hover:bg-[#E55A50] border-none sm:w-auto transition-all hover:scale-105 shadow-xl text-lg px-8 py-6 h-auto"
-                asChild
-              >
-                <a href="/quote">
-                  Get Your Free Quote
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </a>
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="w-full bg-white/10 text-white border-white/30 hover:bg-white hover:text-[#1B5A8E] sm:w-auto transition-all text-lg px-8 py-6 h-auto backdrop-blur-sm"
-                asChild
-              >
-                <a href="#coverage">Explore Coverage</a>
-              </Button>
-            </motion.div>
+            {/* Right side - Text content */}
+            <div className="text-center lg:text-left">
+              {/* Frosted glass background container */}
+              <div className="rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30 p-6 sm:p-8 shadow-2xl">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                  className="mb-6 inline-flex items-center gap-2 rounded-full px-6 py-3 backdrop-blur-xl border border-white/40 shadow-lg"
+                  style={{ background: `rgba(255, 255, 255, 0.25)` }}
+                >
+                  <Sparkles className="h-6 w-6 text-[#FF6B61]" />
+                  <span className="text-base font-semibold text-white drop-shadow-md">Trusted by 500,000+ customers</span>
+                </motion.div>
+
+                <motion.h1 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.3 }}
+                  className="mb-6 text-5xl font-bold tracking-tight text-white sm:text-6xl lg:text-7xl drop-shadow-[0_2px_10px_rgba(0,0,0,0.3)]"
+                >
+                  One Life. <br/>
+                  <span className="text-[#FF6B61] drop-shadow-[0_2px_10px_rgba(255,107,97,0.3)]">Total Coverage.</span>
+                </motion.h1>
+
+                <motion.p 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.4 }}
+                  className="mb-8 text-lg sm:text-xl leading-relaxed drop-shadow-md font-medium"
+                  style={{ color: "white" }}
+                >
+                  Comprehensive insurance solutions for individuals, families, and businesses. Protect what matters most with trusted coverage and exceptional service.
+                </motion.p>
+
+                {/* Hero Features */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.5 }}
+                  className="mb-10 flex flex-wrap items-center justify-center lg:justify-start gap-6"
+                >
+                  {heroFeatures.map((feature, index) => (
+                    <div key={index} className="flex items-center gap-3 text-white">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/25 backdrop-blur-md">
+                        <feature.icon className="h-5 w-5" />
+                      </div>
+                      <span className="text-sm font-semibold drop-shadow-md">{feature.text}</span>
+                    </div>
+                  ))}
+                </motion.div>
+
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.6 }}
+                  className="flex flex-col items-center lg:items-start justify-center gap-4 sm:flex-row"
+                >
+                  <Button
+                    size="lg"
+                    className="w-full bg-[#FF6B61] text-white hover:bg-[#E55A50] border-none sm:w-auto transition-all hover:scale-105 shadow-xl text-lg px-8 py-6 h-auto"
+                    asChild
+                  >
+                    <a href="/quote">
+                      Get Your Free Quote
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </a>
+                  </Button>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="w-full bg-white/10 text-white border-white/30 hover:bg-white hover:text-[#1B5A8E] sm:w-auto transition-all text-lg px-8 py-6 h-auto backdrop-blur-sm"
+                    asChild
+                  >
+                    <a href="#coverage">Explore Coverage</a>
+                  </Button>
+                </motion.div>
+              </div>
+            </div>
           </div>
         </div>
 

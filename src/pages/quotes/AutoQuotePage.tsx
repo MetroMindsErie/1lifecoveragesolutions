@@ -11,7 +11,6 @@ import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { Textarea } from "../../components/ui/textarea";
 import { CheckCircle2, Car, ArrowRight, ArrowLeft } from "lucide-react";
-import { QuoteLayout } from "../../components/quotes/QuoteLayout";
 import { submitQuote } from "../../lib/submit";
 import { supabase } from "../../lib/supabaseClient";
 import { SelectWithOther } from "../../components/quotes/SelectWithOther";
@@ -20,84 +19,6 @@ import { motion, AnimatePresence } from "motion/react";
 function absUrl(path: string) {
 	const base = (import.meta as any).env?.VITE_SITE_URL || window.location.origin;
 	return path.startsWith("http") ? path : `${base}${path.startsWith("/") ? "" : "/"}${path}`;
-}
-function setHead({
-	title,
-	description,
-	canonicalPath,
-	jsonLd,
-}: {
-	title: string;
-	description?: string;
-	canonicalPath?: string;
-	jsonLd?: any;
-}) {
-	const SITE = "1Life Coverage Solutions";
-	const url = absUrl(canonicalPath || window.location.pathname);
-	document.title = `${title} | ${SITE}`;
-	if (description) {
-		let d = document.head.querySelector(
-			'meta[name="description"]'
-		) as HTMLMetaElement | null;
-		if (!d) {
-			d = document.createElement("meta");
-			d.setAttribute("name", "description");
-			document.head.appendChild(d);
-		}
-		d.setAttribute("content", description);
-	}
-	let c = document.head.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
-	if (!c) {
-		c = document.createElement("link");
-		c.setAttribute("rel", "canonical");
-		document.head.appendChild(c);
-	}
-	c.setAttribute("href", url);
-	const up = (n: string, v: string, p = false) => {
-		const sel = p ? `meta[property="${n}"]` : `meta[name="${n}"]`;
-		let el = document.head.querySelector(sel) as HTMLMetaElement | null;
-		if (!el) {
-			el = document.createElement("meta");
-			if (p) el.setAttribute("property", n);
-			else el.setAttribute("name", n);
-			document.head.appendChild(el);
-		}
-		el.setAttribute("content", v);
-	};
-	up("og:site_name", "1Life Coverage Solutions", true);
-	up("og:type", "website", true);
-	up("og:title", `${title} | 1Life Coverage Solutions`, true);
-	if (description) up("og:description", description, true);
-	up("og:url", url, true);
-	up("twitter:card", "summary_large_image");
-	document.head.querySelectorAll('script[data-seo-jsonld="1"]').forEach((n) => n.remove());
-	if (jsonLd) {
-		const s = document.createElement("script");
-		s.type = "application/ld+json";
-		s.setAttribute("data-seo-jsonld", "1");
-		s.textContent = JSON.stringify(jsonLd);
-		document.head.appendChild(s);
-	}
-}
-
-function Section({
-	title,
-	children,
-}: {
-	title: string;
-	children: React.ReactNode;
-}) {
-	return (
-		<div
-			data-step={title}
-			className="space-y-4 rounded-xl border border-gray-200 bg-white/60 backdrop-blur-sm p-6 shadow-sm"
-		>
-			<h3 className="text-sm font-semibold tracking-wide text-[#1B5A8E] uppercase">
-				{title}
-			</h3>
-			<div className="space-y-4">{children}</div>
-		</div>
-	);
 }
 
 export function AutoQuotePage() {
@@ -111,12 +32,6 @@ export function AutoQuotePage() {
 			areaServed: "US",
 			description: "Start your auto insurance quote and compare coverage options.",
 		};
-		setHead({
-			title: "Auto Insurance Quote",
-			description: "Start your auto insurance quote and compare coverage options.",
-			canonicalPath: "/quote/auto",
-			jsonLd,
-		});
 		(async () => {
 			const { data } = await supabase
 				.from("pages_seo")
@@ -159,7 +74,7 @@ export function AutoQuotePage() {
 				{ name: "address", label: "Your current address", type: "text", required: true },
 				{ name: "dob", label: "Date of birth", type: "date", required: true },
 				{ name: "drivers_license_number", label: "Driver's license number", type: "text" },
-				{ name: "occupation", label: "Current occupation", type: "select", options: ["Professional","Skilled Trade","Student","Retired","Self-Employed","Unemployed","Other"] },
+				{ name: "occupation", label: "Current occupation", type: "select", options: ["Professional", "Skilled Trade", "Student", "Retired", "Self-Employed", "Unemployed", "Other"] },
 			]
 		},
 		{
@@ -178,10 +93,10 @@ export function AutoQuotePage() {
 			title: "Your driving habits",
 			subtitle: "This affects your premium calculation",
 			fields: [
-				{ name: "commute_one_way_miles", label: "Miles driven one-way for commute", type: "select", options: ["<5","5-9","10-14","15-24","25-34","35+"] },
-				{ name: "commute_days_per_week", label: "Days per week commuting", type: "select", options: ["1","2","3","4","5","6","7"] },
-				{ name: "annual_miles", label: "Estimated annual miles", type: "select", options: ["<6K","6K-9K","10K-12K","13K-15K","16K-20K","20K+"] },
-				{ name: "rideshare_use", label: "Used for rideshare/delivery?", type: "select", options: ["Yes","No"] },
+				{ name: "commute_one_way_miles", label: "Miles driven one-way for commute", type: "select", options: ["<5", "5-9", "10-14", "15-24", "25-34", "35+"] },
+				{ name: "commute_days_per_week", label: "Days per week commuting", type: "select", options: ["1", "2", "3", "4", "5", "6", "7"] },
+				{ name: "annual_miles", label: "Estimated annual miles", type: "select", options: ["<6K", "6K-9K", "10K-12K", "13K-15K", "16K-20K", "20K+"] },
+				{ name: "rideshare_use", label: "Used for rideshare/delivery?", type: "select", options: ["Yes", "No"] },
 			]
 		},
 		{
@@ -280,7 +195,7 @@ export function AutoQuotePage() {
 								<CheckCircle2 className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
 							</div>
 						</div>
-						<h2 className="mb-4 text-2xl sm:text-3xl text-[#1a1a1a">Auto Quote Submitted</h2>
+						<h2 className="mb-4 text-2xl sm:text-3xl text-[#1a1a1a]">Auto Quote Submitted</h2>
 						<p className="text-[#6c757d]">We'll contact you with options within 24 hours.</p>
 						<div className="mt-8">
 							<Button className="bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] w-full sm:w-auto" asChild>
@@ -294,221 +209,304 @@ export function AutoQuotePage() {
 	}
 
 	return (
-		<QuoteLayout
-			title="Auto Insurance Quote"
-			description="Tailored auto protection with discount optimization."
-			icon={Car}
-			accentColor="#1B5A8E"
-			benefits={[
-				"Multi-vehicle & safe driver discounts",
-				"Roadside assistance available",
-				"Fast digital ID cards",
-				"Local claims support",
-			]}
-			faqs={[
-				{ question: "What information should I have ready?", answer: "Driver details, vehicle info (VIN if available), current coverage, and estimated annual mileage." },
-				{ question: "Do you run a credit check?", answer: "Some carriers may use credit-based insurance scores where allowed by law." },
-				{ question: "Can I add rideshare coverage?", answer: "Yes. Tell us if you drive for Uber, Lyft, or delivery apps." },
-			]}
-		>
-			<Card className="mx-auto max-w-3xl rounded-2xl bg-white/80 backdrop-blur-sm shadow-lg">
-				<CardHeader className="p-6 sm:p-8 pb-4">
-					<div className="mb-4">
-						<div className="mb-2 flex items-center justify-between text-sm">
-							<span className="text-[#6c757d]">Step {currentStep + 1} of {totalSteps}</span>
-							<span className="text-[#1B5A8E] font-medium">{Math.round(progress)}%</span>
-						</div>
-						<div className="h-2 w-full rounded-full bg-gray-200 overflow-hidden">
-							<motion.div
-								className="h-full bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9]"
-								initial={{ width: 0 }}
-								animate={{ width: `${progress}%` }}
-								transition={{ duration: 0.3 }}
-							/>
+		<div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+			{/* Header Section with Background Image */}
+			<section className="relative py-24 overflow-hidden">
+				{/* Background Image */}
+				<div
+					className="absolute inset-0 bg-cover bg-center"
+					style={{
+						backgroundImage:
+							'url(https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1920)',
+						backgroundPosition: 'center 45%',
+					}}
+				>
+					{/* Dark overlay for better text contrast */}
+					<div className="absolute inset-0 bg-gradient-to-br from-[#1B5A8E]/70 via-[#2C7DB8]/60 to-[#1B5A8E]/70" />
+				</div>
+
+				{/* Content */}
+				<div className="mx-auto max-w-7xl px-4 lg:px-8 relative z-10">
+					<div className="mx-auto max-w-3xl">
+						{/* Frosted Glass Container */}
+						<div className="rounded-2xl bg-white/10 backdrop-blur-xl border border-white/30 p-6 sm:p-8 shadow-2xl text-center">
+							<div className="mb-4 flex justify-center">
+								<div className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm border border-white/40">
+									<Car className="h-7 w-7 sm:h-8 sm:w-8 text-white" />
+								</div>
+							</div>
+							<h1 className="mb-3 text-3xl font-bold text-white sm:text-4xl lg:text-5xl drop-shadow-lg">
+								Auto Insurance Quote
+							</h1>
+							<p className="text-base sm:text-lg text-white/90 drop-shadow-md">
+								Tailored auto protection with discount optimization
+							</p>
 						</div>
 					</div>
-					<CardTitle className="text-xl sm:text-2xl">{steps[currentStep].title}</CardTitle>
-					<CardDescription className="text-sm sm:text-base">{steps[currentStep].subtitle}</CardDescription>
-				</CardHeader>
-				<CardContent className="p-6 sm:p-8 pt-0">
-					<AnimatePresence mode="wait">
-						<motion.div
-							key={currentStep}
-							initial={{ opacity: 0, x: 20 }}
-							animate={{ opacity: 1, x: 0 }}
-							exit={{ opacity: 0, x: -20 }}
-							transition={{ duration: 0.3 }}
-							className="space-y-6"
-						>
-							<div className="grid gap-5 sm:grid-cols-2">
-								{steps[currentStep].fields.map((field, idx) => (
+				</div>
+			</section>
+
+			{/* Form Section */}
+			<section className="py-12">
+				<div className="mx-auto max-w-4xl px-4 lg:px-8">
+					<Card className="border-none shadow-xl">
+						<CardContent className="p-8">
+							<div className="mb-8">
+								<h2 className="mb-2 text-2xl font-bold text-[#1B5A8E]">
+									Get Your Free Quote
+								</h2>
+								<p className="text-[#6c757d]">
+									Fill out the information below to receive a personalized auto insurance quote
+								</p>
+							</div>
+
+							{/* Progress Bar */}
+							<div className="mb-8">
+								<div className="mb-2 flex items-center justify-between text-sm">
+									<span className="text-[#6c757d]">Step {currentStep + 1} of {totalSteps}</span>
+									<span className="text-[#1B5A8E] font-medium">{Math.round(progress)}%</span>
+								</div>
+								<div className="h-2 w-full rounded-full bg-gray-200 overflow-hidden">
 									<motion.div
-										key={field.name}
-										initial={{ opacity: 0, y: 10 }}
-										animate={{ opacity: 1, y: 0 }}
-										transition={{ delay: idx * 0.1 }}
-										className="space-y-2 p-4 rounded-lg border border-gray-200 bg-white/60"
+										className="h-full bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9]"
+										initial={{ width: 0 }}
+										animate={{ width: `${progress}%` }}
+										transition={{ duration: 0.3 }}
+									/>
+								</div>
+							</div>
+
+							<div className="mb-6">
+								<h3 className="text-xl font-semibold text-[#1a1a1a] mb-2">{steps[currentStep].title}</h3>
+								<p className="text-sm text-[#6c757d]">{steps[currentStep].subtitle}</p>
+							</div>
+
+							<AnimatePresence mode="wait">
+								<motion.div
+									key={currentStep}
+									initial={{ opacity: 0, x: 20 }}
+									animate={{ opacity: 1, x: 0 }}
+									exit={{ opacity: 0, x: -20 }}
+									transition={{ duration: 0.3 }}
+									className="space-y-6"
+								>
+									<div className="grid gap-5 sm:grid-cols-2">
+										{steps[currentStep].fields.map((field, idx) => (
+											<motion.div
+												key={field.name}
+												initial={{ opacity: 0, y: 10 }}
+												animate={{ opacity: 1, y: 0 }}
+												transition={{ delay: idx * 0.1 }}
+												className="space-y-2 p-4 rounded-lg border border-gray-200 bg-white/60"
+											>
+												<Label className="text-sm sm:text-base font-medium text-[#1a1a1a]">
+													{field.label}{field.required && <span className="text-red-500 ml-1">*</span>}
+												</Label>
+												{field.type === "select" && field.options ? (
+													<SelectWithOther
+														name={field.name}
+														options={field.options}
+														value={formData[field.name] || ""}
+														onChange={(v) => handleFieldChange(field.name, v)}
+													/>
+												) : field.type === "textarea" ? (
+													<Textarea
+														name={field.name}
+														placeholder={field.placeholder}
+														value={formData[field.name] || ""}
+														onChange={(e) => handleFieldChange(field.name, e.target.value)}
+														className="min-h-[100px] text-sm sm:text-base px-3 py-3"
+													/>
+												) : (
+													<Input
+														type={field.type}
+														name={field.name}
+														placeholder={field.placeholder}
+														value={formData[field.name] || ""}
+														onChange={(e) => handleFieldChange(field.name, e.target.value)}
+														required={field.required}
+														className="text-sm sm:text-base px-3 py-3"
+													/>
+												)}
+											</motion.div>
+										))}
+									</div>
+								</motion.div>
+							</AnimatePresence>
+
+							<div className="mt-8 flex flex-col sm:flex-row gap-3">
+								<Button
+									type="button"
+									variant="outline"
+									onClick={handlePrevious}
+									disabled={currentStep === 0}
+									className="w-full sm:w-auto order-2 sm:order-1"
+								>
+									<ArrowLeft className="mr-2 h-4 w-4" />
+									Back
+								</Button>
+								{currentStep < totalSteps - 1 ? (
+									<Button
+										type="button"
+										onClick={handleNext}
+										disabled={!canContinue()}
+										className="w-full sm:w-auto bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] order-1 sm:order-2"
 									>
-										<Label className="text-sm sm:text-base font-medium text-[#1a1a1a]">
-											{field.label}{field.required && <span className="text-red-500 ml-1">*</span>}
-										</Label>
-										{field.type === "select" && field.options ? (
-											<SelectWithOther
-												name={field.name}
-												options={field.options}
-												value={formData[field.name] || ""}
-												onChange={(v) => handleFieldChange(field.name, v)}
-											/>
-										) : field.type === "textarea" ? (
-											<Textarea
-												name={field.name}
-												placeholder={field.placeholder}
-												value={formData[field.name] || ""}
-												onChange={(e) => handleFieldChange(field.name, e.target.value)}
-												className="min-h-[100px] text-sm sm:text-base px-3 py-3"
-											/>
-										) : (
-											<Input
-												type={field.type}
-												name={field.name}
-												placeholder={field.placeholder}
-												value={formData[field.name] || ""}
-												onChange={(e) => handleFieldChange(field.name, e.target.value)}
-												required={field.required}
-												className="text-sm sm:text-base px-3 py-3"
-											/>
-										)}
-									</motion.div>
+										Continue
+										<ArrowRight className="ml-2 h-4 w-4" />
+									</Button>
+								) : (
+									<Button
+										type="button"
+										onClick={handleSubmit}
+										disabled={submitting || !canContinue()}
+										className="w-full sm:w-auto bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] order-1 sm:order-2"
+									>
+										{submitting ? "Submitting..." : "Get My Quote"}
+										<CheckCircle2 className="ml-2 h-4 w-4" />
+									</Button>
+								)}
+							</div>
+
+							<div className="mt-6 flex justify-center gap-2">
+								{steps.map((_, idx) => (
+									<div
+										key={idx}
+										className={`h-2 rounded-full transition-all ${idx === currentStep
+												? "w-8 bg-gradient-to-r from-[#4f46e5] to-[#06b6d4]"
+												: idx < currentStep
+													? "w-2 bg-[#06b6d4]"
+													: "w-2 bg-gray-300"
+											}`}
+									/>
 								))}
 							</div>
-						</motion.div>
-					</AnimatePresence>
+						</CardContent>
+					</Card>
 
-					<div className="mt-8 sticky bottom-4 bg-white/90 backdrop-blur-md rounded-xl border border-gray-200 p-4 flex flex-col sm:flex-row gap-3 shadow-md">
-						<Button
-							type="button"
-							variant="outline"
-							onClick={handlePrevious}
-							disabled={currentStep === 0}
-							className="w-full sm:w-auto order-2 sm:order-1"
-						>
-							<ArrowLeft className="mr-2 h-4 w-4" />
-							Back
-						</Button>
-						{currentStep < totalSteps - 1 ? (
-							<Button
-								type="button"
-								onClick={handleNext}
-								disabled={!canContinue()}
-								className="w-full sm:w-auto bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] order-1 sm:order-2"
-							>
-								Continue
-								<ArrowRight className="ml-2 h-4 w-4" />
-							</Button>
-						) : (
-							<Button
-								type="button"
-								onClick={handleSubmit}
-								disabled={submitting || !canContinue()}
-								className="w-full sm:w-auto bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] order-1 sm:order-2"
-							>
-								{submitting ? "Submitting..." : "Get My Quote"}
-								<CheckCircle2 className="ml-2 h-4 w-4" />
-							</Button>
-						)}
+					{/* Info Cards */}
+					<div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-4">
+						<Card className="border-gray-200">
+							<CardContent className="p-6 text-center">
+								<h3 className="mb-2 text-lg font-semibold text-[#1B5A8E]">
+									Multi-Vehicle Discounts
+								</h3>
+								<p className="text-sm text-[#6c757d]">
+									Save more when you insure multiple vehicles
+								</p>
+							</CardContent>
+						</Card>
+
+						<Card className="border-gray-200">
+							<CardContent className="p-6 text-center">
+								<h3 className="mb-2 text-lg font-semibold text-[#1B5A8E]">
+									Roadside Assistance
+								</h3>
+								<p className="text-sm text-[#6c757d]">
+									24/7 emergency help when you need it
+								</p>
+							</CardContent>
+						</Card>
+
+						<Card className="border-gray-200">
+							<CardContent className="p-6 text-center">
+								<h3 className="mb-2 text-lg font-semibold text-[#1B5A8E]">
+									Fast Digital ID Cards
+								</h3>
+								<p className="text-sm text-[#6c757d]">
+									Instant access to proof of insurance
+								</p>
+							</CardContent>
+						</Card>
+
+						<Card className="border-gray-200">
+							<CardContent className="p-6 text-center">
+								<h3 className="mb-2 text-lg font-semibold text-[#1B5A8E]">
+									Local Claims Support
+								</h3>
+								<p className="text-sm text-[#6c757d]">
+									Quick, friendly service when accidents happen
+								</p>
+							</CardContent>
+						</Card>
 					</div>
 
-					<div className="mt-6 sm:mt-8 flex justify-center gap-2">
-						{steps.map((_, idx) => (
-							<div
-								key={idx}
-								className={`h-2 rounded-full transition-all ${
-									idx === currentStep
-										? "w-8 bg-gradient-to-r from-[#4f46e5] to-[#06b6d4]"
-										: idx < currentStep
-										? "w-2 bg-[#06b6d4]"
-										: "w-2 bg-gray-300"
-								}`}
-							/>
-						))}
-					</div>
-				</CardContent>
-			</Card>
-
-			{/* Coverage Overview - responsive spacing */}
-			<Card className="mx-auto mt-6 sm:mt-8 max-w-3xl rounded-xl border border-gray-200 bg-white/70 backdrop-blur-sm shadow-sm">
-				<CardHeader>
-					<CardTitle>Auto Coverage Overview</CardTitle>
-					<CardDescription>
-						Understand policy options before you submit your info.
-					</CardDescription>
-				</CardHeader>
-				<CardContent className="space-y-6 text-sm text-[#6c757d]">
-					<div>
-						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
-							Core Coverages
-						</h4>
-						<ul className="grid gap-2 sm:grid-cols-2">
-							<li>Liability (BI / PD)</li>
-							<li>Uninsured / Underinsured Motorist</li>
-							<li>Personal Injury Protection / MedPay</li>
-							<li>Comprehensive (fire, theft, weather)</li>
-							<li>Collision (vehicle damage)</li>
-							<li>Roadside Assistance (optional)</li>
-						</ul>
-					</div>
-					<div>
-						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
-							Common Endorsements
-						</h4>
-						<ul className="grid gap-2 sm:grid-cols-2">
-							<li>Rental Reimbursement</li>
-							<li>Gap Coverage</li>
-							<li>Custom Equipment</li>
-							<li>Rideshare / Delivery Use</li>
-							<li>Accident Forgiveness</li>
-							<li>Glass / Windshield Waiver</li>
-						</ul>
-					</div>
-					<div>
-						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
-							Discount Insights
-						</h4>
-						<p className="text-xs leading-relaxed">
-							Multi-vehicle, safe driver, telematics, good student, paid-in-full,
-							defensive driving, and bundle (home / umbrella) discounts may apply.
-						</p>
-					</div>
-					<div>
-						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
-							Sample Claim Scenarios
-						</h4>
-						<ul className="space-y-1">
-							<li>
-								<span className="text-[#1a1a1a] font-medium">
-									Rear-End Collision:
-								</span>{" "}
-								Collision + liability protect both parties.
-							</li>
-							<li>
-								<span className="text-[#1a1a1a] font-medium">
-									Storm Damage:
-								</span>{" "}
-								Comprehensive handles hail / fallen tree.
-							</li>
-							<li>
-								<span className="text-[#1a1a1a] font-medium">
-									Hit-and-Run:
-								</span>{" "}
-								UM/UIM may respond if at-fault driver unknown.
-							</li>
-						</ul>
-					</div>
-					<p className="text-[11px]">
-						Final eligibility & pricing depend on underwriting guidelines.
-					</p>
-				</CardContent>
-			</Card>
-		</QuoteLayout>
+					{/* Coverage Overview */}
+					<Card className="mt-8 border-gray-200">
+						<CardHeader>
+							<CardTitle>Auto Coverage Overview</CardTitle>
+							<CardDescription>
+								Understand policy options before you submit your info.
+							</CardDescription>
+						</CardHeader>
+						<CardContent className="space-y-6 text-sm text-[#6c757d]">
+							<div>
+								<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
+									Core Coverages
+								</h4>
+								<ul className="grid gap-2 sm:grid-cols-2">
+									<li>Liability (BI / PD)</li>
+									<li>Uninsured / Underinsured Motorist</li>
+									<li>Personal Injury Protection / MedPay</li>
+									<li>Comprehensive (fire, theft, weather)</li>
+									<li>Collision (vehicle damage)</li>
+									<li>Roadside Assistance (optional)</li>
+								</ul>
+							</div>
+							<div>
+								<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
+									Common Endorsements
+								</h4>
+								<ul className="grid gap-2 sm:grid-cols-2">
+									<li>Rental Reimbursement</li>
+									<li>Gap Coverage</li>
+									<li>Custom Equipment</li>
+									<li>Rideshare / Delivery Use</li>
+									<li>Accident Forgiveness</li>
+									<li>Glass / Windshield Waiver</li>
+								</ul>
+							</div>
+							<div>
+								<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
+									Discount Insights
+								</h4>
+								<p className="text-xs leading-relaxed">
+									Multi-vehicle, safe driver, telematics, good student, paid-in-full,
+									defensive driving, and bundle (home / umbrella) discounts may apply.
+								</p>
+							</div>
+							<div>
+								<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
+									Sample Claim Scenarios
+								</h4>
+								<ul className="space-y-1">
+									<li>
+										<span className="text-[#1a1a1a] font-medium">
+											Rear-End Collision:
+										</span>{" "}
+										Collision + liability protect both parties.
+									</li>
+									<li>
+										<span className="text-[#1a1a1a] font-medium">
+											Storm Damage:
+										</span>{" "}
+										Comprehensive handles hail / fallen tree.
+									</li>
+									<li>
+										<span className="text-[#1a1a1a] font-medium">
+											Hit-and-Run:
+										</span>{" "}
+										UM/UIM may respond if at-fault driver unknown.
+									</li>
+								</ul>
+							</div>
+							<p className="text-[11px]">
+								Final eligibility & pricing depend on underwriting guidelines.
+							</p>
+						</CardContent>
+					</Card>
+				</div>
+			</section>
+		</div>
 	);
 }

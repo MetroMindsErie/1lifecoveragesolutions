@@ -7,7 +7,6 @@ import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { Textarea } from "../../components/ui/textarea";
 import { CheckCircle2, Home, ArrowRight, ArrowLeft } from "lucide-react";
-import { QuoteLayout } from "../../components/quotes/QuoteLayout";
 import { submitQuote } from "../../lib/submit";
 import { supabase } from "../../lib/supabaseClient";
 import { SelectWithOther } from "../../components/quotes/SelectWithOther";
@@ -34,19 +33,19 @@ export function HomeownersQuotePage() {
   const steps = [
     {
       id: "client-info",
-      title: "Your Information",
-      subtitle: "We'll use this to contact you",
+      title: "Let's start with your information",
+      subtitle: "We'll use this to contact you with your quote",
       fields: [
         { name: "name", label: "Full Name", type: "text", required: true },
-        { name: "email", label: "Email", type: "email", required: true },
-        { name: "phone", label: "Phone", type: "tel", required: true },
-        { name: "preferred_contact_method", label: "Contact Method", type: "select", options: ["Phone", "Email", "Text"] }
+        { name: "email", label: "Email Address", type: "email", required: true },
+        { name: "phone", label: "Phone Number", type: "tel", required: true },
+        { name: "preferred_contact_method", label: "Preferred Contact Method", type: "select", options: ["Phone", "Email", "Text"] }
       ]
     },
     {
       id: "property-address",
-      title: "Property Address",
-      subtitle: "Where is the home located?",
+      title: "Property information",
+      subtitle: "Tell us about your home location",
       fields: [
         { name: "property_address", label: "Property Address", type: "text", required: true },
         { name: "mailing_address", label: "Mailing Address (if different)", type: "text" },
@@ -56,8 +55,8 @@ export function HomeownersQuotePage() {
     },
     {
       id: "property-details",
-      title: "Home Details",
-      subtitle: "Basic characteristics",
+      title: "Home details",
+      subtitle: "Basic characteristics of your property",
       fields: [
         { name: "home_type", label: "Type of Home", type: "select", options: ["Single Family","Condo","Townhome","Manufactured/Mobile"] },
         { name: "year_built", label: "Year Built", type: "select", options: YEAR_BUILT_OPTIONS },
@@ -68,8 +67,8 @@ export function HomeownersQuotePage() {
     },
     {
       id: "construction-details",
-      title: "Construction & Systems",
-      subtitle: "Materials & major systems",
+      title: "Construction & systems",
+      subtitle: "Materials and major systems information",
       fields: [
         { name: "foundation_type", label: "Foundation Type", type: "select", options: ["Slab","Crawl Space","Basement"] },
         { name: "basement_finished", label: "If basement, is it finished?", type: "select", options: ["Yes","No","Partially Finished"] },
@@ -80,8 +79,8 @@ export function HomeownersQuotePage() {
     },
     {
       id: "safety-features",
-      title: "Safety Features",
-      subtitle: "Protective devices present",
+      title: "Safety features",
+      subtitle: "Protective devices and amenities",
       fields: [
         { name: "central_fire_alarm", label: "Central Fire Alarm", type: "select", options: ["Yes", "No"] },
         { name: "central_burglar_alarm", label: "Central Burglar Alarm", type: "select", options: ["Yes", "No"] },
@@ -95,50 +94,37 @@ export function HomeownersQuotePage() {
     },
     {
       id: "pets",
-      title: "Pets",
-      subtitle: "Pet info for liability considerations",
+      title: "Tell us about your pets",
+      subtitle: "Pet information for liability considerations",
       fields: [
         { name: "pets_have", label: "Do you have pets?", type: "select", options: ["Yes", "No"] },
-        { name: "pets_type", label: "Type of Pets", type: "select", options: ["Dog", "Cat", "Other"] },
+        { name: "pets_type", label: "Type of Pet(s)", type: "select", options: ["Dog", "Cat", "Other"] },
         { name: "pets_count", label: "Number of Pets", type: "text" },
-        { name: "dog_breeds", label: "Dog Breeds (if applicable)", type: "text" },
+        { name: "dog_breeds", label: "Dog Breed(s)", type: "text" },
         { name: "pets_bite_history", label: "Any bite/claim history?", type: "select", options: ["Yes", "No"] }
       ]
     },
     {
       id: "coverage-info",
-      title: "Coverage Info",
-      subtitle: "Current & desired coverage",
+      title: "Coverage information",
+      subtitle: "Current and desired coverage details",
       fields: [
         { name: "current_carrier", label: "Current Insurance Carrier", type: "text" },
         { name: "policy_expiration", label: "Policy Expiration Date", type: "date" },
-        { name: "current_dwelling_coverage", label: "Current Dwelling Coverage Amount ($)", type: "select", options: ["100K","150K","200K","250K","300K","400K","500K","600K","700K","800K","900K","1M","Other"], otherLabel: "Custom" },
+        { name: "current_dwelling_coverage", label: "Current Dwelling Coverage ($)", type: "select", options: ["100K","150K","200K","250K","300K","400K","500K","600K","700K","800K","900K","1M","Other"], otherLabel: "Custom" },
         { name: "desired_deductible", label: "Desired Deductible ($)", type: "select", options: ["500","1000","2500"], otherLabel: "Custom" },
         { name: "claims_last_5_years", label: "Any claims in the last 5 years?", type: "select", options: ["Yes","No"] },
         { name: "claims_description", label: "If yes, please describe", type: "textarea" },
       ]
     },
     {
-      id: "additional-coverages",
-      title: "Additional Coverages",
-      subtitle: "Optional interests",
-      fields: [
-        { name: "additional_coverages", label: "Additional Coverages Interested In", type: "text" }
-      ]
-    },
-    {
-      id: "referral",
-      title: "Referral Source",
-      subtitle: "How did you hear about us?",
-      fields: [
-        { name: "referral_source", label: "Referral Source", type: "select", options: ["Google", "Referral", "Social Media", "Advertising"] }
-      ]
-    },
-    {
       id: "final",
-      title: "Review & Submit",
-      subtitle: "Submit your quote request",
-      fields: []
+      title: "Almost done!",
+      subtitle: "Just a couple more questions",
+      fields: [
+        { name: "additional_coverages", label: "Additional Coverages Interested In", type: "text" },
+        { name: "referral_source", label: "How did you hear about us?", type: "select", options: ["Google", "Referral", "Social Media", "Advertising"] }
+      ]
     }
   ];
 
@@ -181,7 +167,6 @@ export function HomeownersQuotePage() {
         input.value = v;
         form.appendChild(input);
       });
-      // honeypots
       const hp1 = document.createElement("input");
       hp1.name = "hp_company"; hp1.value = "";
       const hp2 = document.createElement("input");
@@ -217,9 +202,9 @@ export function HomeownersQuotePage() {
               </div>
             </div>
             <h2 className="mb-4 text-2xl sm:text-3xl text-[#1a1a1a]">Homeowners Quote Submitted</h2>
-            <p className="text-[#6c757d]">We’ll contact you within 24 hours.</p>
+            <p className="text-[#6c757d]">We'll contact you within 24 hours.</p>
             <div className="mt-8">
-              <Button className="bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9]" asChild>
+              <Button className="bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] w-full sm:w-auto" asChild>
                 <a href="/">Return to Home</a>
               </Button>
             </div>
@@ -230,188 +215,273 @@ export function HomeownersQuotePage() {
   }
 
   return (
-    <QuoteLayout
-      title="Homeowners Insurance Quote"
-      description="Share property details to get accurate coverage recommendations."
-      icon={Home}
-      accentColor="#1B5A8E"
-      benefits={[
-        "Replacement cost options",
-        "Bundle for savings",
-        "Storm & theft protection",
-        "Fast claim support"
-      ]}
-      faqs={[
-        { question: "What affects my premium?", answer: "Age/updates of roof & systems, location, claims, protective devices, coverage limits." },
-        { question: "Do you insure condos?", answer: "Yes. We tailor coverage to HO-6 or HOA requirements." },
-        { question: "Flood / earthquake?", answer: "Separate policies or endorsements where available." }
-      ]}
-    >
-      <Card className="mx-auto max-w-4xl rounded-2xl bg-white/80 backdrop-blur-sm shadow-lg">
-        <CardHeader className="p-6 sm:p-8 pb-4">
-          <div className="mb-4">
-            <div className="mb-2 flex items-center justify-between text-xs font-medium text-[#1B5A8E]">
-              <span>Step {currentStep + 1} of {totalSteps}</span>
-              <span>{Math.round(progress)}%</span>
-            </div>
-            <div className="h-3 rounded-full bg-gray-200 overflow-hidden">
-              <motion.div
-                className="h-full rounded-full bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9]"
-                initial={{ width: 0 }}
-                animate={{ width: `${progress}%` }}
-                transition={{ duration: 0.35 }}
-              />
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+      {/* Header Section with Background Image */}
+      <section className="relative py-20 overflow-hidden">
+        {/* Background Image */}
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage:
+              'url(https://images.unsplash.com/photo-1568605114967-8130f3a36994?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1920)',
+            backgroundPosition: 'center 35%',
+          }}
+        >
+          {/* Dark overlay for better text contrast */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#1B5A8E]/70 via-[#2C7DB8]/60 to-[#1B5A8E]/70" />
+        </div>
+
+        {/* Content */}
+        <div className="mx-auto max-w-7xl px-4 lg:px-8 relative z-10">
+          <div className="mx-auto max-w-3xl">
+            {/* Frosted Glass Container */}
+            <div className="rounded-2xl bg-white/10 backdrop-blur-xl border border-white/30 p-6 sm:p-8 shadow-2xl text-center">
+              <div className="mb-4 flex justify-center">
+                <div className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm border border-white/40">
+                  <Home className="h-7 w-7 sm:h-8 sm:w-8 text-white" />
+                </div>
+              </div>
+              <h1 className="mb-3 text-3xl font-bold text-white sm:text-4xl lg:text-5xl drop-shadow-lg">
+                Homeowners Insurance Quote
+              </h1>
+              <p className="text-base sm:text-lg text-white/90 drop-shadow-md">
+                Share property details to get accurate coverage recommendations
+              </p>
             </div>
           </div>
-          <CardTitle className="text-xl sm:text-2xl">{steps[currentStep].title}</CardTitle>
-          <CardDescription className="text-sm sm:text-base">{steps[currentStep].subtitle}</CardDescription>
-        </CardHeader>
-        <CardContent className="p-6 sm:p-8 pt-0">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentStep}
-              initial={{ opacity: 0, x: 25 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -25 }}
-              transition={{ duration: 0.3 }}
-              className="space-y-6"
-            >
-              <div className="grid gap-5 sm:grid-cols-2">
-                {steps[currentStep].fields.map((field, idx) => (
+        </div>
+      </section>
+
+      {/* Form Section */}
+      <section className="py-12">
+        <div className="mx-auto max-w-4xl px-4 lg:px-8">
+          <Card className="border-none shadow-xl">
+            <CardContent className="p-8">
+              <div className="mb-8">
+                <h2 className="mb-2 text-2xl font-bold text-[#1B5A8E]">
+                  Get Your Free Quote
+                </h2>
+                <p className="text-[#6c757d]">
+                  Fill out the information below to receive a personalized homeowners insurance quote
+                </p>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="mb-8">
+                <div className="mb-2 flex items-center justify-between text-sm">
+                  <span className="text-[#6c757d]">Step {currentStep + 1} of {totalSteps}</span>
+                  <span className="text-[#1B5A8E] font-medium">{Math.round(progress)}%</span>
+                </div>
+                <div className="h-2 w-full rounded-full bg-gray-200 overflow-hidden">
                   <motion.div
-                    key={field.name}
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: idx * 0.05 }}
-                    className="space-y-2 p-4 rounded-lg border border-gray-200 bg-white/60"
+                    className="h-full bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9]"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${progress}%` }}
+                    transition={{ duration: 0.3 }}
+                  />
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <h3 className="text-xl font-semibold text-[#1a1a1a] mb-2">{steps[currentStep].title}</h3>
+                <p className="text-sm text-[#6c757d]">{steps[currentStep].subtitle}</p>
+              </div>
+
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentStep}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.3 }}
+                  className="space-y-6"
+                >
+                  <div className="grid gap-5 sm:grid-cols-2">
+                    {steps[currentStep].fields.map((field, idx) => (
+                      <motion.div
+                        key={field.name}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.05 }}
+                        className="space-y-2 p-4 rounded-lg border border-gray-200 bg-white/60"
+                      >
+                        <Label className="text-sm sm:text-base font-medium text-[#1a1a1a]">
+                          {field.label}{field.required && <span className="text-red-500 ml-1">*</span>}
+                        </Label>
+                        {field.type === "select" && field.options ? (
+                          <SelectWithOther
+                            name={field.name}
+                            options={field.options}
+                            value={formData[field.name] || ""}
+                            onChange={(v) => handleFieldChange(field.name, v)}
+                            otherLabel={(field as any).otherLabel}
+                          />
+                        ) : field.type === "textarea" ? (
+                          <Textarea
+                            name={field.name}
+                            value={formData[field.name] || ""}
+                            onChange={(e) => handleFieldChange(field.name, e.target.value)}
+                            className="min-h-[110px] text-sm sm:text-base px-3 py-3"
+                          />
+                        ) : (
+                          <Input
+                            type={field.type}
+                            name={field.name}
+                            value={formData[field.name] || ""}
+                            onChange={(e) => handleFieldChange(field.name, e.target.value)}
+                            required={field.required}
+                            className="text-sm sm:text-base px-3 py-3"
+                          />
+                        )}
+                      </motion.div>
+                    ))}
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+
+              <div className="mt-8 flex flex-col sm:flex-row gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={currentStep === 0}
+                  onClick={handlePrevious}
+                  className="w-full sm:w-auto order-2 sm:order-1"
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4" /> Back
+                </Button>
+                {currentStep < totalSteps - 1 ? (
+                  <Button
+                    type="button"
+                    disabled={!canContinue()}
+                    onClick={handleNext}
+                    className="w-full sm:w-auto bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] order-1 sm:order-2"
                   >
-                    <Label className="text-sm font-medium text-[#1a1a1a]">
-                      {field.label}{field.required && <span className="text-red-500 ml-1">*</span>}
-                    </Label>
-                    {field.type === "select" && field.options ? (
-                      <SelectWithOther
-                        name={field.name}
-                        options={field.options}
-                        value={formData[field.name] || ""}
-                        onChange={(v) => handleFieldChange(field.name, v)}
-                      />
-                    ) : field.type === "textarea" ? (
-                      <Textarea
-                        name={field.name}
-                        value={formData[field.name] || ""}
-                        onChange={(e) => handleFieldChange(field.name, e.target.value)}
-                        className="min-h-[110px] px-3 py-3"
-                      />
-                    ) : (
-                      <Input
-                        type={field.type}
-                        name={field.name}
-                        value={formData[field.name] || ""}
-                        onChange={(e) => handleFieldChange(field.name, e.target.value)}
-                        required={field.required}
-                        className="px-3 py-3"
-                      />
-                    )}
-                  </motion.div>
+                    Continue <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    onClick={handleSubmit}
+                    disabled={submitting || !canContinue()}
+                    className="w-full sm:w-auto bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] order-1 sm:order-2"
+                  >
+                    {submitting ? "Submitting..." : "Get My Quote"} <CheckCircle2 className="ml-2 h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+
+              <div className="mt-6 flex justify-center gap-2">
+                {steps.map((_, i) => (
+                  <div
+                    key={i}
+                    className={`h-2 rounded-full transition-all ${
+                      i === currentStep
+                        ? "w-8 bg-gradient-to-r from-[#4f46e5] to-[#06b6d4]"
+                        : i < currentStep
+                        ? "w-2 bg-[#06b6d4]"
+                        : "w-2 bg-gray-300"
+                    }`}
+                  />
                 ))}
               </div>
-            </motion.div>
-          </AnimatePresence>
+            </CardContent>
+          </Card>
 
-          <div className="mt-8 sticky bottom-4 bg-white/90 backdrop-blur-md border border-gray-200 rounded-xl p-4 flex flex-col sm:flex-row gap-3 shadow-md">
-            <Button
-              type="button"
-              variant="outline"
-              disabled={currentStep === 0}
-              onClick={handlePrevious}
-              className="sm:w-auto w-full"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" /> Back
-            </Button>
-            {currentStep < totalSteps - 1 ? (
-              <Button
-                type="button"
-                disabled={!canContinue()}
-                onClick={handleNext}
-                className="bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] sm:w-auto w-full"
-              >
-                Continue <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            ) : (
-              <Button
-                type="button"
-                onClick={handleSubmit}
-                disabled={submitting || !canContinue()}
-                className="bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] sm:w-auto w-full"
-              >
-                {submitting ? "Submitting..." : "Submit Quote"} <CheckCircle2 className="ml-2 h-4 w-4" />
-              </Button>
-            )}
+          {/* Info Cards */}
+          <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-4">
+            <Card className="border-gray-200">
+              <CardContent className="p-6 text-center">
+                <h3 className="mb-2 text-lg font-semibold text-[#1B5A8E]">
+                  Replacement Cost Options
+                </h3>
+                <p className="text-sm text-[#6c757d]">
+                  Full replacement value for your home and belongings
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-gray-200">
+              <CardContent className="p-6 text-center">
+                <h3 className="mb-2 text-lg font-semibold text-[#1B5A8E]">
+                  Bundle for Savings
+                </h3>
+                <p className="text-sm text-[#6c757d]">
+                  Save more when you combine home and auto policies
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-gray-200">
+              <CardContent className="p-6 text-center">
+                <h3 className="mb-2 text-lg font-semibold text-[#1B5A8E]">
+                  Storm & Theft Protection
+                </h3>
+                <p className="text-sm text-[#6c757d]">
+                  Comprehensive coverage against natural disasters and theft
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-gray-200">
+              <CardContent className="p-6 text-center">
+                <h3 className="mb-2 text-lg font-semibold text-[#1B5A8E]">
+                  Fast Claim Support
+                </h3>
+                <p className="text-sm text-[#6c757d]">
+                  Quick, responsive service when you need it most
+                </p>
+              </CardContent>
+            </Card>
           </div>
 
-          <div className="mt-8 flex justify-center gap-2">
-            {steps.map((_, i) => (
-              <div
-                key={i}
-                className={`h-2 rounded-full transition-all ${
-                  i === currentStep
-                    ? "w-8 bg-gradient-to-r from-[#4f46e5] to-[#06b6d4]"
-                    : i < currentStep
-                    ? "w-2 bg-[#06b6d4]"
-                    : "w-2 bg-gray-300"
-                }`}
-              />
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Coverage Overview */}
-      <Card className="mx-auto mt-8 max-w-4xl rounded-xl border border-gray-200 bg-white/70 backdrop-blur-sm shadow-sm">
-        <CardHeader>
-          <CardTitle>Homeowners Coverage Overview</CardTitle>
-          <CardDescription>Key protections & optional enhancements.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6 text-sm text-[#6c757d]">
-          <div>
-            <h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">Primary Sections</h4>
-            <ul className="grid gap-2 sm:grid-cols-3">
-              <li>Dwelling (A)</li>
-              <li>Other Structures (B)</li>
-              <li>Personal Property (C)</li>
-              <li>Loss of Use (D)</li>
-              <li>Liability (E)</li>
-              <li>Medical Payments (F)</li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">Popular Endorsements</h4>
-            <ul className="grid gap-2 sm:grid-cols-2">
-              <li>Replacement Cost Contents</li>
-              <li>Water Backup / Sump Overflow</li>
-              <li>Scheduled Jewelry / Valuables</li>
-              <li>Equipment Breakdown</li>
-              <li>Cyber / ID Theft</li>
-              <li>Inflation Guard</li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">Claim Examples</h4>
-            <ul className="space-y-1">
-              <li><span className="font-medium text-[#1a1a1a]">Kitchen Fire:</span> Dwelling + contents + loss of use.</li>
-              <li><span className="font-medium text-[#1a1a1a]">Wind Roof Damage:</span> Dwelling repairs / mitigation.</li>
-              <li><span className="font-medium text-[#1a1a1a]">Slip & Fall Guest:</span> Liability / medical payments.</li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">Risk & Rating Factors</h4>
-            <p className="text-xs leading-relaxed">
-              Roof age, electrical/plumbing/HVAC updates, location fire class, prior claims, protective devices, credit-based insurance score (where allowed).
-            </p>
-          </div>
-          <p className="text-[11px]">Flood & earthquake typically excluded—ask about separate policies.</p>
-        </CardContent>
-      </Card>
-    </QuoteLayout>
+          {/* Coverage Overview */}
+          <Card className="mt-8 border-gray-200">
+            <CardHeader>
+              <CardTitle>Homeowners Coverage Overview</CardTitle>
+              <CardDescription>Key protections & optional enhancements.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6 text-sm text-[#6c757d]">
+              <div>
+                <h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">Primary Sections</h4>
+                <ul className="grid gap-2 sm:grid-cols-3">
+                  <li>Dwelling (A)</li>
+                  <li>Other Structures (B)</li>
+                  <li>Personal Property (C)</li>
+                  <li>Loss of Use (D)</li>
+                  <li>Liability (E)</li>
+                  <li>Medical Payments (F)</li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">Popular Endorsements</h4>
+                <ul className="grid gap-2 sm:grid-cols-2">
+                  <li>Replacement Cost Contents</li>
+                  <li>Water Backup / Sump Overflow</li>
+                  <li>Scheduled Jewelry / Valuables</li>
+                  <li>Equipment Breakdown</li>
+                  <li>Cyber / ID Theft</li>
+                  <li>Inflation Guard</li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">Claim Examples</h4>
+                <ul className="space-y-1">
+                  <li><span className="font-medium text-[#1a1a1a]">Kitchen Fire:</span> Dwelling + contents + loss of use.</li>
+                  <li><span className="font-medium text-[#1a1a1a]">Wind Roof Damage:</span> Dwelling repairs / mitigation.</li>
+                  <li><span className="font-medium text-[#1a1a1a]">Slip & Fall Guest:</span> Liability / medical payments.</li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">Risk & Rating Factors</h4>
+                <p className="text-xs leading-relaxed">
+                  Roof age, electrical/plumbing/HVAC updates, location fire class, prior claims, protective devices, credit-based insurance score (where allowed).
+                </p>
+              </div>
+              <p className="text-[11px]">Flood & earthquake typically excluded—ask about separate policies.</p>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+    </div>
   );
 }

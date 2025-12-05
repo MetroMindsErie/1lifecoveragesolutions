@@ -181,47 +181,47 @@ export function ContactPage() {
             <div className="lg:col-span-2">
               <Card className="border-gray-200">
                 <CardContent className="p-8">
-                  <h2 className="mb-6 text-2xl text-[#1a1a1a]">Send us a Message</h2>
-                  <form onSubmit={onSubmit} className="space-y-4">
+                  <h2 className="mb-6 text-3xl text-[#1a1a1a]">Send us a Message</h2>
+                  <form onSubmit={onSubmit} className="space-y-5">
                     {/* Honeypots */}
                     <input type="text" name="hp_company" className="hidden" aria-hidden="true" />
                     <input type="url" name="hp_url" className="hidden" aria-hidden="true" />
 
                     <div className="grid gap-6 sm:grid-cols-2">
                       <div>
-                        <Label htmlFor="firstName">First Name</Label>
-                        <Input id="firstName" name="first_name" type="text" placeholder="John" required />
+                        <Label htmlFor="firstName" className="text-lg">First Name</Label>
+                        <Input id="firstName" name="first_name" type="text" placeholder="John" required className="text-lg px-4 py-4 min-h-[3.5rem]" />
                       </div>
                       <div>
-                        <Label htmlFor="lastName">Last Name</Label>
-                        <Input id="lastName" name="last_name" type="text" placeholder="Doe" required />
+                        <Label htmlFor="lastName" className="text-lg">Last Name</Label>
+                        <Input id="lastName" name="last_name" type="text" placeholder="Doe" required className="text-lg px-4 py-4 min-h-[3.5rem]" />
                       </div>
                     </div>
 
                     <div>
-                      <Label htmlFor="email">Email</Label>
-                      <Input id="email" name="email" type="email" placeholder="john.doe@example.com" required />
+                      <Label htmlFor="email" className="text-lg">Email</Label>
+                      <Input id="email" name="email" type="email" placeholder="john.doe@example.com" required className="text-lg px-4 py-4 min-h-[3.5rem]" />
                     </div>
 
                     <div>
-                      <Label htmlFor="phone">Phone Number</Label>
-                      <Input id="phone" name="phone" type="tel" placeholder="(555) 123-4567" />
+                      <Label htmlFor="phone" className="text-lg">Phone Number</Label>
+                      <Input id="phone" name="phone" type="tel" placeholder="(555) 123-4567" className="text-lg px-4 py-4 min-h-[3.5rem]" />
                     </div>
 
                     <div>
-                      <Label htmlFor="subject">Subject</Label>
-                      <Input id="subject" name="subject" type="text" placeholder="How can we help?" required />
+                      <Label htmlFor="subject" className="text-lg">Subject</Label>
+                      <Input id="subject" name="subject" type="text" placeholder="How can we help?" required className="text-lg px-4 py-4 min-h-[3.5rem]" />
                     </div>
 
                     <div>
-                      <Label htmlFor="message">Message</Label>
-                      <Textarea id="message" name="message" placeholder="Tell us what you need help with..." rows={6} required />
+                      <Label htmlFor="message" className="text-lg">Message</Label>
+                      <Textarea id="message" name="message" placeholder="Tell us what you need help with..." rows={6} required className="text-lg px-4 py-4 min-h-[8rem]" />
                     </div>
 
                     <Button
                       type="submit"
                       disabled={submitting}
-                      className="rounded bg-[#1B5A8E] px-4 py-2 text-white text-sm disabled:opacity-50"
+                      className="rounded bg-[#1B5A8E] px-6 py-4 text-white text-lg min-h-[3.5rem] disabled:opacity-50"
                     >
                       {submitting ? "Sending…" : "Send Message"}
                     </Button>

@@ -11,7 +11,6 @@ import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { Textarea } from "../../components/ui/textarea";
 import { CheckCircle2, Umbrella, ArrowRight, ArrowLeft } from "lucide-react";
-import { QuoteLayout } from "../../components/quotes/QuoteLayout";
 import { submitQuote } from "../../lib/submit";
 import { supabase } from "../../lib/supabaseClient";
 import { SelectWithOther } from "../../components/quotes/SelectWithOther";
@@ -271,209 +270,282 @@ export function UmbrellaQuotePage() {
 	}
 
 	return (
-		<QuoteLayout
-			title="Personal Umbrella Insurance Quote"
-			description="Extra liability protection over your home and auto policies."
-			icon={Umbrella}
-			accentColor="#1B5A8E"
-			benefits={[
-				"Higher liability limits",
-				"Broader personal liability",
-				"Affordable peace of mind",
-				"Multi-policy discounts",
-			]}
-			faqs={[
-				{
-					question: "Do I need certain underlying limits?",
-					answer: "Yes. Most carriers require minimum underlying limits on home and auto before umbrella applies.",
-				},
-				{
-					question: "What policy limits are available?",
-					answer: "Common limits range from $1M to $5M, with higher options available.",
-				},
-				{
-					question: "Does umbrella cover business activities?",
-					answer: "Personal umbrellas typically exclude business liability. Ask about separate coverage.",
-				},
-			]}
-		>
-			<Card className="mx-auto max-w-3xl rounded-2xl bg-white/80 backdrop-blur-sm shadow-lg">
-				<CardHeader className="p-6 sm:p-8 pb-4">
-					<div className="mb-4">
-						<div className="mb-2 flex items-center justify-between text-sm">
-							<span className="text-[#6c757d]">Step {currentStep + 1} of {totalSteps}</span>
-							<span className="text-[#1B5A8E] font-medium">{Math.round(progress)}%</span>
-						</div>
-						<div className="h-2 w-full rounded-full bg-gray-200 overflow-hidden">
-							<motion.div
-								className="h-full bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9]"
-								initial={{ width: 0 }}
-								animate={{ width: `${progress}%` }}
-								transition={{ duration: 0.3 }}
-							/>
+		<div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+			{/* Header Section with Background Image */}
+			<section className="relative py-24 overflow-hidden">
+				{/* Background Image */}
+				<div
+					className="absolute inset-0 bg-cover bg-center"
+					style={{
+						backgroundImage:
+							'url(https://images.unsplash.com/photo-1450101499163-c8848c66ca85?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1920)',
+					}}
+				>
+					{/* Dark overlay for better text contrast */}
+					<div className="absolute inset-0 bg-gradient-to-br from-[#1B5A8E]/70 via-[#2C7DB8]/60 to-[#1B5A8E]/70" />
+				</div>
+
+				{/* Content */}
+				<div className="mx-auto max-w-7xl px-4 lg:px-8 relative z-10">
+					<div className="mx-auto max-w-3xl">
+						{/* Frosted Glass Container */}
+						<div className="rounded-2xl bg-white/10 backdrop-blur-xl border border-white/30 p-8 shadow-2xl text-center">
+							<div className="mb-4 flex justify-center">
+								<div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm border border-white/40">
+									<Umbrella className="h-8 w-8 text-white" />
+								</div>
+							</div>
+							<h1 className="mb-4 text-4xl font-bold text-white sm:text-5xl drop-shadow-lg">
+								Personal Umbrella Insurance Quote
+							</h1>
+							<p className="text-lg text-white/90 drop-shadow-md">
+								Extra liability protection over your home and auto policies
+							</p>
 						</div>
 					</div>
-					<CardTitle className="text-xl sm:text-2xl">{steps[currentStep].title}</CardTitle>
-					<CardDescription className="text-sm sm:text-base">{steps[currentStep].subtitle}</CardDescription>
-				</CardHeader>
+				</div>
+			</section>
 
-				<CardContent className="p-6 sm:p-8 pt-0">
-					<AnimatePresence mode="wait">
-						<motion.div
-							key={currentStep}
-							initial={{ opacity: 0, x: 20 }}
-							animate={{ opacity: 1, x: 0 }}
-							exit={{ opacity: 0, x: -20 }}
-							transition={{ duration: 0.3 }}
-							className="space-y-6"
-						>
-							<div className="grid gap-5 sm:grid-cols-2">
-								{steps[currentStep].fields.map((field, idx) => (
+			{/* Form Section */}
+			<section className="py-12">
+				<div className="mx-auto max-w-4xl px-4 lg:px-8">
+					<Card className="border-none shadow-xl">
+						<CardContent className="p-8">
+							<div className="mb-8">
+								<h2 className="mb-2 text-2xl font-bold text-[#1B5A8E]">
+									Get Your Free Quote
+								</h2>
+								<p className="text-[#6c757d]">
+									Fill out the information below to receive a personalized umbrella insurance quote
+								</p>
+							</div>
+
+							{/* Progress Bar */}
+							<div className="mb-8">
+								<div className="mb-2 flex items-center justify-between text-sm">
+									<span className="text-[#6c757d]">Step {currentStep + 1} of {totalSteps}</span>
+									<span className="text-[#1B5A8E] font-medium">{Math.round(progress)}%</span>
+								</div>
+								<div className="h-2 w-full rounded-full bg-gray-200 overflow-hidden">
 									<motion.div
-										key={field.name}
-										initial={{ opacity: 0, y: 10 }}
-										animate={{ opacity: 1, y: 0 }}
-										transition={{ delay: idx * 0.075 }}
-										className="space-y-2 p-4 rounded-lg border border-gray-200 bg-white/60"
+										className="h-full bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9]"
+										initial={{ width: 0 }}
+										animate={{ width: `${progress}%` }}
+										transition={{ duration: 0.3 }}
+									/>
+								</div>
+							</div>
+
+							<div className="mb-6">
+								<h3 className="text-xl font-semibold text-[#1a1a1a] mb-2">{steps[currentStep].title}</h3>
+								<p className="text-sm text-[#6c757d]">{steps[currentStep].subtitle}</p>
+							</div>
+
+							<AnimatePresence mode="wait">
+								<motion.div
+									key={currentStep}
+									initial={{ opacity: 0, x: 20 }}
+									animate={{ opacity: 1, x: 0 }}
+									exit={{ opacity: 0, x: -20 }}
+									transition={{ duration: 0.3 }}
+									className="space-y-6"
+								>
+									<div className="grid gap-5 sm:grid-cols-2">
+										{steps[currentStep].fields.map((field, idx) => (
+											<motion.div
+												key={field.name}
+												initial={{ opacity: 0, y: 10 }}
+												animate={{ opacity: 1, y: 0 }}
+												transition={{ delay: idx * 0.075 }}
+												className="space-y-2 p-4 rounded-lg border border-gray-200 bg-white/60"
+											>
+												<Label className="text-sm sm:text-base font-medium text-[#1a1a1a]">
+													{field.label}{(field as any).required && <span className="text-red-500 ml-1">*</span>}
+												</Label>
+												{field.type === "select" && field.options ? (
+													<SelectWithOther
+														name={field.name}
+														options={field.options}
+														value={formData[field.name] || ""}
+														onChange={(v) => handleFieldChange(field.name, v)}
+														otherLabel={(field as any).otherLabel}
+													/>
+												) : field.type === "textarea" ? (
+													<Textarea
+														name={field.name}
+														placeholder={(field as any).placeholder}
+														value={formData[field.name] || ""}
+														onChange={(e) => handleFieldChange(field.name, e.target.value)}
+														className="min-h-[110px] text-sm sm:text-base px-3 py-3"
+													/>
+												) : (
+													<Input
+														type={field.type}
+														name={field.name}
+														placeholder={(field as any).placeholder}
+														value={formData[field.name] || ""}
+														onChange={(e) => handleFieldChange(field.name, e.target.value)}
+														required={(field as any).required}
+														className="text-sm sm:text-base px-3 py-3"
+													/>
+												)}
+											</motion.div>
+										))}
+									</div>
+								</motion.div>
+							</AnimatePresence>
+
+							<div className="mt-8 flex flex-col sm:flex-row gap-3">
+								<Button
+									type="button"
+									variant="outline"
+									onClick={handlePrevious}
+									disabled={currentStep === 0}
+									className="w-full sm:w-auto order-2 sm:order-1"
+								>
+									<ArrowLeft className="mr-2 h-4 w-4" /> Back
+								</Button>
+								{currentStep < totalSteps - 1 ? (
+									<Button
+										type="button"
+										onClick={handleNext}
+										disabled={!canContinue()}
+										className="w-full sm:w-auto bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] order-1 sm:order-2"
 									>
-										<Label className="text-sm sm:text-base font-medium text-[#1a1a1a]">
-											{field.label}{(field as any).required && <span className="text-red-500 ml-1">*</span>}
-										</Label>
-										{field.type === "select" && field.options ? (
-											<SelectWithOther
-												name={field.name}
-												options={field.options}
-												value={formData[field.name] || ""}
-												onChange={(v) => handleFieldChange(field.name, v)}
-												otherLabel={(field as any).otherLabel}
-											/>
-										) : field.type === "textarea" ? (
-											<Textarea
-												name={field.name}
-												placeholder={(field as any).placeholder}
-												value={formData[field.name] || ""}
-												onChange={(e) => handleFieldChange(field.name, e.target.value)}
-												className="min-h-[110px] text-sm sm:text-base px-3 py-3"
-											/>
-										) : (
-											<Input
-												type={field.type}
-												name={field.name}
-												placeholder={(field as any).placeholder}
-												value={formData[field.name] || ""}
-												onChange={(e) => handleFieldChange(field.name, e.target.value)}
-												required={(field as any).required}
-												className="text-sm sm:text-base px-3 py-3"
-											/>
-										)}
-									</motion.div>
+										Continue <ArrowRight className="ml-2 h-4 w-4" />
+									</Button>
+								) : (
+									<Button
+										type="button"
+										onClick={handleSubmit}
+										disabled={submitting || !canContinue()}
+										className="w-full sm:w-auto bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] order-1 sm:order-2"
+									>
+										{submitting ? "Submitting..." : "Get My Quote"} <CheckCircle2 className="ml-2 h-4 w-4" />
+									</Button>
+								)}
+							</div>
+
+							<div className="mt-6 flex justify-center gap-2">
+								{steps.map((_, idx) => (
+									<div
+										key={idx}
+										className={`h-2 rounded-full transition-all ${
+											idx === currentStep
+												? "w-8 bg-gradient-to-r from-[#4f46e5] to-[#06b6d4]"
+												: idx < currentStep
+												? "w-2 bg-[#06b6d4]"
+												: "w-2 bg-gray-300"
+										}`}
+									/>
 								))}
 							</div>
-						</motion.div>
-					</AnimatePresence>
+						</CardContent>
+					</Card>
 
-					<div className="mt-8 sticky bottom-4 bg-white/90 backdrop-blur-md rounded-xl border border-gray-200 p-4 flex flex-col sm:flex-row gap-3 shadow-md">
-						<Button
-							type="button"
-							variant="outline"
-							onClick={handlePrevious}
-							disabled={currentStep === 0}
-							className="w-full sm:w-auto order-2 sm:order-1"
-						>
-							<ArrowLeft className="mr-2 h-4 w-4" /> Back
-						</Button>
-						{currentStep < totalSteps - 1 ? (
-							<Button
-								type="button"
-								onClick={handleNext}
-								disabled={!canContinue()}
-								className="w-full sm:w-auto bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] order-1 sm:order-2"
-							>
-								Continue <ArrowRight className="ml-2 h-4 w-4" />
-							</Button>
-						) : (
-							<Button
-								type="button"
-								onClick={handleSubmit}
-								disabled={submitting || !canContinue()}
-								className="w-full sm:w-auto bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] order-1 sm:order-2"
-							>
-								{submitting ? "Submitting..." : "Get My Quote"} <CheckCircle2 className="ml-2 h-4 w-4" />
-							</Button>
-						)}
+					{/* Info Cards */}
+					<div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-4">
+						<Card className="border-gray-200">
+							<CardContent className="p-6 text-center">
+								<h3 className="mb-2 text-lg font-semibold text-[#1B5A8E]">
+									Higher Liability Limits
+								</h3>
+								<p className="text-sm text-[#6c757d]">
+									Extended protection beyond your home and auto policies
+								</p>
+							</CardContent>
+						</Card>
+
+						<Card className="border-gray-200">
+							<CardContent className="p-6 text-center">
+								<h3 className="mb-2 text-lg font-semibold text-[#1B5A8E]">
+									Broader Coverage
+								</h3>
+								<p className="text-sm text-[#6c757d]">
+									Personal liability protection for various situations
+								</p>
+							</CardContent>
+						</Card>
+
+						<Card className="border-gray-200">
+							<CardContent className="p-6 text-center">
+								<h3 className="mb-2 text-lg font-semibold text-[#1B5A8E]">
+									Affordable Peace of Mind
+								</h3>
+								<p className="text-sm text-[#6c757d]">
+									Cost-effective way to increase your liability protection
+								</p>
+							</CardContent>
+						</Card>
+
+						<Card className="border-gray-200">
+							<CardContent className="p-6 text-center">
+								<h3 className="mb-2 text-lg font-semibold text-[#1B5A8E]">
+									Multi-Policy Discounts
+								</h3>
+								<p className="text-sm text-[#6c757d]">
+									Save when bundled with other insurance policies
+								</p>
+							</CardContent>
+						</Card>
 					</div>
 
-					<div className="mt-6 sm:mt-8 flex justify-center gap-2">
-						{steps.map((_, idx) => (
-							<div
-								key={idx}
-								className={`h-2 rounded-full transition-all ${
-									idx === currentStep
-										? "w-8 bg-gradient-to-r from-[#4f46e5] to-[#06b6d4]"
-										: idx < currentStep
-										? "w-2 bg-[#06b6d4]"
-										: "w-2 bg-gray-300"
-								}`}
-							/>
-						))}
-					</div>
-				</CardContent>
-			</Card>
-
-			{/* Coverage Overview */}
-			<Card className="mx-auto mt-6 sm:mt-8 max-w-3xl rounded-xl border border-gray-200 bg-white/70 backdrop-blur-sm shadow-sm">
-				<CardHeader>
-					<CardTitle>Personal Umbrella Overview</CardTitle>
-					<CardDescription>Extended liability protection explained.</CardDescription>
-				</CardHeader>
-				<CardContent className="space-y-6 text-sm text-[#6c757d]">
-					<div>
-						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
-							Purpose
-						</h4>
-						<p className="text-xs leading-relaxed">
-							Adds excess liability limits above home, auto, rental, and certain
-							recreational policies when underlying limits are exhausted.
-						</p>
-					</div>
-					<div>
-						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
-							Typical Underlying Requirements
-						</h4>
-						<ul className="grid gap-2 sm:grid-cols-2">
-							<li>Auto: 250/500 BI, 100 PD</li>
-							<li>Home: $300K Liability</li>
-							<li>Rental Property: $300K Liability</li>
-							<li>Watercraft limits vary</li>
-						</ul>
-					</div>
-					<div>
-						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
-							Common Triggers
-						</h4>
-						<ul className="space-y-1">
-							<li>Serious auto bodily injury claim</li>
-							<li>Premises liability lawsuit</li>
-							<li>Defamation / personal injury (varies)</li>
-						</ul>
-					</div>
-					<div>
-						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
-							Not Typically Covered
-						</h4>
-						<ul className="grid gap-2 sm:grid-cols-2">
-							<li>Business pursuits</li>
-							<li>Intentional acts</li>
-							<li>Professional liability</li>
-							<li>Workers comp exposures</li>
-						</ul>
-					</div>
-					<p className="text-[11px]">
-						Eligibility depends on driving history, property count, and prior
-						losses.
-					</p>
-				</CardContent>
-			</Card>
-		</QuoteLayout>
+					{/* Coverage Overview */}
+					<Card className="mt-8 border-gray-200">
+						<CardHeader>
+							<CardTitle>Personal Umbrella Overview</CardTitle>
+							<CardDescription>Extended liability protection explained.</CardDescription>
+						</CardHeader>
+						<CardContent className="space-y-6 text-sm text-[#6c757d]">
+							<div>
+								<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
+									Purpose
+								</h4>
+								<p className="text-xs leading-relaxed">
+									Adds excess liability limits above home, auto, rental, and certain
+									recreational policies when underlying limits are exhausted.
+								</p>
+							</div>
+							<div>
+								<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
+									Typical Underlying Requirements
+								</h4>
+								<ul className="grid gap-2 sm:grid-cols-2">
+									<li>Auto: 250/500 BI, 100 PD</li>
+									<li>Home: $300K Liability</li>
+									<li>Rental Property: $300K Liability</li>
+									<li>Watercraft limits vary</li>
+								</ul>
+							</div>
+							<div>
+								<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
+									Common Triggers
+								</h4>
+								<ul className="space-y-1">
+									<li>Serious auto bodily injury claim</li>
+									<li>Premises liability lawsuit</li>
+									<li>Defamation / personal injury (varies)</li>
+								</ul>
+							</div>
+							<div>
+								<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
+									Not Typically Covered
+								</h4>
+								<ul className="grid gap-2 sm:grid-cols-2">
+									<li>Business pursuits</li>
+									<li>Intentional acts</li>
+									<li>Professional liability</li>
+									<li>Workers comp exposures</li>
+								</ul>
+							</div>
+							<p className="text-[11px]">
+								Eligibility depends on driving history, property count, and prior
+								losses.
+							</p>
+						</CardContent>
+					</Card>
+				</div>
+			</section>
+		</div>
 	);
 }

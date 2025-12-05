@@ -130,8 +130,8 @@ export function QuotePage() {
       {/* Header */}
       <section className="border-b bg-white py-12">
         <div className="mx-auto max-w-7xl px-4 text-center lg:px-8">
-          <h1 className="mb-4 text-4xl text-[#1a1a1a]">Start Your Quote</h1>
-          <p className="mx-auto max-w-2xl text-lg text-[#6c757d]">
+          <h1 className="mb-4 text-5xl text-[#1a1a1a]">Start Your Quote</h1>
+          <p className="mx-auto max-w-2xl text-xl text-[#6c757d]">
             Choose a coverage type to fill out a quick, comprehensive form.
           </p>
         </div>
@@ -142,30 +142,30 @@ export function QuotePage() {
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
           <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
             <div className="flex items-center justify-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-[#4f46e5] to-[#06b6d4]">
-                <Shield className="h-6 w-6 text-white" />
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-[#4f46e5] to-[#06b6d4]">
+                <Shield className="h-7 w-7 text-white" />
               </div>
               <div className="text-left">
-                <p className="text-[#1a1a1a]">Trusted Coverage</p>
-                <p className="text-sm text-[#6c757d]">A+ Rated Insurance</p>
+                <p className="text-lg text-[#1a1a1a]">Trusted Coverage</p>
+                <p className="text-base text-[#6c757d]">A+ Rated Insurance</p>
               </div>
             </div>
             <div className="flex items-center justify-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-[#4f46e5] to-[#06b6d4]">
-                <Lock className="h-6 w-6 text-white" />
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-[#4f46e5] to-[#06b6d4]">
+                <Lock className="h-7 w-7 text-white" />
               </div>
               <div className="text-left">
-                <p className="text-[#1a1a1a]">Secure & Private</p>
-                <p className="text-sm text-[#6c757d]">Your data is protected</p>
+                <p className="text-lg text-[#1a1a1a]">Secure & Private</p>
+                <p className="text-base text-[#6c757d]">Your data is protected</p>
               </div>
             </div>
             <div className="flex items-center justify-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-[#4f46e5] to-[#06b6d4]">
-                <Clock className="h-6 w-6 text-white" />
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-[#4f46e5] to-[#06b6d4]">
+                <Clock className="h-7 w-7 text-white" />
               </div>
               <div className="text-left">
-                <p className="text-[#1a1a1a]">Quick Response</p>
-                <p className="text-sm text-[#6c757d]">Reply within 24 hours</p>
+                <p className="text-lg text-[#1a1a1a]">Quick Response</p>
+                <p className="text-base text-[#6c757d]">Reply within 24 hours</p>
               </div>
             </div>
           </div>

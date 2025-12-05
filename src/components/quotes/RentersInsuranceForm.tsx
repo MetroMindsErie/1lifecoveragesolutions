@@ -228,8 +228,8 @@ export function RentersInsuranceForm() {
             />
           </div>
         </div>
-        <CardTitle className="text-2xl">{steps[currentStep].title}</CardTitle>
-        <CardDescription className="text-base">{steps[currentStep].subtitle}</CardDescription>
+        <CardTitle className="text-3xl">{steps[currentStep].title}</CardTitle>
+        <CardDescription className="text-lg">{steps[currentStep].subtitle}</CardDescription>
       </CardHeader>
       <CardContent className="p-6 sm:p-8 pt-0">
         <AnimatePresence mode="wait">
@@ -270,24 +270,24 @@ export function RentersInsuranceForm() {
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor={`name-${index}`}>Full Name *</Label>
+                        <Label htmlFor={`name-${index}`} className="text-lg">Full Name *</Label>
                         <Input
                           id={`name-${index}`}
                           value={insured.name}
                           onChange={(e) => updateInsured(index, "name", e.target.value)}
                           placeholder="John Doe"
-                          className="text-base px-3 py-3"
+                          className="text-lg px-4 py-4 min-h-[3.5rem]"
                         />
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor={`dob-${index}`}>Date of Birth *</Label>
+                        <Label htmlFor={`dob-${index}`} className="text-lg">Date of Birth *</Label>
                         <Input
                           id={`dob-${index}`}
                           type="date"
                           value={insured.dateOfBirth}
                           onChange={(e) => updateInsured(index, "dateOfBirth", e.target.value)}
-                          className="text-base px-3 py-3"
+                          className="text-lg px-4 py-4 min-h-[3.5rem]"
                         />
                       </div>
                     </div>
@@ -314,7 +314,7 @@ export function RentersInsuranceForm() {
                       field.name === "address" ? "sm:col-span-2" : ""
                     }`}
                   >
-                    <Label className="text-base font-medium text-[#1a1a1a]">
+                    <Label className="text-lg font-medium text-[#1a1a1a]">
                       {field.label}
                       {field.required && <span className="text-red-500 ml-1">*</span>}
                     </Label>
@@ -333,7 +333,7 @@ export function RentersInsuranceForm() {
                         value={formData[field.name] || ""}
                         onChange={(e) => handleFieldChange(field.name, e.target.value)}
                         required={field.required}
-                        className="text-base px-3 py-3"
+                        className="text-lg px-4 py-4 min-h-[3.5rem]"
                       />
                     )}
                   </motion.div>

@@ -11,7 +11,6 @@ import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { Textarea } from "../../components/ui/textarea";
 import { CheckCircle2, Building2, ArrowRight, ArrowLeft } from "lucide-react";
-import { QuoteLayout } from "../../components/quotes/QuoteLayout";
 import { submitQuote } from "../../lib/submit";
 import { supabase } from "../../lib/supabaseClient";
 import { SelectWithOther } from "../../components/quotes/SelectWithOther";
@@ -274,7 +273,7 @@ export function CommercialBuildingQuotePage() {
 								<CheckCircle2 className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
 							</div>
 						</div>
-						<h2 className="mb-4 text-2xl sm:text-3xl text-[#1a1a1a">Commercial Building Quote Submitted</h2>
+						<h2 className="mb-4 text-2xl sm:text-3xl text-[#1a1a1a]">Commercial Building Quote Submitted</h2>
 						<p className="text-[#6c757d]">We'll contact you within 24 hours.</p>
 						<div className="mt-8">
 							<Button className="bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] w-full sm:w-auto" asChild>
@@ -288,216 +287,293 @@ export function CommercialBuildingQuotePage() {
 	}
 
 	return (
-		<QuoteLayout
-			title="Commercial Building Insurance Quote"
-			description="Protect your building, tenants, and operations with tailored coverage."
-			icon={Building2}
-			accentColor="#1B5A8E"
-			benefits={[
-				"Property & liability packages",
-				"Equipment breakdown options",
-				"Loss of income coverage",
-				"Multi-location support",
-			]}
-			faqs={[
-				{
-					question: "What property details are most important?",
-					answer: "COPE data (construction, occupancy, protection, exposure), year built, updates, and square footage.",
-				},
-				{
-					question: "Owner-occupied or tenant-occupied?",
-					answer: "We write both. Coverage can be tailored for owners, tenants, or mixed-use occupancy.",
-				},
-				{
-					question: "Are inspections required?",
-					answer: "Some carriers may inspect to confirm building conditions and protection features.",
-				},
-			]}
-		>
-			<Card className="mx-auto max-w-3xl rounded-2xl bg-white/80 backdrop-blur-sm shadow-lg">
-				<CardHeader className="p-6 sm:p-8 pb-4">
-					<div className="mb-4">
-						<div className="mb-2 flex items-center justify-between text-sm">
-							<span className="text-[#6c757d]">Step {currentStep + 1} of {totalSteps}</span>
-							<span className="text-[#1B5A8E] font-medium">{Math.round(progress)}%</span>
-						</div>
-						<div className="h-2 w-full rounded-full bg-gray-200 overflow-hidden">
-							<motion.div
-								className="h-full bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9]"
-								initial={{ width: 0 }}
-								animate={{ width: `${progress}%` }}
-								transition={{ duration: 0.3 }}
-							/>
+		<div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+			{/* Header Section with Background Image */}
+			<section className="relative py-20 overflow-hidden">
+				{/* Background Image */}
+				<div
+					className="absolute inset-0 bg-cover bg-center"
+					style={{
+						backgroundImage:
+							'url(https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1920)',
+						backgroundPosition: 'center 40%',
+					}}
+				>
+					{/* Dark overlay for better text contrast */}
+					<div className="absolute inset-0 bg-gradient-to-br from-[#1B5A8E]/70 via-[#2C7DB8]/60 to-[#1B5A8E]/70" />
+				</div>
+
+				{/* Content */}
+				<div className="mx-auto max-w-7xl px-4 lg:px-8 relative z-10">
+					<div className="mx-auto max-w-3xl">
+						{/* Frosted Glass Container */}
+						<div className="rounded-2xl bg-white/10 backdrop-blur-xl border border-white/30 p-6 sm:p-8 shadow-2xl text-center">
+							<div className="mb-4 flex justify-center">
+								<div className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm border border-white/40">
+									<Building2 className="h-7 w-7 sm:h-8 sm:w-8 text-white" />
+								</div>
+							</div>
+							<h1 className="mb-3 text-3xl font-bold text-white sm:text-4xl lg:text-5xl drop-shadow-lg">
+								Commercial Building Insurance Quote
+							</h1>
+							<p className="text-base sm:text-lg text-white/90 drop-shadow-md">
+								Protect your building, tenants, and operations with tailored coverage
+							</p>
 						</div>
 					</div>
-					<CardTitle className="text-xl sm:text-2xl">{steps[currentStep].title}</CardTitle>
-					<CardDescription className="text-sm sm:text-base">{steps[currentStep].subtitle}</CardDescription>
-				</CardHeader>
-				<CardContent className="p-6 sm:p-8 pt-0">
-					<AnimatePresence mode="wait">
-						<motion.div
-							key={currentStep}
-							initial={{ opacity: 0, x: 20 }}
-							animate={{ opacity: 1, x: 0 }}
-							exit={{ opacity: 0, x: -20 }}
-							transition={{ duration: 0.3 }}
-							className="space-y-6"
-						>
-							<div className="grid gap-5 sm:grid-cols-2">
-								{steps[currentStep].fields.map((field, idx) => (
+				</div>
+			</section>
+
+			{/* Form Section */}
+			<section className="py-12">
+				<div className="mx-auto max-w-4xl px-4 lg:px-8">
+					<Card className="border-none shadow-xl">
+						<CardContent className="p-8">
+							<div className="mb-8">
+								<h2 className="mb-2 text-2xl font-bold text-[#1B5A8E]">
+									Get Your Free Quote
+								</h2>
+								<p className="text-[#6c757d]">
+									Fill out the information below to receive a personalized commercial building insurance quote
+								</p>
+							</div>
+
+							{/* Progress Bar */}
+							<div className="mb-8">
+								<div className="mb-2 flex items-center justify-between text-sm">
+									<span className="text-[#6c757d]">Step {currentStep + 1} of {totalSteps}</span>
+									<span className="text-[#1B5A8E] font-medium">{Math.round(progress)}%</span>
+								</div>
+								<div className="h-2 w-full rounded-full bg-gray-200 overflow-hidden">
 									<motion.div
-										key={field.name}
-										initial={{ opacity: 0, y: 10 }}
-										animate={{ opacity: 1, y: 0 }}
-										transition={{ delay: idx * 0.1 }}
-										className="space-y-2 p-4 rounded-lg border border-gray-200 bg-white/60"
+										className="h-full bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9]"
+										initial={{ width: 0 }}
+										animate={{ width: `${progress}%` }}
+										transition={{ duration: 0.3 }}
+									/>
+								</div>
+							</div>
+
+							<div className="mb-6">
+								<h3 className="text-xl font-semibold text-[#1a1a1a] mb-2">{steps[currentStep].title}</h3>
+								<p className="text-sm text-[#6c757d]">{steps[currentStep].subtitle}</p>
+							</div>
+
+							<AnimatePresence mode="wait">
+								<motion.div
+									key={currentStep}
+									initial={{ opacity: 0, x: 20 }}
+									animate={{ opacity: 1, x: 0 }}
+									exit={{ opacity: 0, x: -20 }}
+									transition={{ duration: 0.3 }}
+									className="space-y-6"
+								>
+									<div className="grid gap-5 sm:grid-cols-2">
+										{steps[currentStep].fields.map((field, idx) => (
+											<motion.div
+												key={field.name}
+												initial={{ opacity: 0, y: 10 }}
+												animate={{ opacity: 1, y: 0 }}
+												transition={{ delay: idx * 0.1 }}
+												className="space-y-2 p-4 rounded-lg border border-gray-200 bg-white/60"
+											>
+												<Label className="text-sm sm:text-base font-medium text-[#1a1a1a]">
+													{field.label}{field.required && <span className="text-red-500 ml-1">*</span>}
+												</Label>
+												{field.type === "select" && field.options ? (
+													<SelectWithOther
+														name={field.name}
+														options={field.options}
+														value={formData[field.name] || ""}
+														onChange={(value) => handleFieldChange(field.name, value)}
+														otherLabel={(field as any).otherLabel}
+													/>
+												) : field.type === "textarea" ? (
+													<Textarea
+														name={field.name}
+														placeholder={field.placeholder}
+														value={formData[field.name] || ""}
+														onChange={(e) => handleFieldChange(field.name, e.target.value)}
+														className="min-h-[100px] text-sm sm:text-base px-3 py-3"
+													/>
+												) : (
+													<Input
+														type={field.type}
+														name={field.name}
+														placeholder={field.placeholder}
+														value={formData[field.name] || ""}
+														onChange={(e) => handleFieldChange(field.name, e.target.value)}
+														required={field.required}
+														className="text-sm sm:text-base px-3 py-3"
+													/>
+												)}
+											</motion.div>
+										))}
+									</div>
+								</motion.div>
+							</AnimatePresence>
+
+							<div className="mt-8 flex flex-col sm:flex-row gap-3">
+								<Button
+									type="button"
+									variant="outline"
+									onClick={handlePrevious}
+									disabled={currentStep === 0}
+									className="w-full sm:w-auto order-2 sm:order-1"
+								>
+									<ArrowLeft className="mr-2 h-4 w-4" />
+									Back
+								</Button>
+
+								{currentStep < totalSteps - 1 ? (
+									<Button
+										type="button"
+										onClick={handleNext}
+										disabled={!canContinue()}
+										className="w-full sm:w-auto bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] order-1 sm:order-2"
 									>
-										<Label className="text-sm sm:text-base font-medium text-[#1a1a1a]">
-											{field.label}{field.required && <span className="text-red-500 ml-1">*</span>}
-										</Label>
-										{field.type === "select" && field.options ? (
-											<SelectWithOther
-												name={field.name}
-												options={field.options}
-												value={formData[field.name] || ""}
-												onChange={(value) => handleFieldChange(field.name, value)}
-												otherLabel={(field as any).otherLabel}
-											/>
-										) : field.type === "textarea" ? (
-											<Textarea
-												name={field.name}
-												placeholder={field.placeholder}
-												value={formData[field.name] || ""}
-												onChange={(e) => handleFieldChange(field.name, e.target.value)}
-												className="min-h-[100px] text-sm sm:text-base px-3 py-3"
-											/>
-										) : (
-											<Input
-												type={field.type}
-												name={field.name}
-												placeholder={field.placeholder}
-												value={formData[field.name] || ""}
-												onChange={(e) => handleFieldChange(field.name, e.target.value)}
-												required={field.required}
-												className="text-sm sm:text-base px-3 py-3"
-											/>
-										)}
-									</motion.div>
+										Continue
+										<ArrowRight className="ml-2 h-4 w-4" />
+									</Button>
+								) : (
+									<Button
+										type="button"
+										onClick={handleSubmit}
+										disabled={submitting || !canContinue()}
+										className="w-full sm:w-auto bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] order-1 sm:order-2"
+									>
+										{submitting ? "Submitting..." : "Get My Quote"}
+										<CheckCircle2 className="ml-2 h-4 w-4" />
+									</Button>
+								)}
+							</div>
+
+							<div className="mt-6 flex justify-center gap-2">
+								{steps.map((_, idx) => (
+									<div
+										key={idx}
+										className={`h-2 rounded-full transition-all ${
+											idx === currentStep
+												? "w-8 bg-gradient-to-r from-[#4f46e5] to-[#06b6d4]"
+												: idx < currentStep
+												? "w-2 bg-[#06b6d4]"
+												: "w-2 bg-gray-300"
+										}`}
+									/>
 								))}
 							</div>
-						</motion.div>
-					</AnimatePresence>
-					<div className="mt-8 sticky bottom-4 bg-white/90 backdrop-blur-md rounded-xl border border-gray-200 p-4 flex flex-col sm:flex-row gap-3 shadow-md">
-						<Button
-							type="button"
-							variant="outline"
-							onClick={handlePrevious}
-							disabled={currentStep === 0}
-							className="w-full sm:w-auto order-2 sm:order-1"
-						>
-							<ArrowLeft className="mr-2 h-4 w-4" />
-							Back
-						</Button>
+						</CardContent>
+					</Card>
 
-						{currentStep < totalSteps - 1 ? (
-							<Button
-								type="button"
-								onClick={handleNext}
-								disabled={!canContinue()}
-								className="w-full sm:w-auto bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] order-1 sm:order-2"
-							>
-								Continue
-								<ArrowRight className="ml-2 h-4 w-4" />
-							</Button>
-						) : (
-							<Button
-								type="button"
-								onClick={handleSubmit}
-								disabled={submitting || !canContinue()}
-								className="w-full sm:w-auto bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] order-1 sm:order-2"
-							>
-								{submitting ? "Submitting..." : "Get My Quote"}
-								<CheckCircle2 className="ml-2 h-4 w-4" />
-							</Button>
-						)}
-					</div>
-					<div className="mt-8 flex justify-center gap-3">
-						{steps.map((_, idx) => (
-							<div
-								key={idx}
-								className={`h-2 rounded-full transition-all ${
-									idx === currentStep
-										? "w-8 bg-gradient-to-r from-[#4f46e5] to-[#06b6d4]"
-										: idx < currentStep
-										? "w-2 bg-[#06b6d4]"
-										: "w-2 bg-gray-300"
-								}`}
-							/>
-						))}
-					</div>
-				</CardContent>
-			</Card>
+					{/* Info Cards */}
+					<div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-4">
+						<Card className="border-gray-200">
+							<CardContent className="p-6 text-center">
+								<h3 className="mb-2 text-lg font-semibold text-[#1B5A8E]">
+									Property & Liability Packages
+								</h3>
+								<p className="text-sm text-[#6c757d]">
+									Comprehensive coverage for buildings and operations
+								</p>
+							</CardContent>
+						</Card>
 
-			{/* Coverage Overview */}
-			<Card className="mx-auto mt-6 sm:mt-8 max-w-3xl rounded-xl border border-gray-200 bg-white/70 backdrop-blur-sm shadow-sm">
-				<CardHeader>
-					<CardTitle>Commercial Property Overview</CardTitle>
-					<CardDescription>
-						Core components & enhancement options.
-					</CardDescription>
-				</CardHeader>
-				<CardContent className="space-y-6 text-sm text-[#6c757d]">
-					<div>
-						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
-							Core Coverage Areas
-						</h4>
-						<ul className="grid gap-2 sm:grid-cols-2">
-							<li>Building</li>
-							<li>Business Personal Property</li>
-							<li>Tenant Improvements</li>
-							<li>Loss of Business Income</li>
-							<li>General Liability</li>
-							<li>Equipment Breakdown</li>
-						</ul>
+						<Card className="border-gray-200">
+							<CardContent className="p-6 text-center">
+								<h3 className="mb-2 text-lg font-semibold text-[#1B5A8E]">
+									Equipment Breakdown Options
+								</h3>
+								<p className="text-sm text-[#6c757d]">
+									Protection for mechanical and electrical failures
+								</p>
+							</CardContent>
+						</Card>
+
+						<Card className="border-gray-200">
+							<CardContent className="p-6 text-center">
+								<h3 className="mb-2 text-lg font-semibold text-[#1B5A8E]">
+									Loss of Income Coverage
+								</h3>
+								<p className="text-sm text-[#6c757d]">
+									Protect your revenue during business interruptions
+								</p>
+							</CardContent>
+						</Card>
+
+						<Card className="border-gray-200">
+							<CardContent className="p-6 text-center">
+								<h3 className="mb-2 text-lg font-semibold text-[#1B5A8E]">
+									Multi-Location Support
+								</h3>
+								<p className="text-sm text-[#6c757d]">
+									Coverage solutions for multiple properties
+								</p>
+							</CardContent>
+						</Card>
 					</div>
-					<div>
-						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
-							Common Endorsements
-						</h4>
-						<ul className="grid gap-2 sm:grid-cols-2">
-							<li>Ordinance or Law</li>
-							<li>Outdoor Signs</li>
-							<li>Cyber Liability</li>
-							<li>Flood / Earthquake (separate)</li>
-							<li>Spoilage / Utility Services</li>
-							<li>Hired &amp; Non-Owned Auto</li>
-						</ul>
-					</div>
-					<div>
-						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
-							Underwriting Focus
-						</h4>
-						<p className="text-xs leading-relaxed">
-							Construction class, protection (alarms/sprinklers), occupancy type,
-							neighboring exposures, updates to roof / HVAC / wiring / plumbing.
-						</p>
-					</div>
-					<div>
-						<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
-							Claim Examples
-						</h4>
-						<ul className="space-y-1">
-							<li>Fire loss &amp; business interruption</li>
-							<li>Wind or hail exterior damage</li>
-							<li>Slip-and-fall liability claim</li>
-						</ul>
-					</div>
-					<p className="text-[11px]">
-						Vacancy, specialty manufacturing, or hazardous storage may require
-						specialty markets.
-					</p>
-				</CardContent>
-			</Card>
-		</QuoteLayout>
+
+					{/* Coverage Overview */}
+					<Card className="mt-8 border-gray-200">
+						<CardHeader>
+							<CardTitle>Commercial Property Overview</CardTitle>
+							<CardDescription>
+								Core components & enhancement options.
+							</CardDescription>
+						</CardHeader>
+						<CardContent className="space-y-6 text-sm text-[#6c757d]">
+							<div>
+								<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
+									Core Coverage Areas
+								</h4>
+								<ul className="grid gap-2 sm:grid-cols-2">
+									<li>Building</li>
+									<li>Business Personal Property</li>
+									<li>Tenant Improvements</li>
+									<li>Loss of Business Income</li>
+									<li>General Liability</li>
+									<li>Equipment Breakdown</li>
+								</ul>
+							</div>
+							<div>
+								<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
+									Common Endorsements
+								</h4>
+								<ul className="grid gap-2 sm:grid-cols-2">
+									<li>Ordinance or Law</li>
+									<li>Outdoor Signs</li>
+									<li>Cyber Liability</li>
+									<li>Flood / Earthquake (separate)</li>
+									<li>Spoilage / Utility Services</li>
+									<li>Hired &amp; Non-Owned Auto</li>
+								</ul>
+							</div>
+							<div>
+								<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
+									Underwriting Focus
+								</h4>
+								<p className="text-xs leading-relaxed">
+									Construction class, protection (alarms/sprinklers), occupancy type,
+									neighboring exposures, updates to roof / HVAC / wiring / plumbing.
+								</p>
+							</div>
+							<div>
+								<h4 className="mb-2 text-[#1a1a1a] text-sm font-semibold uppercase tracking-wide">
+									Claim Examples
+								</h4>
+								<ul className="space-y-1">
+									<li>Fire loss &amp; business interruption</li>
+									<li>Wind or hail exterior damage</li>
+									<li>Slip-and-fall liability claim</li>
+								</ul>
+							</div>
+							<p className="text-[11px]">
+								Vacancy, specialty manufacturing, or hazardous storage may require
+								specialty markets.
+							</p>
+						</CardContent>
+					</Card>
+				</div>
+			</section>
+		</div>
 	);
 }

@@ -543,7 +543,7 @@ export default function AdminDashboard() {
           onSubmit={signIn}
           className="w-full max-w-sm space-y-4 rounded-xl border border-white/60 bg-white/80 backdrop-blur p-6 shadow-sm"
         >
-          <h1 className="text-xl font-semibold text-[#1B5A8E]">Admin Login</h1>
+          <h1 className="text-2xl font-semibold text-[#1B5A8E]">Admin Login</h1>
           {!GA_CLIENT_ID || !GA_PROPERTY_ID ? (
             <div className="rounded-md border border-yellow-300 bg-yellow-50 p-3 text-xs text-yellow-800">
               Missing GA env vars (VITE_GA_CLIENT_ID / VITE_GA_PROPERTY_ID). Set these in Vercel for Analytics.
@@ -554,24 +554,24 @@ export default function AdminDashboard() {
               Supabase env vars missing in production. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.
             </div>
           ) : null}
-          <div className="space-y-3 text-sm">
+          <div className="space-y-3 text-base">
             <div>
-              <label className="block text-gray-700 mb-1">Email</label>
+              <label className="block text-gray-700 mb-1 text-lg">Email</label>
               <input
                 type="email"
                 required
-                className="w-full rounded border border-gray-300 bg-white/90 px-3 py-2 text-sm"
+                className="w-full rounded border border-gray-300 bg-white/90 px-4 py-3 text-lg"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="username"
               />
             </div>
             <div>
-              <label className="block text-gray-700 mb-1">Password</label>
+              <label className="block text-gray-700 mb-1 text-lg">Password</label>
               <input
                 type="password"
                 required
-                className="w-full rounded border border-gray-300 bg-white/90 px-3 py-2 text-sm"
+                className="w-full rounded border border-gray-300 bg-white/90 px-4 py-3 text-lg"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="current-password"
@@ -585,7 +585,7 @@ export default function AdminDashboard() {
           >
             {authLoading ? "Signing in…" : "Sign In"}
           </Button>
-          <p className="text-[11px] text-gray-500">
+          <p className="text-sm text-gray-500">
             Authorized users only. Contact an existing admin to be added.
           </p>
         </form>
@@ -652,7 +652,7 @@ export default function AdminDashboard() {
             <button
               key={t}
               onClick={() => setTab(t as any)}
-              className={`px-4 py-2 text-sm rounded-full border transition
+              className={`px-5 py-3 text-lg rounded-full border transition
                 ${tab===t
                   ? "border-[#1B5A8E] bg-[#1B5A8E] text-white shadow"
                   : "border-transparent bg-white/60 text-gray-600 hover:border-[#1B5A8E] hover:text-[#1B5A8E]"}`}
@@ -678,9 +678,9 @@ export default function AdminDashboard() {
                 { label: "GA Page Views (7d)", val: gaPageViews7d ?? "-", sub: gaError ? <span className="text-xs text-red-600">{gaError}</span> : null },
               ].map((m,i) => (
                 <div key={i} className="rounded-xl border border-white/50 bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-md p-4 shadow-sm">
-                  <div className="text-xs text-gray-500">{m.label}</div>
-                  <div className="text-2xl font-semibold text-[#1B5A8E]">{m.val}</div>
-                  {m.sub && <div className="text-xs text-gray-600">{m.sub}</div>}
+                  <div className="text-sm text-gray-500">{m.label}</div>
+                  <div className="text-3xl font-semibold text-[#1B5A8E]">{m.val}</div>
+                  {m.sub && <div className="text-sm text-gray-600">{m.sub}</div>}
                 </div>
               ))}
             </div>
@@ -758,15 +758,15 @@ export default function AdminDashboard() {
         {tab === "quotes" && (
           <div className="space-y-6">
             <div className="rounded-xl border border-white/50 bg-white/70 backdrop-blur p-4">
-              <h2 className="mb-3 text-lg font-semibold text-[#1B5A8E]">Recent Quotes</h2>
+              <h2 className="mb-3 text-2xl font-semibold text-[#1B5A8E]">Recent Quotes</h2>
               {/* MOBILE CARD LIST */}
               <div className="sm:hidden space-y-3">
                 {quotes.map(r => (
                   <div key={r.id} onClick={() => openQuote(r)} className="rounded-lg border border-gray-200 bg-white/90 p-3 shadow-sm active:scale-[.99] transition cursor-pointer">
                     <div className="flex justify-between items-start">
                       <div>
-                        <div className="text-sm font-medium text-[#1B5A8E]">{r.name || "Unnamed"}</div>
-                        <div className="text-[11px] text-gray-500">{new Date(r.created_at).toLocaleString()}</div>
+                        <div className="text-base font-medium text-[#1B5A8E]">{r.name || "Unnamed"}</div>
+                        <div className="text-sm text-gray-500">{new Date(r.created_at).toLocaleString()}</div>
                       </div>
                       <span className={`text-[10px] px-2 py-1 rounded-full
                         ${r.quote_type === "auto" ? "bg-[#1B5A8E]/10 text-[#1B5A8E]" :
@@ -779,7 +779,7 @@ export default function AdminDashboard() {
                         {r.quote_type}
                       </span>
                     </div>
-                    <div className="mt-2 flex flex-wrap gap-2 text-xs text-gray-600">
+                    <div className="mt-2 flex flex-wrap gap-2 text-sm text-gray-600">
                       {r.email && <span>{r.email}</span>}
                       {r.phone && <span>{r.phone}</span>}
                     </div>
@@ -797,7 +797,7 @@ export default function AdminDashboard() {
               </div>
               {/* DESKTOP TABLE */}
               <div className="hidden sm:block overflow-auto rounded-lg border border-gray-100">
-                <table className="w-full text-xs">
+                <table className="w-full text-base">
                   <thead className="bg-gray-50 text-gray-600">
                     <tr>
                       <th className="p-2 text-left">When</th>
@@ -854,7 +854,7 @@ export default function AdminDashboard() {
         {/* CONTACTS (similar mobile card treatment) */}
         {tab === "contacts" && (
           <div className="rounded-xl border border-white/50 bg-white/70 backdrop-blur p-4">
-            <h2 className="mb-3 text-lg font-semibold text-[#1B5A8E]">Contact Requests</h2>
+            <h2 className="mb-3 text-2xl font-semibold text-[#1B5A8E]">Contact Requests</h2>
             {/* Mobile cards */}
             <div className="sm:hidden space-y-3">
               {contacts.map(r => {
@@ -891,7 +891,7 @@ export default function AdminDashboard() {
             </div>
             {/* Desktop table */}
             <div className="hidden sm:block overflow-auto rounded-lg border border-gray-100">
-              <table className="w-full text-xs">
+              <table className="w-full text-base">
                 <thead className="bg-gray-50 text-gray-600">
                   <tr>
                     <th className="p-2 text-left">When</th>
@@ -933,8 +933,8 @@ export default function AdminDashboard() {
 
         {/* SETTINGS */}
         {tab === "settings" && (
-          <div className="rounded-xl border border-white/50 bg-white/70 backdrop-blur p-4 space-y-4 text-sm">
-            <div className="font-medium">Settings</div>
+          <div className="rounded-xl border border-white/50 bg-white/70 backdrop-blur p-4 space-y-4 text-lg">
+            <div className="font-medium text-xl">Settings</div>
             <div className="rounded border p-3">
               <div className="mb-2 font-medium">Google Analytics Connection</div>
               <div className="grid gap-2 sm:grid-cols-2">
