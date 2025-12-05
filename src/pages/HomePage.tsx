@@ -322,20 +322,6 @@ export function HomePage() {
         
         {/* Gradient overlay to ensure text readability */}
         <div className="absolute inset-0 bg-gradient-to-br from-[#1B5A8E]/40 via-[#2C7DB8]/30 to-[#1B5A8E]/40" />
-        
-        <motion.div
-          animate={{
-            y: [0, 30, 0],
-            rotate: [0, -180, -360],
-          }}
-          transition={{
-            duration: 15,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-          className="absolute left-10 bottom-32 h-32 w-32 rounded-full bg-white/5 backdrop-blur-sm z-10"
-        />
-
         {/* Content */}
         <div className="relative mx-auto max-w-7xl px-4 py-24 sm:py-32 lg:px-8 lg:py-40 z-20">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
