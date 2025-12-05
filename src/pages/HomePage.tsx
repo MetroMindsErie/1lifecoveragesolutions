@@ -632,45 +632,96 @@ export function HomePage() {
       </section>
 
       {/* Why Choose Us Section (coral tint) */}
-      <section className="py-24 bg-[#1B5A8E] text-white relative overflow-hidden">
-         <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-[#2C7DB8] rounded-full opacity-50 blur-3xl"></div>
-         <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-96 h-96 bg-[#FF6B61] rounded-full opacity-20 blur-3xl"></div>
-        <div className="mx-auto max-w-7xl px-4 lg:px-8 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="mb-16 text-center"
-          >
-            <h2 className="mb-4 text-4xl font-bold text-white sm:text-5xl">
-              Why Choose 1Life Coverage?
-            </h2>
-            <p className="mx-auto max-w-2xl text-lg text-white/80">
-              We're not just another insurance company. We're your partner in protection.
-            </p>
-          </motion.div>
+      <section className="relative py-24 text-white overflow-hidden">
+        {/* Background Image */}
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage: 'url(images/insurance-3.jpg)',
+            backgroundPosition: 'center 60%',
+          }}
+        >
+          {/* Darker overlay for better text contrast */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#0D3B5E]/95 via-[#1B5A8E]/90 to-[#0D3B5E]/95" />
+        </div>
 
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
-            {whyChooseUs.map((item, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-              >
-                <Card className="h-full border-none bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300 text-white">
-                  <CardContent className="p-8">
-                    <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-[#FF6B61] shadow-lg">
-                      <item.icon className="h-7 w-7 text-white" />
+        {/* Decorative gradient blobs with enhanced colors */}
+        <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-[#2C7DB8] rounded-full opacity-30 blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-96 h-96 bg-[#FF6B61] rounded-full opacity-25 blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-r from-[#FF6B61]/10 to-[#2C7DB8]/10 rounded-full blur-3xl"></div>
+
+        <div className="mx-auto max-w-7xl px-4 lg:px-8 relative z-10">
+          {/* Less frosted outer container with gradient accent */}
+          <div 
+            className="rounded-3xl border-2 border-white/30 p-8 sm:p-12 shadow-2xl relative overflow-hidden"
+            style={{
+              backgroundColor: 'rgba(255, 255, 255, 0.08)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
+            }}
+          >
+            {/* Decorative gradient border accent */}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#FF6B61] to-transparent"></div>
+            
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+              className="mb-16 text-center"
+            >
+              <h2 className="mb-4 text-4xl font-bold text-white sm:text-5xl drop-shadow-[0_8px_24px_rgba(0,0,0,1)]">
+                Why Choose 1Life Coverage?
+              </h2>
+              <p className="mx-auto max-w-2xl text-xl text-white drop-shadow-[0_6px_20px_rgba(0,0,0,1)] font-bold">
+                We're not just another insurance company. We're your partner in protection.
+              </p>
+            </motion.div>
+
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
+              {whyChooseUs.map((item, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                  className="text-center"
+                >
+                  {/* Individual frosted container with gradient border */}
+                  <div 
+                    className="rounded-2xl border-2 p-8 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group"
+                    style={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                      backdropFilter: 'blur(16px)',
+                      WebkitBackdropFilter: 'blur(16px)',
+                      borderColor: index % 2 === 0 ? 'rgba(255, 107, 97, 0.4)' : 'rgba(44, 125, 184, 0.4)',
+                    }}
+                  >
+                    {/* Gradient accent on hover */}
+                    <div 
+                      className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300"
+                      style={{
+                        background: 'linear-gradient(135deg, rgba(255, 107, 97, 0.3) 0%, transparent 100%)'
+                      }}
+                    ></div>
+                    
+                    <div className="mb-6 flex justify-center relative z-10">
+                      <div 
+                        className="flex h-16 w-16 items-center justify-center rounded-xl shadow-2xl"
+                        style={{
+                          background:'linear-gradient(135deg, #2C7DB8 0%, #1B5A8E 100%)'
+                        }}
+                      >
+                        <item.icon className="h-8 w-8 text-white" />
+                      </div>
                     </div>
-                    <h3 className="mb-3 text-xl font-bold text-white">{item.title}</h3>
-                    <p className="text-sm text-white/80 leading-relaxed">{item.description}</p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
+                    <h3 className="mb-4 text-2xl font-extrabold text-white drop-shadow-[0_4px_12px_rgba(0,0,0,1)] relative z-10">{item.title}</h3>
+                    <p className="text-base text-white leading-relaxed font-bold drop-shadow-[0_4px_10px_rgba(0,0,0,0.9)] relative z-10">{item.description}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           </div>
         </div>
       </section>

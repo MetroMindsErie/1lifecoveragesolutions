@@ -270,7 +270,7 @@ export function PetQuotePage() {
 						{/* Frosted Glass Container */}
 						<div className="rounded-2xl bg-white/10 backdrop-blur-xl border border-white/30 p-8 shadow-2xl text-center">
 							<div className="mb-4 flex justify-center">
-								<div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm border border-white/40">
+								<div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-[#2C7DB8] to-[#1B5A8E] border border-white/40">
 									<Dog className="h-8 w-8 text-white" />
 								</div>
 							</div>

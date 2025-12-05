@@ -289,7 +289,7 @@ export function CommercialBuildingQuotePage() {
 	return (
 		<div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
 			{/* Header Section with Background Image */}
-			<section className="relative py-20 overflow-hidden">
+      <section className="relative py-24 overflow-hidden">
 				{/* Background Image */}
 				<div
 					className="absolute inset-0 bg-cover bg-center"
@@ -309,7 +309,7 @@ export function CommercialBuildingQuotePage() {
 						{/* Frosted Glass Container */}
 						<div className="rounded-2xl bg-white/10 backdrop-blur-xl border border-white/30 p-6 sm:p-8 shadow-2xl text-center">
 							<div className="mb-4 flex justify-center">
-								<div className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm border border-white/40">
+								<div className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-gradient-to-br from-[#2C7DB8] to-[#1B5A8E] border border-white/40">
 									<Building2 className="h-7 w-7 sm:h-8 sm:w-8 text-white" />
 								</div>
 							</div>
