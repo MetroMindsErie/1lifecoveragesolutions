@@ -15,22 +15,30 @@ interface TestimonialsProps {
   testimonials: Testimonial[];
   title?: string;
   description?: string;
+  backgroundImage?: string;
 }
 
-export function Testimonials({ testimonials, title, description }: TestimonialsProps) {
+export function Testimonials({ 
+  testimonials, 
+  title = "What Our Customers Say",
+  description,
+  backgroundImage
+}: TestimonialsProps) {
   return (
-    <section className="relative py-24 overflow-hidden">
-      {/* Gradient Background - Paper Mache Style */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#E8D5C4] via-[#C9E4F0] to-[#D4E8F7]" />
-      
-      {/* Additional gradient layers for depth */}
-      <div className="absolute inset-0 bg-gradient-to-tl from-[#FF6B61]/10 via-transparent to-[#1B5A8E]/5" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#FF6B61]/5 via-transparent to-transparent" />
-
-      {/* Decorative gradient blobs with coral colors */}
-      <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-[#FF6B61] rounded-full opacity-20 blur-3xl"></div>
-      <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-96 h-96 bg-[#2C7DB8] rounded-full opacity-15 blur-3xl"></div>
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-r from-[#2C7DB8]/10 to-[#FF6B61]/10 rounded-full blur-3xl"></div>
+    <section className="relative overflow-hidden py-16 sm:py-20 md:py-24">
+      {/* Background Image */}
+      {backgroundImage && (
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage: `url(${backgroundImage})`,
+            backgroundPosition: 'center',
+          }}
+        >
+          {/* Overlay for better text contrast */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#F8F9FA]/95 via-[#F8F9FA]/90 to-[#F8F9FA]/95" />
+        </div>
+      )}
 
       <div className="mx-auto max-w-7xl px-4 lg:px-8 relative z-10">
         {/* Frosted Glass Container */}

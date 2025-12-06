@@ -1,6 +1,7 @@
 import { HeroSection } from "../components/HeroSection";
 import { CoverageCard } from "../components/CoverageCard";
 import { Testimonials } from "../components/Testimonials";
+import { ValueProposition } from "../components/ValueProposition";
 import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
 import { motion } from "motion/react";
@@ -290,19 +291,24 @@ export function HomePage() {
     try { document.documentElement.style.setProperty("--brand-coral", BRAND_CORAL); } catch {}
     // Attempt DB override
     (async () => {
-      const { data } = await supabase
-        .from("pages_seo")
-        .select("title,description,canonical_url,og_image,json_ld")
-        .eq("path", "/")
-        .maybeSingle();
-      if (data) {
-        setHead({
-          title: data.title || "One Life. Total Coverage.",
-          description: data.description || undefined,
-          canonicalPath: data.canonical_url || "/",
-          ogImage: data.og_image || "/og/default.jpg",
-          jsonLd: data.json_ld || jsonLd,
-        });
+      try {
+        const { data } = await supabase
+          .from("pages_seo")
+          .select("title,description,canonical_url,og_image,json_ld")
+          .eq("path", "/")
+          .maybeSingle();
+        if (data) {
+          setHead({
+            title: data.title || "One Life. Total Coverage.",
+            description: data.description || undefined,
+            canonicalPath: data.canonical_url || "/",
+            ogImage: data.og_image || "/og/default.jpg",
+            jsonLd: data.json_ld || jsonLd,
+          });
+        }
+      } catch (error) {
+        console.warn('Failed to fetch SEO data from Supabase:', error);
+        // Continue with default SEO settings
       }
     })();
   }, []);
@@ -390,81 +396,11 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* Value Proposition (coral-tinted background) */}
-      <section className="py-16 sm:py-20 md:py-24 bg-[#F8F9FA] overflow-hidden">
-        <div className="mx-auto max-w-7xl px-4 lg:px-8">
-          <div className="grid grid-cols-1 gap-8 sm:gap-12 lg:grid-cols-2 lg:gap-16 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-            >
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[#FF6B61]/10 px-4 py-2">
-                <Sparkles className="h-4 w-4 text-[#FF6B61]" />
-                <span className="text-sm font-medium text-[#FF6B61]">Trusted by 500,000+ customers</span>
-              </div>
-              <h2 className="mb-6 text-4xl font-bold text-[#1B5A8E] sm:text-5xl">
-                Insurance Made Simple
-              </h2>
-              <p className="mb-6 text-lg text-[#6c757d] leading-relaxed">
-                At 1Life Coverage Solutions, we believe insurance should be straightforward, accessible, and tailored to your unique needs. Whether you're protecting your car, business, or loved ones, we're here to provide comprehensive coverage with exceptional service.
-              </p>
-              <p className="mb-8 text-lg text-[#6c757d] leading-relaxed">
-                Our team of experienced advisors works with you to find the perfect balance of coverage and affordability, ensuring you're never overpaying or underinsured.
-              </p>
-              <div className="flex flex-col gap-4 sm:flex-row">
-                <Button 
-                  className="bg-[#1B5A8E] hover:bg-[#144669] transition-colors text-white px-8 py-6 h-auto text-lg"
-                  asChild
-                >
-                  <a href="/about">
-                    Learn More About Us
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </a>
-                </Button>
-                <Button 
-                  variant="outline"
-                  className="border-[#1B5A8E] text-[#1B5A8E] hover:bg-[#1B5A8E] hover:text-white px-8 py-6 h-auto text-lg"
-                  asChild
-                >
-                  <a href="/contact">Contact an Agent</a>
-                </Button>
-              </div>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-              className="grid grid-cols-1 gap-6"
-            >
-              {features.map((feature, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                >
-                  <Card className="border-none shadow-md hover:shadow-xl transition-all duration-300 bg-white overflow-hidden group">
-                    <div className="absolute top-0 left-0 w-1 h-full bg-[#FF6B61] opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <CardContent className="flex items-start gap-6 p-8">
-                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-[#1B5A8E]/10 group-hover:bg-[#1B5A8E] transition-colors">
-                        <feature.icon className="h-7 w-7 text-[#1B5A8E] group-hover:text-white transition-colors" />
-                      </div>
-                      <div>
-                        <h3 className="mb-2 text-xl font-semibold text-[#1a1a1a]">{feature.title}</h3>
-                        <p className="text-base text-[#6c757d] leading-relaxed">{feature.description}</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
-            </motion.div>
-          </div>
-        </div>
-      </section>
+      {/* Value Proposition */}
+      <ValueProposition
+        features={features}
+        backgroundImage="/images/insurance-3.jpg"
+      />
 
       <section className="border-y py-16 sm:py-20 md:py-24 bg-white overflow-hidden">
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
@@ -607,6 +543,7 @@ export function HomePage() {
         testimonials={testimonials}
         title="What Our Customers Say"
         description="Join thousands of satisfied customers who trust 1Life Coverage Solutions"
+        backgroundImage="/images/insurance.jpg"
       />
 
       {/* CTA Section (use coral→blue gradient so footer shows coral) */}
