@@ -4,7 +4,8 @@ import { Testimonials } from "../components/Testimonials";
 import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
 import { motion } from "motion/react";
-import logo from "../assets/c1916fca24a402e9827626e05b952c97898461d8.png"; // NEW
+import logo from "../assets/c1916fca24a402e9827626e05b952c97898461d8.png";
+import { QuoteStarter } from "../components/QuoteStarter";
 import {
   Car,
   Building2,
@@ -308,7 +309,7 @@ export function HomePage() {
 
   return (
     <div>
-      {/* Enhanced Hero Section with animated elements */}
+      {/* Enhanced Hero Section with Quote Starter */}
       <section className="relative isolate overflow-hidden bg-gradient-to-br from-[#1B5A8E] via-[#2C7DB8] to-[#1B5A8E]">
         {/* Background collage image */}
         <div 
@@ -322,20 +323,22 @@ export function HomePage() {
         
         {/* Gradient overlay to ensure text readability */}
         <div className="absolute inset-0 bg-gradient-to-br from-[#1B5A8E]/40 via-[#2C7DB8]/30 to-[#1B5A8E]/40" />
+        
         {/* Content */}
-        <div className="relative mx-auto max-w-7xl px-4 py-24 sm:py-32 lg:px-8 lg:py-40 z-20">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            {/* Left side - Logo */}
+        <div className="relative mx-auto max-w-7xl px-4 py-16 sm:py-24 lg:px-8 lg:py-32 z-20">
+          {/* Mobile: Quote Starter at top, Logo below */}
+          {/* Desktop: Logo left, Quote Starter right */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            {/* Logo - shows second on mobile, first on desktop */}
             <motion.div
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
-              className="flex justify-center lg:justify-start"
+              className="flex justify-center lg:justify-start order-2 lg:order-1"
             >
               <div className="relative">
-                {/* Glow effect behind logo */}
                 <div className="absolute inset-0 bg-gradient-to-br from-[#FF6B61]/20 via-transparent to-[#1B5A8E]/20 blur-3xl" />
-                <div className="relative rounded-2xl p-6 shadow-[0_20px_60px_rgba(0,0,0,0.3)] bg-gradient-to-br from-white/15 via-white/10 to-white/5 backdrop-blur-xl border-2 border-white/20 w-72 h-72 sm:w-80 sm:h-80 lg:w-96 lg:h-96 flex items-center justify-center">
+                <div className="relative rounded-2xl p-6 shadow-[0_20px_60px_rgba(0,0,0,0.3)] bg-gradient-to-br from-white/15 via-white/10 to-white/5 backdrop-blur-xl border-2 border-white/20 w-64 h-64 sm:w-80 sm:h-80 lg:w-[28rem] lg:h-[28rem] flex items-center justify-center">
                   <img
                     src={logo}
                     alt="1Life Coverage Solutions"
@@ -345,90 +348,9 @@ export function HomePage() {
               </div>
             </motion.div>
 
-            {/* Right side - Text content */}
-            <div className="text-center lg:text-left">
-              {/* Frosted glass background container with branded accents */}
-              <div className="rounded-2xl bg-white/30 backdrop-blur-xl border-2 border-white/40 p-6 sm:p-8 shadow-2xl relative overflow-hidden">
-                {/* Decorative gradient accent - top left */}
-                <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-[#FF6B61]/20 to-transparent rounded-full blur-2xl" />
-                {/* Decorative gradient accent - bottom right */}
-                <div className="absolute bottom-0 right-0 w-40 h-40 bg-gradient-to-tl from-[#1B5A8E]/15 to-transparent rounded-full blur-2xl" />
-                
-                {/* Content - positioned relative to stay above decorative elements */}
-                <div className="relative z-10">
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.6, delay: 0.2 }}
-                    className="mb-6 inline-flex items-center gap-2 rounded-full px-6 py-3 backdrop-blur-md border-2 border-white/50 shadow-lg bg-white/35"
-                  >
-                    <Sparkles className="h-6 w-6 text-[#FF6B61]" />
-                    <span className="text-base font-bold text-[#1B5A8E] drop-shadow-sm">Trusted by 500,000+ customers</span>
-                  </motion.div>
-
-                  <motion.h1 
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.3 }}
-                    className="mb-6 text-5xl font-bold tracking-tight text-white sm:text-6xl lg:text-7xl drop-shadow-[0_4px_12px_rgba(0,0,0,0.4)]"
-                  >
-                    One Life. <br/>
-                    <span className="text-[#FF6B61] drop-shadow-[0_4px_12px_rgba(255,107,97,0.4)]">Total Coverage.</span>
-                  </motion.h1>
-
-                  <motion.p 
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.4 }}
-                    className="mb-8 text-lg sm:text-xl leading-relaxed font-semibold text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)]"
-                  >
-                    Comprehensive insurance solutions for individuals, families, and businesses. Protect what matters most with trusted coverage and exceptional service.
-                  </motion.p>
-
-                  {/* Hero Features with branded styling */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.5 }}
-                    className="mb-10 flex flex-wrap items-center justify-center lg:justify-start gap-6"
-                  >
-                    {heroFeatures.map((feature, index) => (
-                      <div key={index} className="flex items-center gap-3 bg-white/25 backdrop-blur-md rounded-full px-4 py-2 border border-white/40">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#FF6B61] to-[#E55A50] shadow-md">
-                          <feature.icon className="h-5 w-5 text-white" />
-                        </div>
-                        <span className="text-sm font-bold text-white drop-shadow-md">{feature.text}</span>
-                      </div>
-                    ))}
-                  </motion.div>
-
-                  <motion.div 
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.6 }}
-                    className="flex flex-col items-center lg:items-start justify-center gap-4 sm:flex-row"
-                  >
-                    <Button
-                      size="lg"
-                      className="w-full bg-gradient-to-r from-[#FF6B61] to-[#E55A50] text-white hover:from-[#E55A50] hover:to-[#D44940] border-none sm:w-auto transition-all hover:scale-105 shadow-xl text-lg px-8 py-6 h-auto font-bold"
-                      asChild
-                    >
-                      <a href="/quote">
-                        Get Your Free Quote
-                        <ArrowRight className="ml-2 h-5 w-5" />
-                      </a>
-                    </Button>
-                    <Button
-                      size="lg"
-                      variant="outline"
-                      className="w-full bg-white/20 text-white border-2 border-white/50 hover:bg-white hover:text-[#1B5A8E] sm:w-auto transition-all text-lg px-8 py-6 h-auto backdrop-blur-md font-bold shadow-lg"
-                      asChild
-                    >
-                      <a href="#coverage">Explore Coverage</a>
-                    </Button>
-                  </motion.div>
-                </div>
-              </div>
+            {/* Quote Starter - shows first on mobile, second on desktop */}
+            <div className="order-1 lg:order-2">
+              <QuoteStarter />
             </div>
           </div>
         </div>
@@ -545,7 +467,7 @@ export function HomePage() {
       </section>
 
       {/* Coverage Section - coral tint to reduce large white blocks */}
-      <section id="coverage" className="py-24 relative">
+      {/* <section id="coverage" className="py-24 relative">
         <div className="absolute inset-0 bg-[#1B5A8E]/5 skew-y-3 transform origin-top-left -z-10" />
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
           <motion.div
@@ -581,15 +503,12 @@ export function HomePage() {
                 />
               </motion.div>
             ))}
-            {/* Pet Insurance Quote Card */}
             <PetQuoteCard />
-            {/* Renters Insurance Quote Card */}
             <RentersQuoteCard />
           </div>
         </div>
-      </section>
+      </section> */}
 
-      {/* Industries We Serve (subtle coral background) */}
       <section className="border-y py-24 bg-white">
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
           <motion.div
