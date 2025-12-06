@@ -68,7 +68,7 @@ export function ValueProposition({
                 <Sparkles className="h-4 w-4 text-[#FF6B61]" />
                 <span className="text-sm font-medium text-[#FF6B61]">{subtitle}</span>
               </div>
-              <h2 className="mb-6 text-6xl font-black text-[#1B5A8E] sm:text-6xl lg:text-7xl">
+              <h2 className="mb-6 text-5xl font-black text-[#1B5A8E] sm:text-6xl lg:text-7xl" style={{ textShadow: '0 0 1px rgba(27, 90, 142, 0.5)' }}>
                 {title}
               </h2>
               <p className="mb-6 text-xl font-black text-[#1B5A8E] leading-relaxed">
