@@ -308,7 +308,7 @@ export function HomePage() {
   }, []);
 
   return (
-    <div>
+    <div className="overflow-x-hidden">
       {/* Enhanced Hero Section with Quote Starter */}
       <section className="relative isolate overflow-hidden bg-gradient-to-br from-[#1B5A8E] via-[#2C7DB8] to-[#1B5A8E]">
         {/* Background collage image */}
@@ -325,10 +325,10 @@ export function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-br from-[#1B5A8E]/40 via-[#2C7DB8]/30 to-[#1B5A8E]/40" />
         
         {/* Content */}
-        <div className="relative mx-auto max-w-7xl px-4 py-16 sm:py-24 lg:px-8 lg:py-32 z-20">
+        <div className="relative mx-auto max-w-7xl px-4 py-12 sm:py-16 md:py-24 lg:px-8 lg:py-32 z-20">
           {/* Mobile: Quote Starter at top, Logo below */}
           {/* Desktop: Logo left, Quote Starter right */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-center">
             {/* Logo - shows second on mobile, first on desktop */}
             <motion.div
               initial={{ opacity: 0, x: -50 }}
@@ -336,9 +336,9 @@ export function HomePage() {
               transition={{ duration: 0.8 }}
               className="flex justify-center lg:justify-start order-2 lg:order-1"
             >
-              <div className="relative">
+              <div className="relative w-full max-w-[16rem] sm:max-w-[20rem] lg:max-w-[28rem]">
                 <div className="absolute inset-0 bg-gradient-to-br from-[#FF6B61]/20 via-transparent to-[#1B5A8E]/20 blur-3xl" />
-                <div className="relative rounded-2xl p-6 shadow-[0_20px_60px_rgba(0,0,0,0.3)] bg-gradient-to-br from-white/15 via-white/10 to-white/5 backdrop-blur-xl border-2 border-white/20 w-64 h-64 sm:w-80 sm:h-80 lg:w-[28rem] lg:h-[28rem] flex items-center justify-center">
+                <div className="relative rounded-2xl p-4 sm:p-6 shadow-[0_20px_60px_rgba(0,0,0,0.3)] bg-gradient-to-br from-white/15 via-white/10 to-white/5 backdrop-blur-xl border-2 border-white/20 aspect-square flex items-center justify-center">
                   <img
                     src={logo}
                     alt="1Life Coverage Solutions"
@@ -349,7 +349,7 @@ export function HomePage() {
             </motion.div>
 
             {/* Quote Starter - shows first on mobile, second on desktop */}
-            <div className="order-1 lg:order-2">
+            <div className="order-1 lg:order-2 w-full">
               <QuoteStarter />
             </div>
           </div>
@@ -363,9 +363,9 @@ export function HomePage() {
       {/* <PartnerTicker /> */}
 
       {/* Stats Section - subtle coral tint background */}
-      <section className="border-b py-16 bg-white">
+      <section className="border-b py-12 sm:py-16 bg-white overflow-hidden">
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
-          <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-6 sm:gap-8 lg:grid-cols-4">
             {stats.map((stat, index) => (
               <motion.div
                 key={index}
@@ -391,9 +391,9 @@ export function HomePage() {
       </section>
 
       {/* Value Proposition (coral-tinted background) */}
-      <section className="py-24 bg-[#F8F9FA]">
+      <section className="py-16 sm:py-20 md:py-24 bg-[#F8F9FA] overflow-hidden">
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
-          <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-16 items-center">
+          <div className="grid grid-cols-1 gap-8 sm:gap-12 lg:grid-cols-2 lg:gap-16 items-center">
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -466,57 +466,14 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* Coverage Section - coral tint to reduce large white blocks */}
-      {/* <section id="coverage" className="py-24 relative">
-        <div className="absolute inset-0 bg-[#1B5A8E]/5 skew-y-3 transform origin-top-left -z-10" />
+      <section className="border-y py-16 sm:py-20 md:py-24 bg-white overflow-hidden">
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
-            className="mb-16 text-center"
-          >
-            <h2 className="mb-4 text-4xl font-bold text-[#1B5A8E] sm:text-5xl">
-              Comprehensive Coverage Solutions
-            </h2>
-            <p className="mx-auto max-w-2xl text-lg text-[#6c757d]">
-              Whether you're protecting your car, business, or loved ones, we've got you covered with flexible plans and competitive rates.
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {coverageTypes.map((coverage, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.08 }}
-                viewport={{ once: true }}
-              >
-                <CoverageCard
-                  title={coverage.title}
-                  description={coverage.description}
-                  icon={coverage.icon}
-                  href={coverage.href}
-                  image={coverage.image}
-                />
-              </motion.div>
-            ))}
-            <PetQuoteCard />
-            <RentersQuoteCard />
-          </div>
-        </div>
-      </section> */}
-
-      <section className="border-y py-24 bg-white">
-        <div className="mx-auto max-w-7xl px-4 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="mb-16 text-center"
+            className="mb-12 sm:mb-16 text-center"
           >
             <h2 className="mb-4 text-4xl font-bold text-[#1B5A8E] sm:text-5xl">
               Industries We Serve
@@ -526,7 +483,7 @@ export function HomePage() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-6">
+          <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 lg:grid-cols-6">
             {industries.map((industry, index) => (
               <motion.div
                 key={index}
@@ -551,7 +508,7 @@ export function HomePage() {
       </section>
 
       {/* Why Choose Us Section (coral tint) */}
-      <section className="relative py-24 text-white overflow-hidden">
+      <section className="relative py-16 sm:py-20 md:py-24 text-white overflow-hidden">
         {/* Background Image */}
         <div
           className="absolute inset-0 bg-cover bg-center"
@@ -572,7 +529,7 @@ export function HomePage() {
         <div className="mx-auto max-w-7xl px-4 lg:px-8 relative z-10">
           {/* Less frosted outer container with gradient accent */}
           <div 
-            className="rounded-3xl border-2 border-white/30 p-8 sm:p-12 shadow-2xl relative overflow-hidden"
+            className="rounded-2xl sm:rounded-3xl border-2 border-white/30 p-6 sm:p-8 md:p-12 shadow-2xl relative overflow-hidden"
             style={{
               backgroundColor: 'rgba(255, 255, 255, 0.08)',
               backdropFilter: 'blur(12px)',
@@ -587,17 +544,17 @@ export function HomePage() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
-              className="mb-16 text-center"
+              className="mb-12 sm:mb-16 text-center"
             >
-              <h2 className="mb-4 text-4xl font-bold text-white sm:text-5xl drop-shadow-[0_8px_24px_rgba(0,0,0,1)]">
+              <h2 className="mb-4 text-3xl sm:text-4xl font-bold text-white md:text-5xl drop-shadow-[0_8px_24px_rgba(0,0,0,1)]">
                 Why Choose 1Life Coverage?
               </h2>
-              <p className="mx-auto max-w-2xl text-xl text-white drop-shadow-[0_6px_20px_rgba(0,0,0,1)] font-bold">
+              <p className="mx-auto max-w-2xl text-lg sm:text-xl text-white drop-shadow-[0_6px_20px_rgba(0,0,0,1)] font-bold px-4">
                 We're not just another insurance company. We're your partner in protection.
               </p>
             </motion.div>
 
-            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-4">
               {whyChooseUs.map((item, index) => (
                 <motion.div
                   key={index}
@@ -653,7 +610,7 @@ export function HomePage() {
       />
 
       {/* CTA Section (use coral→blue gradient so footer shows coral) */}
-      <section className="relative overflow-hidden py-24">
+      <section className="relative overflow-hidden py-16 sm:py-20 md:py-24">
         <div className="absolute inset-0 bg-gradient-to-r from-[#FF6B61] to-[#1B5A8E]" />
         <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
         <div className="mx-auto max-w-7xl px-4 text-center lg:px-8 relative z-10">
