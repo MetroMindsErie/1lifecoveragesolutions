@@ -112,7 +112,7 @@ export function UmbrellaQuotePage() {
 				{ name: "name", label: "Full Name", type: "text", required: true },
 				{ name: "email", label: "Email Address", type: "email", required: true },
 				{ name: "phone", label: "Phone Number", type: "tel", required: true },
-				{ name: "preferred_contact_method", label: "Preferred Contact Method", type: "select", options: ["Phone", "Email", "Text"] },
+				{ name: "preferred_contact_method", label: "Preferred Contact Method", type: "select", options: ["Phone", "Email"] },
 			]
 		},
 		{
@@ -121,8 +121,7 @@ export function UmbrellaQuotePage() {
 			subtitle: "Help us understand your coverage needs",
 			fields: [
 				{ name: "address", label: "Address", type: "text" },
-				{ name: "dob", label: "Date of Birth", type: "date" },
-				{ name: "drivers_license_number", label: "Driver's License Number", type: "text" },
+				{ name: "dob", label: "Date of Birth", type: "date" }
 			]
 		},
 		{
@@ -142,21 +141,18 @@ export function UmbrellaQuotePage() {
 			fields: [
 				{ name: "household_drivers", label: "Number of Drivers in Household", type: "select", options: ["1","2","3","4","5","6+"], otherLabel: "Other" },
 				{ name: "household_vehicles", label: "Number of Vehicles", type: "select", options: ["1","2","3","4","5","6+"], otherLabel: "Other" },
-				{ name: "valuables_description", label: "High-value items? Describe if yes", type: "textarea", placeholder: "Jewelry, art, collectibles, etc." },
 				{ name: "rental_properties", label: "Rental Properties?", type: "select", options: ["Yes","No"] },
 				{ name: "watercraft", label: "Watercraft/Boats?", type: "select", options: ["Yes","No"] },
 			]
 		},
 		{
 			id: "pets",
-			title: "Tell us about your pets",
-			subtitle: "Pet ownership affects liability coverage",
+			title: "Tell us about your dogs",
+			subtitle: "Dog ownership affects liability coverage",
 			fields: [
-				{ name: "pets_have", label: "Do you have pets?", type: "select", options: ["Yes", "No"] },
-				{ name: "pets_type", label: "Type of Pet(s)", type: "select", options: ["Dog", "Cat", "Bird", "Reptile"] },
-				{ name: "pets_count", label: "Number of Pets", type: "text" },
-				{ name: "dog_breeds", label: "Dog Breed(s)", type: "text" },
-				{ name: "pets_bite_history", label: "Any pets with a history of bites/claims?", type: "select", options: ["Yes", "No"] },
+				{ name: "dogs_have", label: "Do you have any dogs in the household?", type: "select", options: ["Yes", "No"] },
+				{ name: "dog_breeds", label: "If yes, please list breed(s)", type: "text" },
+				{ name: "dogs_bite_history", label: "Any bite/claim history?", type: "select", options: ["Yes", "No"] }
 			]
 		},
 		{

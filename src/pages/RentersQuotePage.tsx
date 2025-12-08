@@ -30,7 +30,7 @@ export function RentersQuotePage() {
         { name: "name", label: "Full Name", type: "text", required: true },
         { name: "email", label: "Email Address", type: "email", required: true },
         { name: "phone", label: "Phone Number", type: "tel", required: true },
-        { name: "preferred_contact_method", label: "Preferred Contact Method", type: "select", options: ["Phone", "Email", "Text"] },
+        { name: "preferred_contact_method", label: "Preferred Contact Method", type: "select", options: ["Phone", "Email"] },
       ]
     },
     {

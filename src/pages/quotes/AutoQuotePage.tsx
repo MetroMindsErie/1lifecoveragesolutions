@@ -63,7 +63,7 @@ export function AutoQuotePage() {
 				{ name: "name", label: "What's your full name?", type: "text", required: true },
 				{ name: "email", label: "Your email address", type: "email", required: true },
 				{ name: "phone", label: "Phone number", type: "tel", required: true },
-				{ name: "preferred_contact_method", label: "How should we reach you?", type: "select", options: ["Phone", "Email", "Text"] },
+				{ name: "preferred_contact_method", label: "How should we reach you?", type: "select", options: ["Phone", "Email"] },
 			]
 		},
 		{

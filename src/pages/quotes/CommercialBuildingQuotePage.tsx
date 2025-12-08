@@ -186,6 +186,9 @@ export function CommercialBuildingQuotePage() {
 				{ name: "additional_coverage", label: "Additional Coverage Requested", type: "text", placeholder: "Flood / Earthquake / Equipment Breakdown / Ordinance or Law / Business Interruption / Other" },
 				{ name: "prior_claims", label: "Any previous claims or losses in last 5 years?", type: "select", options: ["Yes", "No"] },
 				{ name: "prior_claims_description", label: "If yes, please describe", type: "textarea" },
+				{ name: "electrical_update_year", label: "What year was the electrical system updated?", type: "text" },
+				{ name: "plumbing_update_year", label: "What year was the plumbing updated?", type: "text" },
+				{ name: "can_provide_loss_history", label: "Would you be able to provide a 5 year loss history?", type: "select", options: ["Yes", "No"] }
 			]
 		},
 		{

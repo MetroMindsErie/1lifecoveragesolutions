@@ -112,7 +112,7 @@ export function PetQuotePage() {
 				{ name: "name", label: "What's your full name?", type: "text", required: true },
 				{ name: "email", label: "Your email address", type: "email", required: true },
 				{ name: "phone", label: "Phone number", type: "tel", required: true },
-				{ name: "preferred_contact_method", label: "How should we reach you?", type: "select", options: ["Phone", "Email", "Text"] },
+				{ name: "preferred_contact_method", label: "How should we reach you?", type: "select", options: ["Phone", "Email"] },
 			]
 		},
 		{
@@ -121,7 +121,7 @@ export function PetQuotePage() {
 			subtitle: "The basics help us find the right coverage",
 			fields: [
 				{ name: "pet_name", label: "What's your pet's name?", type: "text" },
-				{ name: "pet_type", label: "What type of pet?", type: "select", options: ["Dog", "Cat", "Other"] },
+				{ name: "pet_type", label: "What type of pet?", type: "select", options: ["Dog", "Cat"] },
 				{ name: "pet_breed", label: "Breed", type: "text" },
 				{ name: "pet_sex", label: "Male or Female?", type: "select", options: ["Male", "Female"] },
 			]
@@ -151,7 +151,6 @@ export function PetQuotePage() {
 			title: "Almost done!",
 			subtitle: "Just a couple more questions",
 			fields: [
-				{ name: "address", label: "Your full address", type: "text" },
 				{ name: "additional_quotes_interest", label: "Interested in other insurance?", type: "select", options: ["Auto", "Homeowners", "Renters", "Life", "Business", "Umbrella", "None"] },
 				{ name: "referral_source", label: "How did you hear about us?", type: "select", options: ["Google", "Referral", "Social Media", "Advertising"] },
 			]

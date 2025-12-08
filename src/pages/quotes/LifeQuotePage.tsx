@@ -116,7 +116,7 @@ export function LifeQuotePage() {
 			fields: [
 				{ name: "name", label: "What's your full name?", type: "text", required: true },
 				{ name: "dob", label: "Date of birth", type: "date", required: true },
-				{ name: "gender", label: "Gender", type: "select", options: ["Male","Female","Non-Binary","Prefer Not to Say"] },
+				{ name: "gender", label: "Gender", type: "select", options: ["Male","Female"] },
 				{ name: "occupation", label: "Current occupation", type: "select", options: ["Professional","Skilled Trade","Manager","Sales","Service","Student","Retired","Other"] },
 			]
 		},
@@ -136,8 +136,7 @@ export function LifeQuotePage() {
 			subtitle: "Help us understand your goals",
 			fields: [
 				{ name: "policy_type", label: "Type of life insurance", type: "select", options: ["Term", "Whole Life", "Universal Life", "Guaranteed UL", "Final Expense", "No-Exam"] },
-				{ name: "coverage_amount", label: "Desired coverage amount ($)", type: "select", options: ["100000", "250000", "500000", "750000", "1000000", "2000000", "3000000"], otherLabel: "Custom" },
-				{ name: "term_years", label: "Desired policy term (years)", type: "select", options: ["10", "15", "20", "25", "30", "35", "40"], otherLabel: "Custom" },
+				{ name: "coverage_amount", label: "Desired coverage amount ($)", type: "select", options: ["100000", "250000", "500000", "750000", "1000000", "2000000", "3000000"], otherLabel: "Custom" }
 			]
 		},
 		{
@@ -157,8 +156,7 @@ export function LifeQuotePage() {
 			fields: [
 				{ name: "height", label: "Height", type: "select", options: ["<5'0\"","5'0\"-5'5\"","5'6\"-5'9\"","5'10\"-6'1\"","6'2\"+"] },
 				{ name: "weight", label: "Weight (lbs)", type: "select", options: ["<120","120-149","150-179","180-209","210-239","240+"] },
-				{ name: "tobacco_use", label: "Tobacco use", type: "select", options: ["Never","Former","Current"] },
-				{ name: "alcohol_use", label: "Alcohol use", type: "select", options: ["None","Social","Moderate","High"] },
+				{ name: "tobacco_use", label: "Tobacco use", type: "select", options: ["Never","Former","Current"] }
 			]
 		},
 		{
@@ -394,6 +392,26 @@ export function LifeQuotePage() {
 												)}
 											</motion.div>
 										))}
+										{/* Conditionally show term years only if Term is selected */}
+										{currentStep === 2 && formData.policy_type === "Term" && (
+											<motion.div
+												initial={{ opacity: 0, y: 10 }}
+												animate={{ opacity: 1, y: 0 }}
+												transition={{ delay: 0.14 }}
+												className="space-y-2 p-4 rounded-lg border border-gray-200 bg-white/60"
+											>
+												<Label className="text-sm sm:text-base font-medium text-[#1a1a1a]">
+													Desired policy term (years)
+												</Label>
+												<SelectWithOther
+													name="term_years"
+													options={["10", "15", "20", "25", "30", "35", "40"]}
+													value={formData.term_years || ""}
+													onChange={(v) => handleFieldChange("term_years", v)}
+													otherLabel="Custom"
+												/>
+											</motion.div>
+										)}
 									</div>
 								</motion.div>
 							</AnimatePresence>
