@@ -48,7 +48,15 @@
     @apply bg-background text-foreground;
     font-family: 'Inter', sans-serif;
     -webkit-font-smoothing: antialiased;
-    font-size: 22px; /* Increased base font size */
+    font-size: 22px;
+    margin: 0;
+    padding: 0;  
+    background-color: #0B1F3A;
+  }
+
+  html {
+    margin: 0;
+    padding: 0;
   }
 
   h1 { font-size: var(--h1); font-weight: 700; line-height: 1.15; }

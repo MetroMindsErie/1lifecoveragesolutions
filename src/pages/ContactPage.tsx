@@ -123,7 +123,6 @@ export function ContactPage() {
                         <br />
                         <a href="tel:2164557283" className="hover:underline">216-455-RATE (7283)</a>
                       </p>
-                      <p className="text-sm text-[#6c757d]">Mon-Fri 8am-8pm EST</p>
                     </div>
                   </div>
 

@@ -114,8 +114,8 @@ export function Testimonials({
                         <User className="h-6 w-6 text-white" />
                       </div>
                       <div>
-                        <p className="font-semibold text-[#1B5A8E]">{testimonial.name}</p>
-                        <p className="text-sm text-[#6c757d]">
+                        <p className="font-semibold text-[#1a1a1a]">{testimonial.name}</p>
+                        <p className="text-sm text-[#1a1a1a]">
                           {testimonial.role} • {testimonial.company}
                         </p>
                       </div>

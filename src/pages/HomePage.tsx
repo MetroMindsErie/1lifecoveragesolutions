@@ -25,13 +25,21 @@ import {
   Target,
   Home,
   Umbrella,
-  Briefcase
+  Briefcase,
+  Waves,
+  Caravan,
+  Snowflake,
+  Key,
+  HomeIcon,
+  FileText,
+  PartyPopper
 } from "lucide-react";
 // import { PartnerTicker } from "../components/PartnerTicker";
 import { useEffect } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { PetQuoteCard } from "../components/quotes/PetQuoteCard";
 import { RentersQuoteCard } from "../components/quotes/RentersQuoteCard";
+import { SpecialtyTicker } from "../components/SpecialtyTicker";
 
 // SEO helpers
 function absUrl(path: string) {
@@ -247,23 +255,21 @@ const whyChooseUs = [
   },
 ];
 
-const industries = [
-  { name: "Healthcare", count: "50K+ policies" },
-  { name: "Technology", count: "35K+ policies" },
-  { name: "Manufacturing", count: "42K+ policies" },
-  { name: "Retail", count: "38K+ policies" },
-  { name: "Construction", count: "45K+ policies" },
-  { name: "Hospitality", count: "28K+ policies" },
-];
-
-const heroFeatures = [
-  { icon: Zap, text: "Instant Quotes" },
-  { icon: Shield, text: "Trusted Protection" },
-  { icon: Target, text: "Custom Coverage" },
+const specialtyCoverages = [
+  { name: "Classic Vehicles", icon: Car },
+  { name: "SR-22", icon: FileText },
+  { name: "Dispensaries", icon: Building2 },
+  { name: "Special Event", icon: PartyPopper },
+  { name: "Flood", icon: Waves },
+  { name: "RV", icon: Caravan },
+  { name: "Snowmobile", icon: Snowflake },
+  { name: "Landlord", icon: Key },
+  { name: "Vacant Homes", icon: HomeIcon },
 ];
 
 // NEW: additional theme color (coral)
 const BRAND_CORAL = "#FF6B61";
+const PAGE_TITLE = "One Life. Total Coverage.";
 
 export function HomePage() {
   useEffect(() => {
@@ -272,7 +278,7 @@ export function HomePage() {
       "@type": "InsuranceAgency",
       name: "1Life Coverage Solutions",
       url: absUrl("/"),
-      logo: {logo},
+      logo: { logo },
       sameAs: [
         "https://www.facebook.com/",
         "https://www.linkedin.com/",
@@ -280,7 +286,7 @@ export function HomePage() {
       ]
     };
     setHead({
-      title: "One Life. Total Coverage.",
+      title: PAGE_TITLE,
       description:
         "Compare auto, home, life, and business insurance with 1Life Coverage Solutions. Fast quotes and trusted protection.",
       canonicalPath: "/",
@@ -288,7 +294,7 @@ export function HomePage() {
       jsonLd,
     });
     // ensure coral is available even if Header useEffect not run yet
-    try { document.documentElement.style.setProperty("--brand-coral", BRAND_CORAL); } catch {}
+    try { document.documentElement.style.setProperty("--brand-coral", BRAND_CORAL); } catch { }
     // Attempt DB override
     (async () => {
       try {
@@ -299,7 +305,7 @@ export function HomePage() {
           .maybeSingle();
         if (data) {
           setHead({
-            title: data.title || "One Life. Total Coverage.",
+            title: data.title || PAGE_TITLE,
             description: data.description || undefined,
             canonicalPath: data.canonical_url || "/",
             ogImage: data.og_image || "/og/default.jpg",
@@ -314,11 +320,11 @@ export function HomePage() {
   }, []);
 
   return (
-    <div className="overflow-x-hidden">
+    <div className="pb-24 lg:pb-32 bg-[#1a1a1a]">
       {/* Enhanced Hero Section with Quote Starter */}
       <section className="relative isolate overflow-hidden bg-gradient-to-br from-[#1B5A8E] via-[#2C7DB8] to-[#1B5A8E]">
         {/* Background collage image */}
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center opacity-30"
           style={{
             backgroundImage: 'url(/images/insurance-2.jpg)',
@@ -326,10 +332,10 @@ export function HomePage() {
             backgroundPosition: 'center',
           }}
         />
-        
+
         {/* Gradient overlay to ensure text readability */}
         <div className="absolute inset-0 bg-gradient-to-br from-[#1B5A8E]/40 via-[#2C7DB8]/30 to-[#1B5A8E]/40" />
-        
+
         {/* Content */}
         <div className="relative mx-auto max-w-7xl px-4 py-12 sm:py-16 md:py-24 lg:px-8 lg:py-32 z-20">
           {/* Mobile: Quote Starter at top, Logo below */}
@@ -344,7 +350,7 @@ export function HomePage() {
             >
               <div className="relative w-full max-w-[16rem] sm:max-w-[20rem] lg:max-w-[28rem]">
                 <div className="absolute inset-0 bg-gradient-to-br from-[#FF6B61]/20 via-transparent to-[#1B5A8E]/20 blur-3xl" />
-                <div className="relative rounded-2xl p-4 sm:p-6 shadow-[0_20px_60px_rgba(0,0,0,0.3)] bg-gradient-to-br from-white/15 via-white/10 to-white/5 backdrop-blur-xl border-2 border-white/20 aspect-square flex items-center justify-center">
+                <div className="relative rounded-2xl p-4 sm:p-6 shadow-[0_20px_60px_rgba(0,0,0,0.3)] bg-gradient-to-br from-[#0B1F3A]/15 via-white/10 to-white/5 backdrop-blur-xl border-2 border-white/20 aspect-square flex items-center justify-center">
                   <img
                     src={logo}
                     alt="1Life Coverage Solutions"
@@ -362,39 +368,11 @@ export function HomePage() {
         </div>
 
         {/* Bottom gradient fade */}
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#0B1F3A] to-transparent" />
       </section>
 
       {/* NEW: Partner / Carrier Ticker */}
       {/* <PartnerTicker /> */}
-
-      {/* Stats Section - subtle coral tint background */}
-      <section className="border-b py-12 sm:py-16 bg-white overflow-hidden">
-        <div className="mx-auto max-w-7xl px-4 lg:px-8">
-          <div className="grid grid-cols-2 gap-6 sm:gap-8 lg:grid-cols-4">
-            {stats.map((stat, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="text-center group"
-              >
-                <div className="mb-4 flex justify-center">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#1B5A8E]/5 group-hover:bg-[#1B5A8E]/10 transition-colors">
-                    <stat.icon className="h-8 w-8 text-[#1B5A8E]" />
-                  </div>
-                </div>
-                <div className="mb-1 text-4xl font-bold text-[#1B5A8E]">
-                  {stat.value}
-                </div>
-                <p className="text-sm font-medium text-[#6c757d] uppercase tracking-wider">{stat.label}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Value Proposition */}
       <ValueProposition
@@ -402,49 +380,8 @@ export function HomePage() {
         backgroundImage="/images/insurance-3.jpg"
       />
 
-      <section className="border-y py-16 sm:py-20 md:py-24 bg-white overflow-hidden">
-        <div className="mx-auto max-w-7xl px-4 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="mb-12 sm:mb-16 text-center"
-          >
-            <h2 className="mb-4 text-4xl font-bold text-[#1B5A8E] sm:text-5xl">
-              Industries We Serve
-            </h2>
-            <p className="mx-auto max-w-2xl text-lg text-[#6c757d]">
-              Specialized insurance solutions for businesses across diverse sectors
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 lg:grid-cols-6">
-            {industries.map((industry, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.4, delay: index * 0.05 }}
-                viewport={{ once: true }}
-              >
-                <Card className="border-gray-100 shadow-sm transition-all duration-300 hover:border-[#FF6B61] hover:shadow-lg hover:-translate-y-1 group cursor-default">
-                  <CardContent className="p-6 text-center">
-                    <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#1B5A8E]/5 group-hover:bg-[#FF6B61]/10 transition-colors">
-                      <Building2 className="h-6 w-6 text-[#1B5A8E] group-hover:text-[#FF6B61] transition-colors" />
-                    </div>
-                    <h3 className="mb-1 text-sm font-semibold text-[#1a1a1a]">{industry.name}</h3>
-                    <p className="text-xs text-[#6c757d]">{industry.count}</p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Why Choose Us Section (coral tint) */}
-      <section className="relative py-16 sm:py-20 md:py-24 text-white overflow-hidden">
+      <section className="relative py-16 sm:py-20 md:py-24 text-white">
         {/* Background Image */}
         <div
           className="absolute inset-0 bg-cover bg-center"
@@ -464,7 +401,7 @@ export function HomePage() {
 
         <div className="mx-auto max-w-7xl px-4 lg:px-8 relative z-10">
           {/* Less frosted outer container with gradient accent */}
-          <div 
+          <div
             className="rounded-2xl sm:rounded-3xl border-2 border-white/30 p-6 sm:p-8 md:p-12 shadow-2xl relative overflow-hidden"
             style={{
               backgroundColor: 'rgba(255, 255, 255, 0.08)',
@@ -474,7 +411,7 @@ export function HomePage() {
           >
             {/* Decorative gradient border accent */}
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#FF6B61] to-transparent"></div>
-            
+
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -501,7 +438,7 @@ export function HomePage() {
                   className="text-center"
                 >
                   {/* Individual frosted container with gradient border */}
-                  <div 
+                  <div
                     className="rounded-2xl border-2 p-8 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group"
                     style={{
                       backgroundColor: 'rgba(255, 255, 255, 0.15)',
@@ -511,18 +448,18 @@ export function HomePage() {
                     }}
                   >
                     {/* Gradient accent on hover */}
-                    <div 
+                    <div
                       className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300"
                       style={{
                         background: 'linear-gradient(135deg, rgba(255, 107, 97, 0.3) 0%, transparent 100%)'
                       }}
                     ></div>
-                    
+
                     <div className="mb-6 flex justify-center relative z-10">
-                      <div 
+                      <div
                         className="flex h-16 w-16 items-center justify-center rounded-xl shadow-2xl"
                         style={{
-                          background:'linear-gradient(135deg, #2C7DB8 0%, #1B5A8E 100%)'
+                          background: 'linear-gradient(135deg, #2C7DB8 0%, #1B5A8E 100%)'
                         }}
                       >
                         <item.icon className="h-8 w-8 text-white" />
@@ -535,49 +472,24 @@ export function HomePage() {
               ))}
             </div>
           </div>
+
         </div>
       </section>
 
       {/* Testimonials Section */}
-      <Testimonials
-        testimonials={testimonials}
-        title="What Our Customers Say"
-        description="Join thousands of satisfied customers who trust 1Life Coverage Solutions"
-        backgroundImage="/images/insurance.jpg"
-      />
+      <div className="mb-0">
+        <Testimonials
+          testimonials={testimonials}
+          title="What Our Customers Say"
+          description="Join thousands of satisfied customers who trust 1Life Coverage Solutions"
+          backgroundImage="/images/insurance.jpg"
+        />
+      </div>
 
-      {/* CTA Section (use coral→blue gradient so footer shows coral) */}
-      <section className="relative overflow-hidden py-16 sm:py-20 md:py-24">
-        <div className="absolute inset-0 bg-gradient-to-r from-[#FF6B61] to-[#1B5A8E]" />
-        <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
-        <div className="mx-auto max-w-7xl px-4 text-center lg:px-8 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="mx-auto max-w-3xl"
-          >
-            <h2 className="mb-6 text-4xl font-bold text-white sm:text-5xl">
-              Ready to protect what matters?
-            </h2>
-            <p className="mb-10 text-xl text-white/90">
-              Get an instant quote or speak with an agent today to find coverage that fits your needs and budget.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto text-[#FF6B61] border-white hover:bg-white/10 text-lg px-8 py-6 h-auto" asChild>
-                <a href="/quote">
-                  Get a Free Quote
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </a>
-              </Button>
-              <Button size="lg" variant="outline" className="w-full sm:w-auto text-[#FF6B61] border-white hover:bg-white/10 text-lg px-8 py-6 h-auto" asChild>
-                <a href="/contact">Contact an Agent</a>
-              </Button>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+      {/* Sticky ticker at bottom, always visible */}
+      <div className="sticky bottom-0 inset-x-0 bg-[#0B1F3A] pointer-events-none mt-6 z-0">
+        <SpecialtyTicker coverages={specialtyCoverages} />
+      </div>
     </div>
   );
 }
