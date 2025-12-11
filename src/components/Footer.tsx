@@ -90,19 +90,18 @@ export function Footer() {
           <div>
             <h3 className="mb-4 text-sm uppercase tracking-wider text-white">Legal</h3>
             <ul className="space-y-2 text-sm">
-              {/* TODO: Replace with real policy routes when available */}
               <li>
-                <a href="/contact" className="text-[#94a3b8] hover:text-white transition-colors">
+                <a href="/privacy" className="text-[#94a3b8] hover:text-white transition-colors">
                   Privacy Policy
                 </a>
               </li>
               <li>
-                <a href="/contact" className="text-[#94a3b8] hover:text-white transition-colors">
+                <a href="/terms" className="text-[#94a3b8] hover:text-white transition-colors">
                   Terms of Service
                 </a>
               </li>
               <li>
-                <a href="/contact" className="text-[#94a3b8] hover:text-white transition-colors">
+                <a href="/compliance" className="text-[#94a3b8] hover:text-white transition-colors">
                   Compliance
                 </a>
               </li>

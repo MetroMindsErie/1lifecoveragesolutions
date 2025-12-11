@@ -21,6 +21,9 @@ import { Routes, Route } from "react-router-dom";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminQuoteDetailPage from "./pages/admin/AdminQuoteDetailPage"; // NEW
 import AdminContactDetailPage from "./pages/admin/AdminContactDetailPage"; // NEW
+import { Compliance } from './pages/Compliance';
+import { TermsOfService } from './pages/TermsOfService';
+import { PrivacyPolicy } from './pages/PrivacyPolicy'; // NEW
 
 function App() {
   return (
@@ -110,6 +113,9 @@ function App() {
           {/* NEW: Admin quote detail route */}
           <Route path="/admin/quotes/:srcTable/:id" element={<AdminQuoteDetailPage />} />
           <Route path="/admin/contacts/:id" element={<AdminContactDetailPage />} /> {/* NEW */}
+          <Route path="/compliance" element={<Compliance />} />
+          <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} /> {/* NEW */}
           {/* Default/404 route */}
           <Route
             path="*"
