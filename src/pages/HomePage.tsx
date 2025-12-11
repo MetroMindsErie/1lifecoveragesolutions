@@ -6,6 +6,8 @@ import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
 import { motion } from "motion/react";
 import logo from "../assets/c1916fca24a402e9827626e05b952c97898461d8.png";
+import airbnb from "../../public/images/airbnb.png";
+import vrbo from "../../public/images/vrbo.png";
 import { QuoteStarter } from "../components/QuoteStarter";
 import {
   Car,
@@ -265,6 +267,9 @@ const specialtyCoverages = [
   { name: "Snowmobile", icon: Snowflake },
   { name: "Landlord", icon: Key },
   { name: "Vacant Homes", icon: HomeIcon },
+  { name: "Airbnb", icon: airbnb, isImage: true },
+  { name: "VRBO", icon: vrbo, isImage: true },
+
 ];
 
 // NEW: additional theme color (coral)

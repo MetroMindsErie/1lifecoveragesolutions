@@ -4,7 +4,8 @@ import { motion } from "motion/react";
 
 export type SpecialtyCoverage = {
   name: string;
-  icon: LucideIcon;
+  icon: LucideIcon | string;
+  isImage?: boolean;
 };
 
 type SpecialtyTickerProps = {
@@ -37,21 +38,36 @@ export function SpecialtyTicker({ coverages }: SpecialtyTickerProps) {
                 }}
               >
                 {[...coverages, ...coverages, ...coverages].map(
-                  (coverage, index) => (
-                    <div key={`${coverage.name}-${index}`} className="flex-shrink-0">
-                      <div className="flex items-center gap-4 sm:gap-5 rounded-2xl bg-transparent px-6 sm:px-8 py-5 sm:py-6 min-w-[230px] sm:min-w-[280px] transition-all duration-300 hover:-translate-y-1">
-                        <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#1B5A8E] via-[#2C7DB8] to-[#0B3E63] shadow-xl ring-2 ring-white/40">
-                          <coverage.icon
-                            className="h-6 w-6 sm:h-7 sm:w-7 text-white drop-shadow-lg"
-                            strokeWidth={2.4}
-                          />
+                  (coverage, index) => {
+                    const IconComponent =
+                      !coverage.isImage && typeof coverage.icon !== "string"
+                        ? coverage.icon
+                        : null;
+
+                    return (
+                      <div key={`${coverage.name}-${index}`} className="flex-shrink-0">
+                        <div className="flex items-center gap-4 sm:gap-5 rounded-2xl bg-transparent px-6 sm:px-8 py-5 sm:py-6 min-w-[230px] sm:min-w-[280px] transition-all duration-300 hover:-translate-y-1">
+                          <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#1B5A8E] via-[#2C7DB8] to-[#0B3E63] shadow-xl ring-2 ring-white/40">
+                            {coverage.isImage && typeof coverage.icon === "string" ? (
+                              <img
+                                src={coverage.icon}
+                                alt={coverage.name}
+                                className="h-6 w-6 sm:h-7 sm:w-7 object-contain drop-shadow-lg rounded-lg"
+                              />
+                            ) : IconComponent ? (
+                              <IconComponent
+                                className="h-6 w-6 sm:h-7 sm:w-7 text-white drop-shadow-lg"
+                                strokeWidth={2.4}
+                              />
+                            ) : null}
+                          </div>
+                          <span className="text-lg sm:text-xl font-black tracking-tight text-white drop-shadow-lg whitespace-nowrap">
+                            {coverage.name}
+                          </span>
                         </div>
-                        <span className="text-base sm:text-lg font-extrabold tracking-tight text-white drop-shadow-lg whitespace-nowrap">
-                          {coverage.name}
-                        </span>
                       </div>
-                    </div>
-                  )
+                    );
+                  }
                 )}
               </motion.div>
             </div>
