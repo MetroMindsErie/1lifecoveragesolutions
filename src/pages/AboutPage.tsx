@@ -194,18 +194,22 @@ export function AboutPage() {
 						</p>
 					</div>
 
-					<div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+					<div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-2 max-w-4xl mx-auto">
 						{[
 							{ 
 								name: "Missy Moore", 
-								role: "Director of Property & Casualty",
+								role: "Director of Property & Casualty & Principal Agent",
+								description: "At 1Life Coverage Solutions, Missy leads our Property & Casualty division and serves as the main agent, ensuring every client receives personalized insurance solutions tailored to their unique needs.",
 								image: "/images/mmoore_headshot.jpg"
 							},
-							{ name: "Team Member", role: "Chief Operations Officer" },
-							{ name: "Team Member", role: "Chief Financial Officer" },
+							{ 
+								name: "Anne Glorioso", 
+								role: "President & CFO",
+								description: "As President and CFO of 1Life Coverage Solutions, Anne oversees the agency's strategy and operations while managing financial planning and compliance to ensure clients receive reliable and expert service."
+							},
 						].map((member, index) => (
 							<Card key={index} className="border-gray-200">
-								<CardContent className="p-6 text-center">
+								<CardContent className="p-6">
 									<div className="mb-4 flex justify-center">
 										{member.image ? (
 											<img 
@@ -217,8 +221,11 @@ export function AboutPage() {
 											<div className="h-24 w-24 rounded-full bg-gradient-to-br from-[#4f46e5] to-[#06b6d4]" />
 										)}
 									</div>
-									<h3 className="mb-1 text-xl text-[#1a1a1a]">{member.name}</h3>
-									<p className="text-sm text-[#6c757d]">{member.role}</p>
+									<h3 className="mb-1 text-xl text-[#1a1a1a] text-center">{member.name}</h3>
+									<p className="text-sm text-[#6c757d] mb-3 text-center font-medium">{member.role}</p>
+									{member.description && (
+										<p className="text-sm text-[#6c757d] text-center">{member.description}</p>
+									)}
 								</CardContent>
 							</Card>
 						))}
