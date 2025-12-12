@@ -205,7 +205,8 @@ export function AboutPage() {
 							{ 
 								name: "Anne Glorioso", 
 								role: "President & CFO",
-								description: "As President and CFO of 1Life Coverage Solutions, Anne oversees the agency's strategy and operations while managing financial planning and compliance to ensure clients receive reliable and expert service."
+								description: "As President and CFO of 1Life Coverage Solutions, Anne oversees the agency's strategy and operations while managing financial planning and compliance to ensure clients receive reliable and expert service.",
+								image: "/images/aglorioso_headshot.png"
 							},
 						].map((member, index) => (
 							<Card key={index} className="border-gray-200">
@@ -216,6 +217,7 @@ export function AboutPage() {
 												src={member.image} 
 												alt={member.name}
 												className="h-24 w-24 rounded-full object-cover border-2 border-gray-200"
+												style={member.name === "Anne Glorioso" ? { objectPosition: '50% -30%' } : undefined}
 											/>
 										) : (
 											<div className="h-24 w-24 rounded-full bg-gradient-to-br from-[#4f46e5] to-[#06b6d4]" />

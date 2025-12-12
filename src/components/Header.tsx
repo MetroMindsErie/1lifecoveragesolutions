@@ -76,7 +76,6 @@ export function Header() {
         </div>
 
         <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:gap-x-3">
-          {/* Disabled Login button (feature not ready) */}
           <Button 
             className="bg-[#1B5A8E] hover:bg-[#144669] transition-colors"
             asChild
@@ -125,11 +124,7 @@ export function Header() {
             >
               Contact
             </a>
-            <div className="flex flex-col gap-2 pt-2">
-              {/* Disabled Login button (mobile) */}
-              <Button variant="ghost" className="w-full opacity-60 cursor-not-allowed" disabled aria-disabled="true" title="Login coming soon">
-                Login
-              </Button>
+            <div className="pt-2">
               <Button 
                 className="w-full bg-[#1B5A8E] hover:bg-[#144669] transition-colors"
                 asChild
