@@ -132,7 +132,14 @@ serve(async (req: Request): Promise<Response> => {
     }
 
     // 2. Verify Turnstile token
-    if (turnstileToken && turnstileToken !== 'test-token-skip-verification') {
+    if (!turnstileToken) {
+      return new Response(
+        JSON.stringify({ error: 'Security check failed', message: 'Turnstile token missing' } as ErrorResponse),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (turnstileToken !== 'test-token-skip-verification') {
       const turnstileSecret: string | undefined = Deno.env.get('TURNSTILE_SECRET_KEY');
 
       if (turnstileSecret) {

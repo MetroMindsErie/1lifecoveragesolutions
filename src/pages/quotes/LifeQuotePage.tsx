@@ -12,6 +12,7 @@ import { Label } from "../../components/ui/label";
 import { Textarea } from "../../components/ui/textarea";
 import { CheckCircle2, Heart, ArrowRight, ArrowLeft } from "lucide-react";
 import { submitQuote } from "../../lib/submit";
+import { executeTurnstileInvisible } from "../../lib/turnstile";
 import { supabase } from "../../lib/supabaseClient";
 import { SelectWithOther } from "../../components/quotes/SelectWithOther";
 import { motion, AnimatePresence } from "motion/react";
@@ -316,10 +317,22 @@ export function LifeQuotePage() {
 
 		setSubmitting(true);
 		try {
+			// Execute Turnstile before submission
+			const turnstileToken = await executeTurnstileInvisible();
+
 			const form = document.createElement('form');
 			Object.entries(formData).forEach(([key, value]) => {
 				const input = document.createElement('input');
 				input.name = key;
+			
+			// Add Turnstile token
+			if (turnstileToken) {
+				const turnstileInput = document.createElement('input');
+				turnstileInput.name = 'turnstile_token';
+				turnstileInput.value = turnstileToken;
+				form.appendChild(turnstileInput);
+			}
+
 				input.value = value;
 				form.appendChild(input);
 			});

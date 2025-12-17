@@ -5,6 +5,7 @@ import { Label } from "../components/ui/label";
 import { Textarea } from "../components/ui/textarea";
 import { Phone, Mail, MapPin, Clock } from "lucide-react";
 import { submitQuote } from "../lib/submit";
+import { executeTurnstileInvisible } from "../lib/turnstile";
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabaseClient";
 
@@ -71,6 +72,18 @@ export function ContactPage() {
     if (submitting) return;
     setSubmitting(true);
     try {
+      // Execute Turnstile
+      const turnstileToken = await executeTurnstileInvisible();
+      
+      // Add token to form
+      if (turnstileToken) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'turnstile_token';
+        input.value = turnstileToken;
+        e.currentTarget.appendChild(input);
+      }
+
       await submitQuote("contact", e.currentTarget);
       setSubmitted(true);
       window.scrollTo(0, 0);

@@ -12,6 +12,7 @@ import { Label } from "../components/ui/label";
 import { Textarea } from "../components/ui/textarea";
 import { CheckCircle2, Home, ArrowRight, ArrowLeft } from "lucide-react";
 import { submitQuote } from "../lib/submit";
+import { executeTurnstileInvisible } from "../lib/turnstile";
 import { SelectWithOther } from "../components/quotes/SelectWithOther";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -259,6 +260,9 @@ export function RentersQuotePage() {
 
     setSubmitting(true);
     try {
+      // Execute Turnstile before submission
+      const turnstileToken = await executeTurnstileInvisible();
+
       const form = document.createElement('form');
       
       // Transform data to match database schema
@@ -284,6 +288,14 @@ export function RentersQuotePage() {
         form.appendChild(input);
       });
       
+      // Add Turnstile token
+      if (turnstileToken) {
+        const turnstileInput = document.createElement('input');
+        turnstileInput.name = 'turnstile_token';
+        turnstileInput.value = turnstileToken;
+        form.appendChild(turnstileInput);
+      }
+
       const hp1 = document.createElement('input');
       hp1.name = 'hp_company';
       hp1.value = '';
