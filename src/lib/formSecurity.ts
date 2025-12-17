@@ -5,7 +5,7 @@ import validator from 'validator';
  * Sanitize user input to prevent XSS attacks
  */
 export function sanitizeInput(input: string): string {
-  return DOMPurify.sanitize(input.trim(), {
+  return DOMPurify.sanitize(input, {
     ALLOWED_TAGS: [],
     ALLOWED_ATTR: [],
   });
@@ -19,7 +19,7 @@ export function sanitizeFormData(data: Record<string, string>): Record<string, s
   
   for (const [key, value] of Object.entries(data)) {
     if (typeof value === 'string') {
-      sanitized[key] = sanitizeInput(value);
+      sanitized[key] = sanitizeInput(value.trim());
     }
   }
   
