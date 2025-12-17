@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import { supabase } from "../../lib/supabaseClient";
+import { ChevronRight, Copy, Loader2, Mail, Phone } from "lucide-react";
 
 type Detail = {
   id: string;
@@ -186,53 +187,82 @@ export default function AdminQuoteDetailPage() {
 
   const sections = useMemo(() => sectionize(item), [item]);
 
+  const copyToClipboard = async (val?: string | null) => {
+    if (!val) return;
+    try {
+      await navigator.clipboard.writeText(val);
+    } catch {
+      // ignore
+    }
+  };
+
+  const renderValue = (val: any) => {
+    if (val === undefined || val === null || String(val).trim() === "") return "-";
+    if (typeof val === "string") return val;
+    if (typeof val === "number" || typeof val === "boolean") return String(val);
+    try {
+      return JSON.stringify(val, null, 2);
+    } catch {
+      return String(val);
+    }
+  };
+
   useEffect(() => { setAdminDetailHead(); }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-[#E9F3FB] to-[#D9ECFF]">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-[#1B5A8E] to-[#4f46e5] text-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 lg:px-8">
-          <div className="flex items-center gap-3">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => navigate(-1)}
-              className="bg-white/20 border-white text-white hover:bg-white/30"
-            >
+    <div className="min-h-screen bg-gray-50">
+      <header className="border-b bg-white">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4 sm:px-6">
+          <div className="flex min-w-0 items-center gap-3">
+            <Button size="sm" variant="outline" onClick={() => navigate(-1)}>
               ← Back
             </Button>
-            <div className="text-lg font-semibold">Quote Review</div>
+            <div className="min-w-0">
+              <div className="text-xs text-gray-500">Admin</div>
+              <div className="truncate text-base font-semibold text-gray-900">Quote Review</div>
+            </div>
           </div>
-          <Link to="/admin?tab=quotes" className="text-xs underline opacity-90 hover:opacity-100">
+          <Link
+            to="/admin?tab=quotes"
+            className="hidden items-center gap-1 text-sm text-gray-600 hover:text-gray-900 sm:inline-flex"
+          >
             All quotes
+            <ChevronRight className="h-4 w-4" />
           </Link>
         </div>
-      </div>
+      </header>
 
-      <div className="mx-auto max-w-5xl px-4 py-6 lg:px-8">
+      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
         {loading && <div className="text-sm text-gray-600">Loading…</div>}
         {error && <div className="text-sm text-red-600">{error}</div>}
         {!loading && !error && item && (
-          <div className="space-y-8">
-            {/* Summary */}
-            <div className="rounded-xl border border-white/60 bg-white/80 backdrop-blur p-4 shadow-sm">
-              <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="space-y-6">
+            <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div>
-                  <div className="text-[11px] text-gray-600">
-                    Submitted: {new Date(item.created_at).toLocaleString()}
-                  </div>
-                  <h2 className="mt-1 text-xl font-semibold text-[#1B5A8E]">
-                    {item.name || "Unnamed"}
-                  </h2>
-                  <p className="text-xs text-gray-600 mt-1">
-                    Table:
-                    <span className="ml-1 rounded-full px-2 py-0.5 text-[10px] bg-[#1B5A8E]/10 text-[#1B5A8E]">
+                  <div className="text-xs text-gray-500">Submitted: {new Date(item.created_at).toLocaleString()}</div>
+                  <h1 className="mt-1 text-2xl font-semibold text-gray-900">{item.name || "Unnamed"}</h1>
+
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <span className="inline-flex rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
                       {srcTable}
                     </span>
-                    <span className="ml-2">Status:</span>
+                    <span className="text-xs text-gray-500">ID:</span>
+                    <span className="break-all font-mono text-xs text-gray-800">{item.id}</span>
+                    <Button size="sm" variant="outline" onClick={() => copyToClipboard(item.id)} disabled={!isAdmin}>
+                      <span className="inline-flex items-center gap-2">
+                        <Copy className="h-4 w-4" />
+                        Copy ID
+                      </span>
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2 rounded-lg border bg-gray-50 px-3 py-2">
+                    <div className="text-xs font-medium text-gray-600">Status</div>
                     <select
-                      className="ml-1 rounded border bg-white/80 text-xs px-2 py-1"
+                      className="max-w-full rounded border bg-white px-2 py-1 text-sm"
                       value={item.status || "new"}
                       onChange={(e) => onUpdateStatus(e.target.value)}
                       disabled={!isAdmin || statusSaving}
@@ -241,81 +271,102 @@ export default function AdminQuoteDetailPage() {
                       <option value="in_progress">in_progress</option>
                       <option value="closed">closed</option>
                     </select>
-                    {statusSaving && <span className="ml-2 text-[10px] text-gray-500">Saving…</span>}
-                  </p>
-                  <p className="mt-1 text-[10px] text-gray-500 break-all">ID: {item.id}</p>
-                </div>
-                <div className="flex flex-col gap-2">
+                    {statusSaving && <Loader2 className="h-4 w-4 animate-spin text-gray-500" />}
+                  </div>
+
                   {item.email && (
-                    <Button
-                      size="sm"
-                      asChild
-                      className="bg-[#1B5A8E] hover:bg-[#144669]"
-                      disabled={!isAdmin}
-                    >
-                      <a
-                        href={`mailto:${item.email}?subject=${encodeURIComponent(
-                          `Your quote`
-                        )}&body=${encodeURIComponent(
-                          `Hi ${item.name || ""},\n\nThank you for your quote request. When is a good time for a quick call?\n\n— 1Life Coverage`
-                        )}`}
+                    <>
+                      <Button
+                        size="sm"
+                        asChild
+                        className="bg-[#1B5A8E] hover:bg-[#144669]"
+                        disabled={!isAdmin}
                       >
-                        Email Follow-up
-                      </a>
-                    </Button>
+                        <a
+                          href={`mailto:${item.email}?subject=${encodeURIComponent(
+                            `Your quote`
+                          )}&body=${encodeURIComponent(
+                            `Hi ${item.name || ""},\n\nThank you for your quote request. When is a good time for a quick call?\n\n— 1Life Coverage`
+                          )}`}
+                        >
+                          <span className="inline-flex items-center gap-2">
+                            <Mail className="h-4 w-4" />
+                            Email
+                          </span>
+                        </a>
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => copyToClipboard(item.email)} disabled={!isAdmin}>
+                        <span className="inline-flex items-center gap-2">
+                          <Copy className="h-4 w-4" />
+                          Copy
+                        </span>
+                      </Button>
+                    </>
                   )}
+
                   {item.phone && (
-                    <Button size="sm" variant="outline" asChild disabled={!isAdmin}>
-                      <a href={`tel:${item.phone}`}>Call Now</a>
-                    </Button>
+                    <>
+                      <Button size="sm" variant="outline" asChild disabled={!isAdmin}>
+                        <a href={`tel:${item.phone}`}>
+                          <span className="inline-flex items-center gap-2">
+                            <Phone className="h-4 w-4" />
+                            Call
+                          </span>
+                        </a>
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => copyToClipboard(item.phone)} disabled={!isAdmin}>
+                        <span className="inline-flex items-center gap-2">
+                          <Copy className="h-4 w-4" />
+                          Copy
+                        </span>
+                      </Button>
+                    </>
                   )}
                 </div>
               </div>
             </div>
 
-            {/* Mapped sections */}
-            {sections.map((sec) => (
-              <div key={sec.title} className="rounded-xl border border-white/60 bg-white/80 backdrop-blur shadow-sm">
-                <div className="px-4 py-2 text-sm font-medium text-[#1B5A8E] border-b border-white/60 bg-[#F5FAFE]">
-                  {sec.title}
+            <div className="space-y-5">
+              {sections.map((sec) => (
+                <div key={sec.title} className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+                  <div className="border-b px-5 py-3 text-sm font-semibold text-gray-900">{sec.title}</div>
+                  <div className="divide-y">
+                    {sec.items.map((it) => (
+                      <div key={it.label} className="grid gap-2 px-5 py-3 sm:grid-cols-[200px_1fr]">
+                        <div className="text-xs font-medium text-gray-500">{it.label}</div>
+                        <div className="text-sm text-gray-900 whitespace-pre-wrap">{renderValue(it.value)}</div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div className="divide-y">
-                  {sec.items.map((it) => (
-                    <div key={it.label} className="flex items-start gap-4 px-4 py-2">
-                      <div className="w-48 text-[11px] font-semibold text-gray-600">{it.label}</div>
-                      <div className="flex-1 text-sm text-gray-800 whitespace-pre-wrap">{String(it.value)}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
 
-            {/* Technical Metadata */}
-            <div className="rounded-xl border border-white/60 bg-white/80 backdrop-blur">
+            <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
               <button
                 type="button"
-                onClick={() => setShowTech(s => !s)}
-                className="w-full flex items-center justify-between px-4 py-2 text-sm font-medium text-[#1B5A8E] hover:bg-[#F0F7FC]"
+                onClick={() => setShowTech((s) => !s)}
+                className="flex w-full items-center justify-between px-5 py-3 text-sm font-semibold text-gray-900 hover:bg-gray-50"
               >
                 Technical Metadata
-                <span className="text-[10px] text-gray-500">{showTech ? "Hide" : "Show"}</span>
+                <span className="text-xs font-normal text-gray-500">{showTech ? "Hide" : "Show"}</span>
               </button>
               {showTech && (
-                <div className="divide-y text-xs">
+                <div className="divide-y">
                   {[
                     ["Referrer", item.referrer || "-"],
                     ["Submitted Path", item.submitted_from_path || "-"],
                     ["User Agent", item.user_agent || "-"],
                     ["IP", item.ip || "-"],
                   ].map(([l, v]) => (
-                    <div key={l as string} className="flex items-start gap-3 px-4 py-2">
-                      <div className="w-40 font-semibold text-gray-600">{l as string}</div>
-                      <div className="flex-1 break-all text-gray-700">{v as string}</div>
+                    <div key={l as string} className="grid gap-2 px-5 py-3 sm:grid-cols-[200px_1fr]">
+                      <div className="text-xs font-medium text-gray-500">{l as string}</div>
+                      <div className="break-all text-sm text-gray-900">{v as string}</div>
                     </div>
                   ))}
-                  <div className="px-4 py-2">
-                    <div className="mb-1 font-semibold text-gray-600">UTM</div>
-                    <pre className="max-h-40 overflow-auto rounded bg-gray-50 p-2 text-[10px] leading-tight">
+                  <div className="px-5 py-3">
+                    <div className="text-xs font-medium text-gray-500">UTM</div>
+                    <pre className="mt-2 max-h-52 overflow-auto rounded-lg border bg-gray-50 p-3 text-xs leading-snug">
                       {JSON.stringify(item.utm || {}, null, 2)}
                     </pre>
                   </div>
@@ -323,29 +374,24 @@ export default function AdminQuoteDetailPage() {
               )}
             </div>
 
-            {/* Raw Payload */}
-            <div className="rounded-xl border border-white/60 bg-white/80 backdrop-blur">
+            <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
               <button
                 type="button"
-                onClick={() => setShowRaw(s => !s)}
-                className="w-full flex items-center justify-between px-4 py-2 text-sm font-medium text-[#1B5A8E] hover:bg-[#F0F7FC]"
+                onClick={() => setShowRaw((s) => !s)}
+                className="flex w-full items-center justify-between px-5 py-3 text-sm font-semibold text-gray-900 hover:bg-gray-50"
               >
                 Raw Form Payload
-                <span className="text-[10px] text-gray-500">{showRaw ? "Hide" : "Show"}</span>
+                <span className="text-xs font-normal text-gray-500">{showRaw ? "Hide" : "Show"}</span>
               </button>
               {showRaw && (
-                <pre className="max-h-64 overflow-auto rounded-b bg-gray-50 p-3 text-[10px] leading-tight">
+                <pre className="max-h-72 overflow-auto border-t bg-gray-50 p-4 text-xs leading-snug">
                   {JSON.stringify(item.payload || {}, null, 2)}
                 </pre>
               )}
             </div>
 
-            {/* Footer actions */}
-            <div className="flex items-center justify-between">
-              <Button
-                variant="outline"
-                onClick={() => navigate(-1)}
-              >
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <Button variant="outline" onClick={() => navigate(-1)}>
                 ← Back
               </Button>
               <Button asChild className="bg-[#1B5A8E] hover:bg-[#144669]">

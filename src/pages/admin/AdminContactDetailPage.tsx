@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabaseClient";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { Button } from "../../components/ui/button";
+import { Copy, Mail, Phone, ChevronRight } from "lucide-react";
 
 interface Contact {
   id: string;
@@ -80,121 +81,152 @@ export default function AdminContactDetailPage() {
     return src || "Referral";
   };
 
+  const copyToClipboard = async (val?: string | null) => {
+    if (!val) return;
+    try {
+      await navigator.clipboard.writeText(val);
+    } catch {
+      // ignore
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-[#E9F3FB] to-[#D9ECFF]">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-[#1B5A8E] to-[#4f46e5] text-white">
-        <div className="mx-auto max-w-7xl px-4 py-4 flex items-center justify-between lg:px-8">
-          <div className="flex items-center gap-3">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => navigate(-1)}
-              className="bg-white/20 border-white text-white hover:bg-white/30"
-            >
+    <div className="min-h-screen bg-gray-50">
+      <header className="border-b bg-white">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4 sm:px-6">
+          <div className="flex min-w-0 items-center gap-3">
+            <Button size="sm" variant="outline" onClick={() => navigate(-1)}>
               ← Back
             </Button>
-            <span className="text-lg font-semibold">Contact Request</span>
+            <div className="min-w-0">
+              <div className="text-xs text-gray-500">Admin</div>
+              <div className="truncate text-base font-semibold text-gray-900">Contact Request</div>
+            </div>
           </div>
-          <Link to="/admin?tab=contacts" className="text-xs underline opacity-90 hover:opacity-100">
+          <Link
+            to="/admin?tab=contacts"
+            className="hidden items-center gap-1 text-sm text-gray-600 hover:text-gray-900 sm:inline-flex"
+          >
             All contacts
+            <ChevronRight className="h-4 w-4" />
           </Link>
         </div>
-      </div>
+      </header>
 
-      <div className="mx-auto max-w-5xl px-4 py-6 lg:px-8">
+      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
         {loading && <div className="text-sm text-gray-600">Loading…</div>}
         {error && <div className="text-sm text-red-600">{error}</div>}
         {!loading && !error && item && (
-          <div className="space-y-8">
-            {/* Summary */}
-            <div className="rounded-xl border border-white/60 bg-white/80 backdrop-blur p-4 shadow-sm">
-              <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="space-y-6">
+            <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                  <div className="text-[11px] text-gray-600">
+                  <div className="text-xs text-gray-500">
                     Submitted: {new Date(item.created_at).toLocaleString()}
                   </div>
-                  <h2 className="mt-1 text-xl font-semibold text-[#1B5A8E]">
-                    {displayName}
-                  </h2>
+                  <h1 className="mt-1 text-2xl font-semibold text-gray-900">{displayName}</h1>
                   {item.subject && (
-                    <div className="mt-2 inline-flex items-center rounded-full bg-[#1B5A8E]/10 px-2 py-1 text-[11px] text-[#1B5A8E]">
+                    <div className="mt-2 inline-flex rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
                       Subject: {item.subject}
                     </div>
                   )}
                 </div>
-                <div className="flex flex-col gap-2">
+
+                <div className="flex flex-wrap items-center gap-2">
                   {item.email && (
-                    <Button size="sm" asChild className="bg-[#1B5A8E] hover:bg-[#144669]">
-                      <a href={`mailto:${item.email}`}>Email</a>
-                    </Button>
+                    <>
+                      <Button
+                        size="sm"
+                        asChild
+                        className="bg-[#1B5A8E] hover:bg-[#144669]"
+                        disabled={!isAdmin}
+                      >
+                        <a href={`mailto:${item.email}`}>
+                          <span className="inline-flex items-center gap-2">
+                            <Mail className="h-4 w-4" />
+                            Email
+                          </span>
+                        </a>
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => copyToClipboard(item.email)} disabled={!isAdmin}>
+                        <span className="inline-flex items-center gap-2">
+                          <Copy className="h-4 w-4" />
+                          Copy
+                        </span>
+                      </Button>
+                    </>
                   )}
                   {item.phone && (
-                    <Button size="sm" variant="outline" asChild>
-                      <a href={`tel:${item.phone}`}>Call</a>
-                    </Button>
+                    <>
+                      <Button size="sm" variant="outline" asChild disabled={!isAdmin}>
+                        <a href={`tel:${item.phone}`}>
+                          <span className="inline-flex items-center gap-2">
+                            <Phone className="h-4 w-4" />
+                            Call
+                          </span>
+                        </a>
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => copyToClipboard(item.phone)} disabled={!isAdmin}>
+                        <span className="inline-flex items-center gap-2">
+                          <Copy className="h-4 w-4" />
+                          Copy
+                        </span>
+                      </Button>
+                    </>
                   )}
                 </div>
               </div>
             </div>
 
-            {/* Message */}
-            <div className="rounded-xl border border-white/60 bg-white/80 backdrop-blur">
-              <div className="border-b border-white/60 px-4 py-2 text-sm font-medium text-[#1B5A8E]">
-                Message
+            <div className="grid gap-6 lg:grid-cols-2">
+              <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+                <div className="border-b px-5 py-3 text-sm font-semibold text-gray-900">Message</div>
+                <div className="px-5 py-4 text-sm text-gray-800 whitespace-pre-wrap">{item.message || "-"}</div>
               </div>
-              <div className="px-4 py-3 text-sm whitespace-pre-wrap text-gray-800">
-                {item.message || "-"}
-              </div>
-            </div>
 
-            {/* Contact Info */}
-            <div className="rounded-xl border border-white/60 bg-white/80 backdrop-blur">
-              <div className="border-b border-white/60 px-4 py-2 text-sm font-medium text-[#1B5A8E]">
-                Contact Information
-              </div>
-              <div className="grid gap-3 px-4 py-3 text-sm sm:grid-cols-2">
-                <div className="flex items-center justify-between sm:block">
-                  <div className="text-[11px] text-gray-600">Email</div>
-                  <div className="text-gray-800">{item.email || "-"}</div>
-                </div>
-                <div className="flex items-center justify-between sm:block">
-                  <div className="text-[11px] text-gray-600">Phone</div>
-                  <div className="text-gray-800">{item.phone || "-"}</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Lead Source (simplified) */}
-            <div className="rounded-xl border border-white/60 bg-white/80 backdrop-blur">
-              <div className="border-b border-white/60 px-4 py-2 text-sm font-medium text-[#1B5A8E]">
-                Lead Source
-              </div>
-              <div className="grid gap-3 px-4 py-3 text-sm sm:grid-cols-3">
-                <div>
-                  <div className="text-[11px] text-gray-600">Channel</div>
-                  <div className="text-gray-800">
-                    {channel(item.utm?.source, item.referrer)}
+              <div className="space-y-6">
+                <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+                  <div className="border-b px-5 py-3 text-sm font-semibold text-gray-900">Contact Info</div>
+                  <div className="grid gap-4 px-5 py-4 sm:grid-cols-2">
+                    <div>
+                      <div className="text-xs text-gray-500">Email</div>
+                      <div className="mt-1 break-all text-sm text-gray-900">{item.email || "-"}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500">Phone</div>
+                      <div className="mt-1 break-all text-sm text-gray-900">{item.phone || "-"}</div>
+                    </div>
                   </div>
                 </div>
-                <div>
-                  <div className="text-[11px] text-gray-600">Medium</div>
-                  <div className="text-gray-800">{item.utm?.medium || "-"}</div>
-                </div>
-                <div>
-                  <div className="text-[11px] text-gray-600">Campaign</div>
-                  <div className="text-gray-800">{item.utm?.campaign || "-"}</div>
-                </div>
-                <div className="sm:col-span-3">
-                  <div className="text-[11px] text-gray-600">Referrer</div>
-                  <div className="truncate text-gray-800">{item.referrer || "-"}</div>
+
+                <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+                  <div className="border-b px-5 py-3 text-sm font-semibold text-gray-900">Lead Source</div>
+                  <div className="grid gap-4 px-5 py-4 sm:grid-cols-3">
+                    <div>
+                      <div className="text-xs text-gray-500">Channel</div>
+                      <div className="mt-1 text-sm text-gray-900">{channel(item.utm?.source, item.referrer)}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500">Medium</div>
+                      <div className="mt-1 text-sm text-gray-900">{item.utm?.medium || "-"}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500">Campaign</div>
+                      <div className="mt-1 text-sm text-gray-900">{item.utm?.campaign || "-"}</div>
+                    </div>
+                    <div className="sm:col-span-3">
+                      <div className="text-xs text-gray-500">Referrer</div>
+                      <div className="mt-1 break-all text-sm text-gray-900">{item.referrer || "-"}</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Footer actions */}
-            <div className="flex items-center justify-between">
-              <Button variant="outline" onClick={() => navigate(-1)}>← Back</Button>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <Button variant="outline" onClick={() => navigate(-1)}>
+                ← Back
+              </Button>
               <Button asChild className="bg-[#1B5A8E] hover:bg-[#144669]">
                 <Link to="/admin?tab=contacts">All Contacts</Link>
               </Button>
