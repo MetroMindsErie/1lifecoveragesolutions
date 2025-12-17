@@ -57,10 +57,10 @@ export function HomeownersQuotePage() {
       title: "Home details",
       subtitle: "Basic characteristics of your property",
       fields: [
-        { name: "home_type", label: "Type of Home", type: "select", options: ["Single Family","Condo","Townhome","Manufactured/Mobile"] },
+        { name: "home_type", label: "Type of Home", type: "select", options: ["Single Family", "Condo", "Townhome", "Manufactured/Mobile"] },
         { name: "year_built", label: "Year Built", type: "select", options: YEAR_BUILT_OPTIONS },
-        { name: "square_footage", label: "Square Footage", type: "select", options: ["<1,000","1,000-1,999","2,000-2,999","3,000-3,999","4,000+"] },
-        { name: "stories", label: "Number of Stories", type: "select", options: ["1","1.5","2","2.5","3+"] },
+        { name: "square_footage", label: "Square Footage", type: "select", options: ["<1,000", "1,000-1,999", "2,000-2,999", "3,000-3,999", "4,000+"] },
+        { name: "stories", label: "Number of Stories", type: "select", options: ["1", "1.5", "2", "2.5", "3+"] },
         { name: "roof_type_year", label: "Roof Type / Year Last Replaced", type: "text" },
       ]
     },
@@ -69,11 +69,11 @@ export function HomeownersQuotePage() {
       title: "Construction & systems",
       subtitle: "Materials and major systems information",
       fields: [
-        { name: "foundation_type", label: "Foundation Type", type: "select", options: ["Slab","Crawl Space","Basement"] },
-        { name: "basement_finished", label: "If basement, is it finished?", type: "select", options: ["Yes","No","Partially Finished"] },
-        { name: "exterior_construction", label: "Exterior Construction", type: "select", options: ["Brick","Wood","Vinyl","Stucco","Mixed","Other"] },
-        { name: "heating_type", label: "Heating Type", type: "select", options: ["Gas","Electric","Heat Pump","Oil","Other"] },
-        { name: "heating_age_years", label: "Age of Heating System (years)", type: "select", options: ["<5","5-9","10-14","15-19","20+"] },
+        { name: "foundation_type", label: "Foundation Type", type: "select", options: ["Slab", "Crawl Space", "Basement"] },
+        { name: "basement_finished", label: "If basement, is it finished?", type: "select", options: ["Yes", "No", "Partially Finished"] },
+        { name: "exterior_construction", label: "Exterior Construction", type: "select", options: ["Brick", "Wood", "Vinyl", "Stucco", "Mixed", "Other"] },
+        { name: "heating_type", label: "Heating Type", type: "select", options: ["Gas", "Electric", "Heat Pump", "Oil", "Other"] },
+        { name: "heating_age_years", label: "Age of Heating System (years)", type: "select", options: ["<5", "5-9", "10-14", "15-19", "20+"] },
       ]
     },
     {
@@ -108,9 +108,9 @@ export function HomeownersQuotePage() {
       fields: [
         { name: "current_carrier", label: "Current Insurance Carrier", type: "text" },
         { name: "policy_expiration", label: "Policy Expiration Date", type: "date" },
-        { name: "current_dwelling_coverage", label: "Current Dwelling Coverage ($)", type: "select", options: ["100K","150K","200K","250K","300K","400K","500K","600K","700K","800K","900K","1M","Other"], otherLabel: "Custom" },
-        { name: "desired_deductible", label: "Desired Deductible ($)", type: "select", options: ["500","1000","2500"], otherLabel: "Custom" },
-        { name: "claims_last_5_years", label: "Any claims in the last 5 years?", type: "select", options: ["Yes","No"] },
+        { name: "current_dwelling_coverage", label: "Current Dwelling Coverage ($)", type: "select", options: ["100K", "150K", "200K", "250K", "300K", "400K", "500K", "600K", "700K", "800K", "900K", "1M", "Other"], otherLabel: "Custom" },
+        { name: "desired_deductible", label: "Desired Deductible ($)", type: "select", options: ["500", "1000", "2500"], otherLabel: "Custom" },
+        { name: "claims_last_5_years", label: "Any claims in the last 5 years?", type: "select", options: ["Yes", "No"] },
         { name: "claims_description", label: "If yes, please describe", type: "textarea" },
       ]
     },
@@ -119,7 +119,7 @@ export function HomeownersQuotePage() {
       title: "Almost done!",
       subtitle: "Just a couple more questions",
       fields: [
-        { name: "additional_coverages", label: "Additional Coverages Interested In", type: "text" },
+        { name: "additional_coverages", label: "Interested in other insurance?", type: "select", options: ["Auto", "Life", "Umbrella", "Pet", "None"] },
         { name: "referral_source", label: "How did you hear about us?", type: "select", options: ["Google", "Referral", "Social Media", "Advertising"] }
       ]
     }
@@ -130,11 +130,73 @@ export function HomeownersQuotePage() {
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<Record<string, string>>({});
 
+  // NEW: per-field errors + whether user tried to advance from a step
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [attemptedSteps, setAttemptedSteps] = useState<Record<number, boolean>>({});
+
   const totalSteps = steps.length;
   const progress = ((currentStep + 1) / totalSteps) * 100;
 
+  const validateField = (field: any, value: string): string | null => {
+    const trimmed = (value || "").trim();
+
+    if (!trimmed && field.required) return "This field is required";
+    if (!trimmed) return null;
+
+    if (field.type === "email") {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(trimmed)) return "Please enter a valid email address";
+    }
+
+    if (field.type === "tel") {
+      const digitsOnly = trimmed.replace(/\D/g, "");
+      if (digitsOnly.length < 10) return "Please enter a valid phone number (at least 10 digits)";
+    }
+
+    return null;
+  };
+
+  const validateStep = (stepIndex: number): Record<string, string> => {
+    const step = steps[stepIndex];
+    const errors: Record<string, string> = {};
+
+    for (const field of step.fields as any[]) {
+      // Skip validation for fields currently disabled by conditional logic
+      if (isFieldDisabled(field.name)) continue;
+
+      const value = formData[field.name] || "";
+      const err = validateField(field, value);
+      if (err) errors[field.name] = err;
+    }
+
+    return errors;
+  };
+
   const handleFieldChange = (name: string, value: string) => {
     setFormData(prev => ({ ...prev, [name]: value }));
+
+    // If this step has been attempted, re-validate this field live to clear errors
+    if (attemptedSteps[currentStep]) {
+      if (isFieldDisabled(name)) {
+        setFieldErrors(prev => {
+          const copy = { ...prev };
+          delete copy[name];
+          return copy;
+        });
+        return;
+      }
+
+      const field = steps[currentStep].fields.find(f => f.name === name) as any | undefined;
+      if (!field) return;
+
+      const nextErr = validateField(field, value);
+      setFieldErrors(prev => {
+        const copy = { ...prev };
+        if (nextErr) copy[name] = nextErr;
+        else delete copy[name];
+        return copy;
+      });
+    }
   };
 
   const canContinue = () => {
@@ -142,8 +204,44 @@ export function HomeownersQuotePage() {
     return required.every(f => (formData[f.name] || "").trim());
   };
 
+  const isFieldDisabled = (fieldName: string) => {
+    // Disable pool-related fields if user doesn't have a pool
+    if (fieldName === "pool_fenced" || fieldName === "pool_type") {
+      return formData["pool"] !== "Yes";
+    }
+    // Disable dog-related fields if user doesn't have dogs
+    if (fieldName === "dog_breeds" || fieldName === "dogs_bite_history") {
+      return formData["dogs_have"] !== "Yes";
+    }
+    return false;
+  };
+
   const handleNext = () => {
-    if (!canContinue()) return;
+    if (currentStep >= totalSteps - 1) return;
+
+    setAttemptedSteps(prev => ({ ...prev, [currentStep]: true }));
+
+    const stepFieldNames = new Set(steps[currentStep].fields.map(f => f.name));
+    const stepErrors = validateStep(currentStep);
+
+    // Replace errors for current step fields (don’t keep stale ones)
+    setFieldErrors(prev => {
+      const next = { ...prev };
+      for (const k of Object.keys(next)) {
+        if (stepFieldNames.has(k)) delete next[k];
+      }
+      return { ...next, ...stepErrors };
+    });
+
+    const firstInvalid = Object.keys(stepErrors)[0];
+    if (firstInvalid) {
+      const el = document.querySelector<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(
+        `[name="${firstInvalid}"]`
+      );
+      el?.focus();
+      return;
+    }
+
     setCurrentStep(s => Math.min(s + 1, totalSteps - 1));
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -155,6 +253,20 @@ export function HomeownersQuotePage() {
 
   const handleSubmit = async () => {
     if (submitting) return;
+
+    // Validate current (final) step before submit
+    setAttemptedSteps(prev => ({ ...prev, [currentStep]: true }));
+    const finalStepErrors = validateStep(currentStep);
+    if (Object.keys(finalStepErrors).length) {
+      setFieldErrors(prev => ({ ...prev, ...finalStepErrors }));
+      const firstInvalid = Object.keys(finalStepErrors)[0];
+      const el = document.querySelector<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(
+        `[name="${firstInvalid}"]`
+      );
+      el?.focus();
+      return;
+    }
+
     setSubmitting(true);
     try {
       const form = document.createElement("form");
@@ -294,44 +406,70 @@ export function HomeownersQuotePage() {
                   className="space-y-6"
                 >
                   <div className="grid gap-5 sm:grid-cols-2">
-                    {steps[currentStep].fields.map((field, idx) => (
-                      <motion.div
-                        key={field.name}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: idx * 0.05 }}
-                        className="space-y-2 p-4 rounded-lg border border-gray-200 bg-white/60"
-                      >
-                        <Label className="text-sm sm:text-base font-medium text-[#1a1a1a]">
-                          {field.label}{field.required && <span className="text-red-500 ml-1">*</span>}
-                        </Label>
-                        {field.type === "select" && field.options ? (
-                          <SelectWithOther
-                            name={field.name}
-                            options={field.options}
-                            value={formData[field.name] || ""}
-                            onChange={(v) => handleFieldChange(field.name, v)}
-                            otherLabel={(field as any).otherLabel}
-                          />
-                        ) : field.type === "textarea" ? (
-                          <Textarea
-                            name={field.name}
-                            value={formData[field.name] || ""}
-                            onChange={(e) => handleFieldChange(field.name, e.target.value)}
-                            className="min-h-[110px] text-sm sm:text-base px-3 py-3"
-                          />
-                        ) : (
-                          <Input
-                            type={field.type}
-                            name={field.name}
-                            value={formData[field.name] || ""}
-                            onChange={(e) => handleFieldChange(field.name, e.target.value)}
-                            required={field.required}
-                            className="text-sm sm:text-base px-3 py-3"
-                          />
-                        )}
-                      </motion.div>
-                    ))}
+                    {steps[currentStep].fields.map((field, idx) => {
+                      const disabled = isFieldDisabled(field.name);
+                      const showError = !disabled && !!attemptedSteps[currentStep] && !!fieldErrors[field.name];
+                      const errMsg = showError ? fieldErrors[field.name] : "";
+
+                      return (
+                        <motion.div
+                          key={field.name}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: idx * 0.05 }}
+                          className={`space-y-2 p-4 rounded-lg border border-gray-200 ${disabled ? "bg-gray-50 opacity-60" : "bg-white/60"
+                            }`}
+                        >
+                          <Label className="text-sm sm:text-base font-medium text-[#1a1a1a]">
+                            {field.label}{field.required && <span className="text-red-500 ml-1">*</span>}
+                          </Label>
+
+                          {field.type === "select" && field.options ? (
+                            <>
+                              <SelectWithOther
+                                name={field.name}
+                                options={field.options}
+                                value={formData[field.name] || ""}
+                                onChange={(v) => handleFieldChange(field.name, v)}
+                                otherLabel={(field as any).otherLabel}
+                                disabled={disabled}
+                              />
+                              {showError && <p className="text-xs text-red-600" role="alert">{errMsg}</p>}
+                            </>
+                          ) : field.type === "textarea" ? (
+                            <>
+                              <Textarea
+                                name={field.name}
+                                value={formData[field.name] || ""}
+                                onChange={(e) => handleFieldChange(field.name, e.target.value)}
+                                aria-invalid={showError}
+                                className={`min-h-[110px] text-sm sm:text-base px-3 py-3 ${
+                                  showError ? "border-red-500 focus-visible:ring-red-500" : ""
+                                }`}
+                                disabled={disabled}
+                              />
+                              {showError && <p className="text-xs text-red-600" role="alert">{errMsg}</p>}
+                            </>
+                          ) : (
+                            <>
+                              <Input
+                                type={field.type}
+                                name={field.name}
+                                value={formData[field.name] || ""}
+                                onChange={(e) => handleFieldChange(field.name, e.target.value)}
+                                required={field.required}
+                                aria-invalid={showError}
+                                className={`text-sm sm:text-base px-3 py-3 ${
+                                  showError ? "border-red-500 focus-visible:ring-red-500" : ""
+                                }`}
+                                disabled={disabled}
+                              />
+                              {showError && <p className="text-xs text-red-600" role="alert">{errMsg}</p>}
+                            </>
+                          )}
+                        </motion.div>
+                      );
+                    })}
                   </div>
                 </motion.div>
               </AnimatePresence>
@@ -346,10 +484,12 @@ export function HomeownersQuotePage() {
                 >
                   <ArrowLeft className="mr-2 h-4 w-4" /> Back
                 </Button>
+
                 {currentStep < totalSteps - 1 ? (
                   <Button
                     type="button"
-                    disabled={!canContinue()}
+                    // IMPORTANT: allow clicking to trigger validation (don't disable-gate)
+                    disabled={false}
                     onClick={handleNext}
                     className="w-full sm:w-auto bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] order-1 sm:order-2"
                   >
@@ -359,7 +499,7 @@ export function HomeownersQuotePage() {
                   <Button
                     type="button"
                     onClick={handleSubmit}
-                    disabled={submitting || !canContinue()}
+                    disabled={submitting}
                     className="w-full sm:w-auto bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] order-1 sm:order-2"
                   >
                     {submitting ? "Submitting..." : "Get My Quote"} <CheckCircle2 className="ml-2 h-4 w-4" />
@@ -371,13 +511,12 @@ export function HomeownersQuotePage() {
                 {steps.map((_, i) => (
                   <div
                     key={i}
-                    className={`h-2 rounded-full transition-all ${
-                      i === currentStep
+                    className={`h-2 rounded-full transition-all ${i === currentStep
                         ? "w-8 bg-gradient-to-r from-[#4f46e5] to-[#06b6d4]"
                         : i < currentStep
-                        ? "w-2 bg-[#06b6d4]"
-                        : "w-2 bg-gray-300"
-                    }`}
+                          ? "w-2 bg-[#06b6d4]"
+                          : "w-2 bg-gray-300"
+                      }`}
                   />
                 ))}
               </div>

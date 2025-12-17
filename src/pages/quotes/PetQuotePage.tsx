@@ -102,6 +102,7 @@ export function PetQuotePage() {
 	const [submitting, setSubmitting] = useState(false);
 	const [currentStep, setCurrentStep] = useState(0);
 	const [formData, setFormData] = useState<Record<string, string>>({});
+	const [errors, setErrors] = useState<Record<string, string>>({});
 
 	const steps = [
 		{
@@ -162,6 +163,43 @@ export function PetQuotePage() {
 
 	const handleFieldChange = (name: string, value: string) => {
 		setFormData(prev => ({ ...prev, [name]: value }));
+		// Clear error when user starts typing
+		if (errors[name]) {
+			setErrors(prev => {
+				const newErrors = { ...prev };
+				delete newErrors[name];
+				return newErrors;
+			});
+		}
+	};
+
+	const validateCurrentStep = () => {
+		const currentStepData = steps[currentStep];
+		const newErrors: Record<string, string> = {};
+		
+		currentStepData.fields.forEach(field => {
+			if (field.required) {
+				const value = formData[field.name]?.trim();
+				if (!value) {
+					newErrors[field.name] = 'This field is required';
+				} else if (field.type === 'email' && value) {
+					// Basic email validation
+					const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+					if (!emailRegex.test(value)) {
+						newErrors[field.name] = 'Please enter a valid email address';
+					}
+				} else if (field.type === 'tel' && value) {
+					// Basic phone validation (at least 10 digits)
+					const phoneRegex = /\d{10,}/;
+					if (!phoneRegex.test(value.replace(/\D/g, ''))) {
+						newErrors[field.name] = 'Please enter a valid phone number';
+					}
+				}
+			}
+		});
+		
+		setErrors(newErrors);
+		return Object.keys(newErrors).length === 0;
 	};
 
 	const canContinue = () => {
@@ -171,6 +209,9 @@ export function PetQuotePage() {
 	};
 
 	const handleNext = () => {
+		if (!validateCurrentStep()) {
+			return;
+		}
 		if (currentStep < totalSteps - 1) {
 			setCurrentStep(prev => prev + 1);
 			window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -183,6 +224,8 @@ export function PetQuotePage() {
 			window.scrollTo({ top: 0, behavior: 'smooth' });
 		}
 	};
+
+	const QUOTE_TYPE = "pet" as const;
 
 	const handleSubmit = async () => {
 		if (submitting) return;
@@ -206,7 +249,7 @@ export function PetQuotePage() {
 			hp2.value = '';
 			form.appendChild(hp2);
 
-			await submitQuote("pet", form);
+			await submitQuote(QUOTE_TYPE, form);
 			setSubmitted(true);
 			window.scrollTo(0, 0);
 		} catch (err: any) {
@@ -354,7 +397,7 @@ export function PetQuotePage() {
 														placeholder={field.placeholder}
 														value={formData[field.name] || ""}
 														onChange={(e) => handleFieldChange(field.name, e.target.value)}
-														className="min-h-[100px] text-sm sm:text-base px-3 py-3"
+														className={`min-h-[100px] text-sm sm:text-base px-3 py-3 ${errors[field.name] ? 'border-red-500' : ''}`}
 													/>
 												) : (
 													<Input
@@ -364,8 +407,11 @@ export function PetQuotePage() {
 														value={formData[field.name] || ""}
 														onChange={(e) => handleFieldChange(field.name, e.target.value)}
 														required={field.required}
-														className="text-sm sm:text-base px-3 py-3"
+														className={`text-sm sm:text-base px-3 py-3 ${errors[field.name] ? 'border-red-500' : ''}`}
 													/>
+												)}
+												{errors[field.name] && (
+													<p className="text-sm text-red-500 mt-1">{errors[field.name]}</p>
 												)}
 											</motion.div>
 										))}

@@ -15,6 +15,8 @@ import { submitQuote } from "../../lib/submit";
 import { supabase } from "../../lib/supabaseClient";
 import { SelectWithOther } from "../../components/quotes/SelectWithOther";
 import { motion, AnimatePresence } from "motion/react";
+import { executeTurnstileInvisible } from "../../lib/turnstile";
+import { sanitizeInput, validateInput, isValidEmail, isValidPhone } from "../../lib/formSecurity";
 
 function absUrl(path: string) {
 	const base = (import.meta as any).env?.VITE_SITE_URL || window.location.origin;
@@ -53,6 +55,10 @@ export function AutoQuotePage() {
 	const [submitting, setSubmitting] = useState(false);
 	const [currentStep, setCurrentStep] = useState(0);
 	const [formData, setFormData] = useState<Record<string, string>>({});
+
+	// NEW: per-field errors + whether user tried to advance from a step
+	const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+	const [attemptedSteps, setAttemptedSteps] = useState<Record<number, boolean>>({});
 
 	const steps = [
 		{
@@ -106,7 +112,9 @@ export function AutoQuotePage() {
 			fields: [
 				{ name: "currently_insured", label: "Currently insured?", type: "select", options: ["Yes", "No"] },
 				{ name: "current_policy_expiration", label: "Current policy expiration date", type: "date" },
-				{ name: "additional_drivers", label: "Additional drivers (Name, DOB, Relationship)", type: "textarea", placeholder: "John Doe, 01/15/1995, Spouse\nJane Doe, 05/20/2005, Child" },
+				{ name: "additional_driver_1", label: "Additional Driver 1 (Name, DOB, Relationship)", type: "text", placeholder: "John Doe, 01/15/1995, Spouse" },
+				{ name: "additional_driver_2", label: "Additional Driver 2 (optional)", type: "text", placeholder: "Jane Doe, 05/20/2005, Child" },
+				{ name: "additional_driver_3", label: "Additional Driver 3 (optional)", type: "text", placeholder: "Bob Doe, 03/10/2000, Child" },
 			]
 		},
 		{
@@ -124,33 +132,150 @@ export function AutoQuotePage() {
 	const progress = ((currentStep + 1) / totalSteps) * 100;
 
 	const handleFieldChange = (name: string, value: string) => {
-		setFormData(prev => ({ ...prev, [name]: value }));
+		// Sanitize input on change
+		const sanitized = sanitizeInput(value);
+		setFormData(prev => ({ ...prev, [name]: sanitized }));
+
+		// If this step has been attempted, re-validate this field live to clear errors
+		if (attemptedSteps[currentStep]) {
+			const nextErr = validateField(name, sanitized);
+			setFieldErrors(prev => {
+				const copy = { ...prev };
+				if (nextErr) copy[name] = nextErr;
+				else delete copy[name];
+				return copy;
+			});
+		}
 	};
 
-	const canContinue = () => {
-		const currentStepData = steps[currentStep];
-		const requiredFields = currentStepData.fields.filter(f => f.required);
-		return requiredFields.every(field => formData[field.name]?.trim());
+	const validateField = (name: string, value: string): string | null => {
+		const trimmed = value?.trim?.() ?? "";
+
+		// format-specific validation
+		if (name === "email" && trimmed && !isValidEmail(trimmed)) return "Please enter a valid email address";
+		if (name === "phone" && trimmed && !isValidPhone(trimmed)) return "Please enter a valid phone number";
+
+		// malicious content validation
+		const v = validateInput(trimmed, name);
+		if (!v.valid) return v.error || `Invalid input in ${name}`;
+
+		return null;
+	};
+
+	const validateStep = (stepIndex: number): Record<string, string> => {
+		const step = steps[stepIndex];
+		const errors: Record<string, string> = {};
+
+		for (const field of step.fields) {
+			const value = (formData[field.name] || "").trim();
+
+			const isRequired = "required" in field && !!field.required;
+			if (isRequired && !value) {
+				errors[field.name] = "This field is required";
+				continue;
+			}
+
+			// If optional but filled, validate it too
+			if (value) {
+				const err = validateField(field.name, value);
+				if (err) errors[field.name] = err;
+			}
+		}
+
+		return errors;
 	};
 
 	const handleNext = () => {
-		if (currentStep < totalSteps - 1) {
-			setCurrentStep(prev => prev + 1);
-			window.scrollTo({ top: 0, behavior: 'smooth' });
+		if (currentStep >= totalSteps - 1) return;
+
+		setAttemptedSteps(prev => ({ ...prev, [currentStep]: true }));
+
+		const stepFieldNames = new Set(steps[currentStep].fields.map(f => f.name));
+		const stepErrors = validateStep(currentStep);
+
+		// Replace errors for current step fields (don’t keep stale ones)
+		setFieldErrors(prev => {
+			const next = { ...prev };
+			for (const k of Object.keys(next)) {
+				if (stepFieldNames.has(k)) delete next[k];
+			}
+			return { ...next, ...stepErrors };
+		});
+
+		const firstInvalid = Object.keys(stepErrors)[0];
+		if (firstInvalid) {
+			const el = document.querySelector<HTMLInputElement | HTMLTextAreaElement>(`[name="${firstInvalid}"]`);
+			el?.focus();
+			return;
 		}
+
+		setCurrentStep(prev => prev + 1);
 	};
 
 	const handlePrevious = () => {
 		if (currentStep > 0) {
 			setCurrentStep(prev => prev - 1);
-			window.scrollTo({ top: 0, behavior: 'smooth' });
 		}
+	};
+
+	// NOTE: canContinue no longer gates navigation; validation on click does.
+	// Keep it if you still want it elsewhere, but the Continue button should not rely on it.
+	const canContinue = () => {
+		const currentFields = steps[currentStep].fields;
+		const requiredFields = currentFields.filter(f => "required" in f && f.required);
+		return requiredFields.every(f => formData[f.name]?.trim());
+	};
+
+	const validateForm = (): { valid: boolean; errors: string[] } => {
+		const errors: string[] = [];
+		
+		// Validate email
+		if (formData.email && !isValidEmail(formData.email)) {
+			errors.push('Please enter a valid email address');
+		}
+		
+		// Validate phone
+		if (formData.phone && !isValidPhone(formData.phone)) {
+			errors.push('Please enter a valid phone number');
+		}
+		
+		// Validate all fields for malicious content
+		for (const [key, value] of Object.entries(formData)) {
+			const validation = validateInput(value, key);
+			if (!validation.valid) {
+				errors.push(validation.error || `Invalid input in ${key}`);
+			}
+		}
+		
+		return { valid: errors.length === 0, errors };
 	};
 
 	const handleSubmit = async () => {
 		if (submitting) return;
+
+		// Validate current step first (covers the "final" step gating)
+		setAttemptedSteps(prev => ({ ...prev, [currentStep]: true }));
+		const finalStepErrors = validateStep(currentStep);
+		if (Object.keys(finalStepErrors).length) {
+			setFieldErrors(prev => ({ ...prev, ...finalStepErrors }));
+			const firstInvalid = Object.keys(finalStepErrors)[0];
+			const el = document.querySelector<HTMLInputElement | HTMLTextAreaElement>(`[name="${firstInvalid}"]`);
+			el?.focus();
+			return;
+		}
+
+		// Validate full form (existing behavior)
+		const validation = validateForm();
+		if (!validation.valid) {
+			alert(validation.errors.join('\n'));
+			return;
+		}
+
 		setSubmitting(true);
 		try {
+			// Execute Turnstile before submission
+			const turnstileToken = await executeTurnstileInvisible();
+			
 			const form = document.createElement('form');
 			Object.entries(formData).forEach(([key, value]) => {
 				const input = document.createElement('input');
@@ -158,6 +283,16 @@ export function AutoQuotePage() {
 				input.value = value;
 				form.appendChild(input);
 			});
+			
+			// Add Turnstile token
+			if (turnstileToken) {
+				const turnstileInput = document.createElement('input');
+				turnstileInput.name = 'turnstile_token';
+				turnstileInput.value = turnstileToken;
+				form.appendChild(turnstileInput);
+			}
+			
+			// Honeypot fields
 			const hp1 = document.createElement('input');
 			hp1.name = 'hp_company';
 			hp1.value = '';
@@ -291,45 +426,68 @@ export function AutoQuotePage() {
 									className="space-y-6"
 								>
 									<div className="grid gap-5 sm:grid-cols-2">
-										{steps[currentStep].fields.map((field, idx) => (
-											<motion.div
-												key={field.name}
-												initial={{ opacity: 0, y: 10 }}
-												animate={{ opacity: 1, y: 0 }}
-												transition={{ delay: idx * 0.1 }}
-												className="space-y-2 p-4 rounded-lg border border-gray-200 bg-white/60"
-											>
-												<Label className="text-sm sm:text-base font-medium text-[#1a1a1a]">
-													{field.label}{field.required && <span className="text-red-500 ml-1">*</span>}
-												</Label>
-												{field.type === "select" && field.options ? (
-													<SelectWithOther
-														name={field.name}
-														options={field.options}
-														value={formData[field.name] || ""}
-														onChange={(v) => handleFieldChange(field.name, v)}
-													/>
-												) : field.type === "textarea" ? (
-													<Textarea
-														name={field.name}
-														placeholder={field.placeholder}
-														value={formData[field.name] || ""}
-														onChange={(e) => handleFieldChange(field.name, e.target.value)}
-														className="min-h-[100px] text-sm sm:text-base px-3 py-3"
-													/>
-												) : (
-													<Input
-														type={field.type}
-														name={field.name}
-														placeholder={field.placeholder}
-														value={formData[field.name] || ""}
-														onChange={(e) => handleFieldChange(field.name, e.target.value)}
-														required={field.required}
-														className="text-sm sm:text-base px-3 py-3"
-													/>
-												)}
-											</motion.div>
-										))}
+										{steps[currentStep].fields.map((field, idx) => {
+											const showError = !!attemptedSteps[currentStep] && !!fieldErrors[field.name];
+											const errMsg = showError ? fieldErrors[field.name] : "";
+
+											return (
+												<motion.div
+													key={field.name}
+													initial={{ opacity: 0, y: 10 }}
+													animate={{ opacity: 1, y: 0 }}
+													transition={{ delay: idx * 0.1 }}
+													className="space-y-2 p-4 rounded-lg border border-gray-200 bg-white/60"
+												>
+													<Label className="text-sm sm:text-base font-medium text-[#1a1a1a]">
+														{field.label}{"required" in field && field.required && <span className="text-red-500 ml-1">*</span>}
+													</Label>
+
+													{field.type === "select" && field.options ? (
+														<>
+															<SelectWithOther
+																name={field.name}
+																options={field.options}
+																value={formData[field.name] || ""}
+																onChange={(v) => handleFieldChange(field.name, v)}
+															/>
+															{showError && (
+																<p className="text-xs text-red-600" role="alert">{errMsg}</p>
+															)}
+														</>
+													) : field.type === "textarea" ? (
+														<>
+															<Textarea
+																name={field.name}
+																placeholder={"placeholder" in field ? field.placeholder : undefined}
+																value={formData[field.name] || ""}
+																onChange={(e) => handleFieldChange(field.name, e.target.value)}
+																aria-invalid={showError}
+																className={`min-h-[100px] text-sm sm:text-base px-3 py-3 ${showError ? "border-red-500 focus-visible:ring-red-500" : ""}`}
+															/>
+															{showError && (
+																<p className="text-xs text-red-600" role="alert">{errMsg}</p>
+															)}
+														</>
+													) : (
+														<>
+															<Input
+																type={field.type}
+																name={field.name}
+																placeholder={"placeholder" in field ? field.placeholder : undefined}
+																value={formData[field.name] || ""}
+																onChange={(e) => handleFieldChange(field.name, e.target.value)}
+																required={"required" in field ? field.required : false}
+																aria-invalid={showError}
+																className={`text-sm sm:text-base px-3 py-3 ${showError ? "border-red-500 focus-visible:ring-red-500" : ""}`}
+															/>
+															{showError && (
+																<p className="text-xs text-red-600" role="alert">{errMsg}</p>
+															)}
+														</>
+													)}
+												</motion.div>
+											);
+										})}
 									</div>
 								</motion.div>
 							</AnimatePresence>
@@ -345,11 +503,13 @@ export function AutoQuotePage() {
 									<ArrowLeft className="mr-2 h-4 w-4" />
 									Back
 								</Button>
+
 								{currentStep < totalSteps - 1 ? (
 									<Button
 										type="button"
 										onClick={handleNext}
-										disabled={!canContinue()}
+										// IMPORTANT: allow clicking to trigger validation (don't disable-gate)
+										disabled={false}
 										className="w-full sm:w-auto bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] order-1 sm:order-2"
 									>
 										Continue
@@ -359,7 +519,7 @@ export function AutoQuotePage() {
 									<Button
 										type="button"
 										onClick={handleSubmit}
-										disabled={submitting || !canContinue()}
+										disabled={submitting}
 										className="w-full sm:w-auto bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] order-1 sm:order-2"
 									>
 										{submitting ? "Submitting..." : "Get My Quote"}
@@ -510,3 +670,7 @@ export function AutoQuotePage() {
 		</div>
 	);
 }
+function setHead(arg0: { title: any; description: any; canonicalPath: any; jsonLd: any; }) {
+	throw new Error("Function not implemented.");
+}
+

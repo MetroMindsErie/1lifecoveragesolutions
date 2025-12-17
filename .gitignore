@@ -42,3 +42,6 @@ coverage/
 *.pdf
 
 *.sql
+
+# Supabase local/CLI temp artifacts
+supabase/.temp/

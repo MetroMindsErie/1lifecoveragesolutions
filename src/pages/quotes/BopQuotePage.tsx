@@ -112,6 +112,10 @@ export function BopQuotePage() {
 	const [currentStep, setCurrentStep] = useState(0);
 	const [formData, setFormData] = useState<Record<string, string>>({});
 
+	// NEW: per-field errors + whether user tried to advance from a step
+	const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+	const [attemptedSteps, setAttemptedSteps] = useState<Record<number, boolean>>({});
+
 	const steps = [
 		{
 			id: "business-info",
@@ -224,30 +228,122 @@ export function BopQuotePage() {
 
 	const handleFieldChange = (name: string, value: string) => {
 		setFormData(prev => ({ ...prev, [name]: value }));
+
+		// If this step has been attempted, re-validate this field live to clear errors
+		if (attemptedSteps[currentStep]) {
+			const field = steps[currentStep].fields.find(f => f.name === name) as any | undefined;
+			if (!field) return;
+
+			const nextErr = validateField(field, value);
+			setFieldErrors(prev => {
+				const copy = { ...prev };
+				if (nextErr) copy[name] = nextErr;
+				else delete copy[name];
+				return copy;
+			});
+		}
 	};
 
-	const canContinue = () => {
-		const currentStepData = steps[currentStep];
-		const requiredFields = currentStepData.fields.filter(f => f.required);
-		return requiredFields.every(field => formData[field.name]?.trim());
+	const validateField = (field: any, value: string): string | null => {
+		if (!value && field.required) {
+			return `${field.label} is required`;
+		}
+
+		if (value) {
+			// Email validation
+			if (field.type === "email") {
+				const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+				if (!emailRegex.test(value)) {
+					return "Please enter a valid email address";
+				}
+			}
+
+			// Phone validation
+			if (field.type === "tel") {
+				const digitsOnly = value.replace(/\D/g, "");
+				if (digitsOnly.length < 10) {
+					return "Please enter a valid phone number (at least 10 digits)";
+				}
+			}
+
+			// ZIP code validation
+			if (field.name === "zip") {
+				const zipRegex = /^\d{5}(-\d{4})?$/;
+				if (!zipRegex.test(value)) {
+					return "Please enter a valid ZIP code";
+				}
+			}
+		}
+
+		return null;
+	};
+
+	const validateStep = (stepIndex: number): Record<string, string> => {
+		const step = steps[stepIndex];
+		const errors: Record<string, string> = {};
+
+		for (const field of step.fields as any[]) {
+			const value = (formData[field.name] || "").trim();
+			const err = validateField(field, value);
+			if (err) errors[field.name] = err;
+		}
+
+		return errors;
 	};
 
 	const handleNext = () => {
-		if (currentStep < totalSteps - 1) {
-			setCurrentStep(prev => prev + 1);
-			window.scrollTo({ top: 0, behavior: 'smooth' });
+		if (currentStep >= totalSteps - 1) return;
+
+		setAttemptedSteps(prev => ({ ...prev, [currentStep]: true }));
+
+		const stepFieldNames = new Set(steps[currentStep].fields.map(f => f.name));
+		const stepErrors = validateStep(currentStep);
+
+		// Replace errors for current step fields (don’t keep stale ones)
+		setFieldErrors(prev => {
+			const next = { ...prev };
+			for (const k of Object.keys(next)) {
+				if (stepFieldNames.has(k)) delete next[k];
+			}
+			return { ...next, ...stepErrors };
+		});
+
+		const firstInvalid = Object.keys(stepErrors)[0];
+		if (firstInvalid) {
+			const el = document.querySelector<HTMLInputElement | HTMLTextAreaElement>(
+				`[name="${firstInvalid}"]`
+			);
+			el?.focus();
+			return;
 		}
+
+		setCurrentStep(prev => prev + 1);
+		window.scrollTo({ top: 0, behavior: "smooth" });
 	};
 
 	const handlePrevious = () => {
 		if (currentStep > 0) {
 			setCurrentStep(prev => prev - 1);
-			window.scrollTo({ top: 0, behavior: 'smooth' });
+			window.scrollTo({ top: 0, behavior: "smooth" });
 		}
 	};
 
 	const handleSubmit = async () => {
 		if (submitting) return;
+
+		// Validate current (final) step before submit
+		setAttemptedSteps(prev => ({ ...prev, [currentStep]: true }));
+		const finalStepErrors = validateStep(currentStep);
+		if (Object.keys(finalStepErrors).length) {
+			setFieldErrors(prev => ({ ...prev, ...finalStepErrors }));
+			const firstInvalid = Object.keys(finalStepErrors)[0];
+			const el = document.querySelector<HTMLInputElement | HTMLTextAreaElement>(
+				`[name="${firstInvalid}"]`
+			);
+			el?.focus();
+			return;
+		}
+
 		setSubmitting(true);
 		try {
 			// Only send columns that exist in bop_quotes
@@ -259,7 +355,7 @@ export function BopQuotePage() {
 				"prior_claims","prior_claims_description",
 				"desired_coverage_types","coverage_limits","deductible",
 				"vehicles_for_operations","subcontractors","special_endorsements",
-				"referral_source","referrer","utm","submitted_from_path","user_agent","ip","status","payload","quote_type",
+				"referral_source","referrer","utm","submitted_from_path","status","payload","quote_type",
 			]);
 
 			// Sanitize
@@ -279,10 +375,9 @@ export function BopQuotePage() {
 			sanitized.email = primaryEmail;
 			sanitized.phone = primaryPhone;
 
-			// Meta
+			// Meta - let submitQuote handle user_agent automatically
 			sanitized.quote_type = "bop";
 			sanitized.submitted_from_path = window.location.pathname;
-			sanitized.user_agent = navigator.userAgent;
 			// Keep full original form for diagnostics in JSONB column
 			sanitized.payload = { ...formData };
 
@@ -440,46 +535,74 @@ export function BopQuotePage() {
 									className="space-y-6"
 								>
 									<div className="grid gap-5 sm:grid-cols-2">
-										{steps[currentStep].fields.map((field, idx) => (
-											<motion.div
-												key={field.name}
-												initial={{ opacity: 0, y: 10 }}
-												animate={{ opacity: 1, y: 0 }}
-												transition={{ delay: idx * 0.1 }}
-												className="space-y-2 p-4 rounded-lg border border-gray-200 bg-white/60"
-											>
-												<Label className="text-sm sm:text-base font-medium text-[#1a1a1a]">
-													{field.label}{field.required && <span className="text-red-500 ml-1">*</span>}
-												</Label>
-												{field.type === "select" && field.options ? (
-													<SelectWithOther
-														name={field.name}
-														options={field.options}
-														value={formData[field.name] || ""}
-														onChange={(value) => handleFieldChange(field.name, value)}
-														otherLabel={(field as any).otherLabel}
-													/>
-												) : field.type === "textarea" ? (
-													<Textarea
-														name={field.name}
-														placeholder={field.placeholder}
-														value={formData[field.name] || ""}
-														onChange={(e) => handleFieldChange(field.name, e.target.value)}
-														className="min-h-[100px] text-sm sm:text-base px-3 py-3"
-													/>
-												) : (
-													<Input
-														type={field.type}
-														name={field.name}
-														placeholder={field.placeholder}
-														value={formData[field.name] || ""}
-														onChange={(e) => handleFieldChange(field.name, e.target.value)}
-														required={field.required}
-														className="text-sm sm:text-base px-3 py-3"
-													/>
-												)}
-											</motion.div>
-										))}
+										{steps[currentStep].fields.map((field, idx) => {
+											const showError =
+												!!attemptedSteps[currentStep] && !!fieldErrors[field.name];
+											const errMsg = showError ? fieldErrors[field.name] : "";
+
+											return (
+												<motion.div
+													key={field.name}
+													initial={{ opacity: 0, y: 10 }}
+													animate={{ opacity: 1, y: 0 }}
+													transition={{ delay: idx * 0.1 }}
+													className="space-y-2 p-4 rounded-lg border border-gray-200 bg-white/60"
+												>
+													<Label className="text-sm sm:text-base font-medium text-[#1a1a1a]">
+														{field.label}{field.required && <span className="text-red-500 ml-1">*</span>}
+													</Label>
+
+													{field.type === "select" && field.options ? (
+														<>
+															<SelectWithOther
+																name={field.name}
+																options={field.options}
+																value={formData[field.name] || ""}
+																onChange={(value) => handleFieldChange(field.name, value)}
+																otherLabel={(field as any).otherLabel}
+															/>
+															{showError && (
+																<p className="text-xs text-red-600" role="alert">{errMsg}</p>
+															)}
+														</>
+													) : field.type === "textarea" ? (
+														<>
+															<Textarea
+																name={field.name}
+																placeholder={field.placeholder}
+																value={formData[field.name] || ""}
+																onChange={(e) => handleFieldChange(field.name, e.target.value)}
+																aria-invalid={showError}
+																className={`min-h-[100px] text-sm sm:text-base px-3 py-3 ${
+																	showError ? "border-red-500 focus-visible:ring-red-500" : ""
+																}`}
+															/>
+															{showError && (
+																<p className="text-xs text-red-600" role="alert">{errMsg}</p>
+															)}
+														</>
+													) : (
+														<>
+															<Input
+																type={field.type}
+																name={field.name}
+																placeholder={field.placeholder}
+																value={formData[field.name] || ""}
+																onChange={(e) => handleFieldChange(field.name, e.target.value)}
+																required={field.required}
+																aria-invalid={showError}
+																className={`text-sm sm:text-base px-3 py-3 ${
+																	showError ? "border-red-500 focus-visible:ring-red-500" : ""
+																}`}
+															/>
+															{showError && (
+																<p className="text-xs text-red-600" role="alert">{errMsg}</p>
+															)}
+														</>
+													)}
+												</motion.div>
+											);
+										})}
 									</div>
 								</motion.div>
 							</AnimatePresence>
@@ -500,7 +623,8 @@ export function BopQuotePage() {
 									<Button
 										type="button"
 										onClick={handleNext}
-										disabled={!canContinue()}
+										// IMPORTANT: allow clicking to trigger validation (don't disable-gate)
+										disabled={false}
 										className="w-full sm:w-auto bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] order-1 sm:order-2"
 									>
 										Continue
@@ -510,7 +634,7 @@ export function BopQuotePage() {
 									<Button
 										type="button"
 										onClick={handleSubmit}
-										disabled={submitting || !canContinue()}
+										disabled={submitting}
 										className="w-full sm:w-auto bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] order-1 sm:order-2"
 									>
 										{submitting ? "Submitting..." : "Get My Quote"}
@@ -519,20 +643,7 @@ export function BopQuotePage() {
 								)}
 							</div>
 
-							<div className="mt-6 flex justify-center gap-2">
-								{steps.map((_, idx) => (
-									<div
-										key={idx}
-										className={`h-2 rounded-full transition-all ${
-											idx === currentStep
-												? "w-8 bg-gradient-to-r from-[#4f46e5] to-[#06b6d4]"
-												: idx < currentStep
-												? "w-2 bg-[#06b6d4]"
-												: "w-2 bg-gray-300"
-										}`}
-									/>
-								))}
-							</div>
+							{/* ...existing code... */}
 						</CardContent>
 					</Card>
 

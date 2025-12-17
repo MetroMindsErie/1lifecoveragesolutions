@@ -12,6 +12,7 @@ interface SelectWithOtherProps {
   className?: string;
   value?: string;
   onChange?: (value: string) => void;
+  disabled?: boolean;
 }
 
 export function SelectWithOther({
@@ -24,6 +25,7 @@ export function SelectWithOther({
   className,
   value,
   onChange,
+  disabled = false,
 }: SelectWithOtherProps) {
   const [selectedValue, setSelectedValue] = useState(value || "");
   const [otherValue, setOtherValue] = useState("");
@@ -56,10 +58,12 @@ export function SelectWithOther({
           name={name}
           value={selectedValue}
           required={required}
+          disabled={disabled}
           onChange={(e) => handleSelectChange(e.target.value)}
           className="mt-1 w-full rounded-md border border-[var(--brand-coral,#FF6B61)]/40 bg-white/85 backdrop-blur-sm px-3 py-3 text-sm shadow-sm outline-none transition
                      focus:border-[var(--brand-coral,#FF6B61)] focus:ring-2 focus:ring-[var(--brand-coral,#FF6B61)]/30
-                     hover:border-[var(--brand-coral,#FF6B61)]"
+                     hover:border-[var(--brand-coral,#FF6B61)]
+                     disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-100"
         >
           <option value="">{placeholder}</option>
           {options.map((o) => (

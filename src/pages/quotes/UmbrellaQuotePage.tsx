@@ -103,6 +103,10 @@ export function UmbrellaQuotePage() {
 	const [currentStep, setCurrentStep] = useState(0);
 	const [formData, setFormData] = useState<Record<string, string>>({});
 
+	// NEW: per-field errors + whether user tried to advance from a step
+	const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+	const [attemptedSteps, setAttemptedSteps] = useState<Record<number, boolean>>({});
+
 	const steps = [
 		{
 			id: "client-info",
@@ -180,8 +184,73 @@ export function UmbrellaQuotePage() {
 	const totalSteps = steps.length;
 	const progress = ((currentStep + 1) / totalSteps) * 100;
 
+	const validateField = (field: any, value: string): string | null => {
+		const trimmed = (value || "").trim();
+
+		if (!trimmed && field.required) return "This field is required";
+		if (!trimmed) return null;
+
+		if (field.type === "email") {
+			const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+			if (!emailRegex.test(trimmed)) return "Please enter a valid email address";
+		}
+
+		if (field.type === "tel") {
+			const digitsOnly = trimmed.replace(/\D/g, "");
+			if (digitsOnly.length < 10) return "Please enter a valid phone number (at least 10 digits)";
+		}
+
+		return null;
+	};
+
+	const validateStep = (stepIndex: number): Record<string, string> => {
+		const step = steps[stepIndex];
+		const errors: Record<string, string> = {};
+
+		for (const field of step.fields as any[]) {
+			const value = formData[field.name] || "";
+			const err = validateField(field, value);
+			if (err) errors[field.name] = err;
+		}
+
+		// Conditional: require description if prior_claims === "Yes" (coverage-request step)
+		if (step.id === "coverage-request" && formData.prior_claims === "Yes") {
+			if (!(formData.prior_claims_description || "").trim()) {
+				errors.prior_claims_description = "Please describe the prior claim(s) or incident(s)";
+			}
+		}
+
+		return errors;
+	};
+
 	const handleFieldChange = (name: string, value: string) => {
 		setFormData(prev => ({ ...prev, [name]: value }));
+
+		// If this step has been attempted, re-validate this field live to clear errors
+		if (attemptedSteps[currentStep]) {
+			const field = steps[currentStep].fields.find(f => f.name === name) as any | undefined;
+			const nextErr = field ? validateField(field, value) : null;
+
+			setFieldErrors(prev => {
+				const copy = { ...prev };
+				if (nextErr) copy[name] = nextErr;
+				else delete copy[name];
+				return copy;
+			});
+
+			// Re-run conditional validations so dependent errors clear immediately
+			const stepFieldNames = new Set(steps[currentStep].fields.map(f => f.name));
+			if (steps[currentStep].id === "coverage-request") stepFieldNames.add("prior_claims_description");
+			const stepErrors = validateStep(currentStep);
+
+			setFieldErrors(prev => {
+				const next = { ...prev };
+				for (const k of Object.keys(next)) {
+					if (stepFieldNames.has(k) && !(k in stepErrors)) delete next[k];
+				}
+				return { ...next, ...stepErrors };
+			});
+		}
 	};
 
 	const canContinue = () => {
@@ -191,10 +260,33 @@ export function UmbrellaQuotePage() {
 	};
 
 	const handleNext = () => {
-		if (currentStep < totalSteps - 1) {
-			setCurrentStep(prev => prev + 1);
-			window.scrollTo({ top: 0, behavior: 'smooth' });
+		if (currentStep >= totalSteps - 1) return;
+
+		setAttemptedSteps(prev => ({ ...prev, [currentStep]: true }));
+
+		const stepFieldNames = new Set(steps[currentStep].fields.map(f => f.name));
+		if (steps[currentStep].id === "coverage-request") stepFieldNames.add("prior_claims_description");
+
+		const stepErrors = validateStep(currentStep);
+
+		// Replace errors for current step fields (don’t keep stale ones)
+		setFieldErrors(prev => {
+			const next = { ...prev };
+			for (const k of Object.keys(next)) {
+				if (stepFieldNames.has(k)) delete next[k];
+			}
+			return { ...next, ...stepErrors };
+		});
+
+		const firstInvalid = Object.keys(stepErrors)[0];
+		if (firstInvalid) {
+			const el = document.querySelector<HTMLInputElement | HTMLTextAreaElement>(`[name="${firstInvalid}"]`);
+			el?.focus();
+			return;
 		}
+
+		setCurrentStep(prev => prev + 1);
+		window.scrollTo({ top: 0, behavior: "smooth" });
 	};
 
 	const handlePrevious = () => {
@@ -206,6 +298,18 @@ export function UmbrellaQuotePage() {
 
 	const handleSubmit = async () => {
 		if (submitting) return;
+
+		// Validate current (final) step before submit
+		setAttemptedSteps(prev => ({ ...prev, [currentStep]: true }));
+		const finalStepErrors = validateStep(currentStep);
+		if (Object.keys(finalStepErrors).length) {
+			setFieldErrors(prev => ({ ...prev, ...finalStepErrors }));
+			const firstInvalid = Object.keys(finalStepErrors)[0];
+			const el = document.querySelector<HTMLInputElement | HTMLTextAreaElement>(`[name="${firstInvalid}"]`);
+			el?.focus();
+			return;
+		}
+
 		setSubmitting(true);
 		try {
 			const form = document.createElement('form');
@@ -347,46 +451,63 @@ export function UmbrellaQuotePage() {
 									className="space-y-6"
 								>
 									<div className="grid gap-5 sm:grid-cols-2">
-										{steps[currentStep].fields.map((field, idx) => (
-											<motion.div
-												key={field.name}
-												initial={{ opacity: 0, y: 10 }}
-												animate={{ opacity: 1, y: 0 }}
-												transition={{ delay: idx * 0.075 }}
-												className="space-y-2 p-4 rounded-lg border border-gray-200 bg-white/60"
-											>
-												<Label className="text-sm sm:text-base font-medium text-[#1a1a1a]">
-													{field.label}{(field as any).required && <span className="text-red-500 ml-1">*</span>}
-												</Label>
-												{field.type === "select" && field.options ? (
-													<SelectWithOther
-														name={field.name}
-														options={field.options}
-														value={formData[field.name] || ""}
-														onChange={(v) => handleFieldChange(field.name, v)}
-														otherLabel={(field as any).otherLabel}
-													/>
-												) : field.type === "textarea" ? (
-													<Textarea
-														name={field.name}
-														placeholder={(field as any).placeholder}
-														value={formData[field.name] || ""}
-														onChange={(e) => handleFieldChange(field.name, e.target.value)}
-														className="min-h-[110px] text-sm sm:text-base px-3 py-3"
-													/>
-												) : (
-													<Input
-														type={field.type}
-														name={field.name}
-														placeholder={(field as any).placeholder}
-														value={formData[field.name] || ""}
-														onChange={(e) => handleFieldChange(field.name, e.target.value)}
-														required={(field as any).required}
-														className="text-sm sm:text-base px-3 py-3"
-													/>
-												)}
-											</motion.div>
-										))}
+										{steps[currentStep].fields.map((field, idx) => {
+											const showError = !!attemptedSteps[currentStep] && !!fieldErrors[field.name];
+											const errMsg = showError ? fieldErrors[field.name] : "";
+
+											return (
+												<motion.div
+													key={field.name}
+													initial={{ opacity: 0, y: 10 }}
+													animate={{ opacity: 1, y: 0 }}
+													transition={{ delay: idx * 0.075 }}
+													className="space-y-2 p-4 rounded-lg border border-gray-200 bg-white/60"
+												>
+													<Label className="text-sm sm:text-base font-medium text-[#1a1a1a]">
+														{field.label}{(field as any).required && <span className="text-red-500 ml-1">*</span>}
+													</Label>
+
+													{field.type === "select" && field.options ? (
+														<>
+															<SelectWithOther
+																name={field.name}
+																options={field.options}
+																value={formData[field.name] || ""}
+																onChange={(v) => handleFieldChange(field.name, v)}
+																otherLabel={(field as any).otherLabel}
+															/>
+															{showError && <p className="text-xs text-red-600" role="alert">{errMsg}</p>}
+														</>
+													) : field.type === "textarea" ? (
+														<>
+															<Textarea
+																name={field.name}
+																placeholder={(field as any).placeholder}
+																value={formData[field.name] || ""}
+																onChange={(e) => handleFieldChange(field.name, e.target.value)}
+																aria-invalid={showError}
+																className={`min-h-[110px] text-sm sm:text-base px-3 py-3 ${showError ? "border-red-500 focus-visible:ring-red-500" : ""}`}
+															/>
+															{showError && <p className="text-xs text-red-600" role="alert">{errMsg}</p>}
+														</>
+													) : (
+														<>
+															<Input
+																type={field.type}
+																name={field.name}
+																placeholder={(field as any).placeholder}
+																value={formData[field.name] || ""}
+																onChange={(e) => handleFieldChange(field.name, e.target.value)}
+																required={(field as any).required}
+																aria-invalid={showError}
+																className={`text-sm sm:text-base px-3 py-3 ${showError ? "border-red-500 focus-visible:ring-red-500" : ""}`}
+															/>
+															{showError && <p className="text-xs text-red-600" role="alert">{errMsg}</p>}
+														</>
+													)}
+												</motion.div>
+											);
+										})}
 									</div>
 								</motion.div>
 							</AnimatePresence>
@@ -401,11 +522,13 @@ export function UmbrellaQuotePage() {
 								>
 									<ArrowLeft className="mr-2 h-4 w-4" /> Back
 								</Button>
+
 								{currentStep < totalSteps - 1 ? (
 									<Button
 										type="button"
 										onClick={handleNext}
-										disabled={!canContinue()}
+										// IMPORTANT: allow clicking to trigger validation (don't disable-gate)
+										disabled={false}
 										className="w-full sm:w-auto bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] order-1 sm:order-2"
 									>
 										Continue <ArrowRight className="ml-2 h-4 w-4" />
@@ -414,7 +537,7 @@ export function UmbrellaQuotePage() {
 									<Button
 										type="button"
 										onClick={handleSubmit}
-										disabled={submitting || !canContinue()}
+										disabled={submitting}
 										className="w-full sm:w-auto bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] order-1 sm:order-2"
 									>
 										{submitting ? "Submitting..." : "Get My Quote"} <CheckCircle2 className="ml-2 h-4 w-4" />

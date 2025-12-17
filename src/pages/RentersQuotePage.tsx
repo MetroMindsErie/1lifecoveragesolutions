@@ -21,6 +21,10 @@ export function RentersQuotePage() {
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<Record<string, string>>({});
 
+  // NEW: per-field errors + whether user tried to advance from a step
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [attemptedSteps, setAttemptedSteps] = useState<Record<number, boolean>>({});
+
   const steps = [
     {
       id: "client-info",
@@ -38,7 +42,8 @@ export function RentersQuotePage() {
       title: "Tell us about your rental",
       subtitle: "Property information",
       fields: [
-        { name: "rental_address", label: "Rental Address", type: "text", required: true },
+        { name: "address", label: "Street Address", type: "text", required: true },
+        { name: "zip", label: "ZIP Code", type: "text", required: true },
         { name: "rental_type", label: "Type of Rental", type: "select", options: ["Apartment", "House", "Condo", "Townhouse"], otherLabel: "Other" },
         { name: "move_in_date", label: "Move-in Date", type: "date" },
         { name: "square_footage", label: "Approximate Square Footage", type: "text" },
@@ -61,8 +66,8 @@ export function RentersQuotePage() {
       fields: [
         { name: "number_of_occupants", label: "Number of Occupants", type: "select", options: ["1", "2", "3", "4", "5+"], otherLabel: "Other" },
         { name: "pets", label: "Do you have pets?", type: "select", options: ["Yes", "No"] },
-        { name: "pet_type", label: "Type of Pet(s)", type: "select", options: ["Dog", "Cat", "Bird", "Reptile", "Other"] },
-        { name: "dog_breed", label: "Dog Breed (if applicable)", type: "text" },
+        { name: "pet_type", label: "Type of Pet(s)", type: "select", options: ["Dog", "Cat", "Bird", "Reptile", "Other"], dependsOn: "pets", dependsOnValue: "Yes" },
+        { name: "dog_breed", label: "Dog Breed (if applicable)", type: "text", dependsOn: "pet_type", dependsOnValue: "Dog" },
       ]
     },
     {
@@ -74,16 +79,6 @@ export function RentersQuotePage() {
         { name: "fire_alarm", label: "Fire/Smoke Alarm?", type: "select", options: ["Yes", "No"] },
         { name: "sprinkler_system", label: "Sprinkler System?", type: "select", options: ["Yes", "No"] },
         { name: "gated_community", label: "Gated Community?", type: "select", options: ["Yes", "No"] },
-      ]
-    },
-    {
-      id: "valuables",
-      title: "High-value items",
-      subtitle: "Items that may need additional coverage",
-      fields: [
-        { name: "jewelry_value", label: "Jewelry Value ($)", type: "text", placeholder: "Total value of jewelry" },
-        { name: "electronics_value", label: "Electronics Value ($)", type: "text", placeholder: "Computers, TVs, etc." },
-        { name: "other_valuables", label: "Other Valuable Items", type: "textarea", placeholder: "Art, collectibles, musical instruments, etc." },
       ]
     },
     {
@@ -102,21 +97,143 @@ export function RentersQuotePage() {
   const totalSteps = steps.length;
   const progress = ((currentStep + 1) / totalSteps) * 100;
 
+  const isFieldDisabled = (field: any) => {
+    if (field?.dependsOn) {
+      return formData[field.dependsOn] !== field.dependsOnValue;
+    }
+    return false;
+  };
+
+  const validateField = (field: any, value: string): string | null => {
+    const trimmed = (value || "").trim();
+
+    if (!trimmed && field.required) return "This field is required";
+    if (!trimmed) return null;
+
+    // email
+    if (field.type === "email") {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(trimmed)) return "Please enter a valid email address";
+    }
+
+    // phone
+    if (field.type === "tel") {
+      const digitsOnly = trimmed.replace(/\D/g, "");
+      if (digitsOnly.length < 10) return "Please enter a valid phone number (at least 10 digits)";
+    }
+
+    // ZIP (renters form uses name="zip")
+    if (field.name === "zip") {
+      const zipRegex = /^\d{5}(-\d{4})?$/;
+      if (!zipRegex.test(trimmed)) return "Please enter a valid ZIP code";
+    }
+
+    return null;
+  };
+
+  const validateStep = (stepIndex: number): Record<string, string> => {
+    const step = steps[stepIndex];
+    const errors: Record<string, string> = {};
+
+    for (const field of step.fields as any[]) {
+      if (isFieldDisabled(field)) continue; // skip dependent/disabled fields
+      const value = formData[field.name] || "";
+      const err = validateField(field, value);
+      if (err) errors[field.name] = err;
+    }
+
+    return errors;
+  };
+
   const handleFieldChange = (name: string, value: string) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => {
+      const newData = { ...prev, [name]: value };
+
+      // Clear dependent fields when parent field changes
+      if (name === "pets" && value === "No") {
+        delete newData.pet_type;
+        delete newData.dog_breed;
+      }
+      if (name === "pet_type" && value !== "Dog") {
+        delete newData.dog_breed;
+      }
+
+      return newData;
+    });
+
+    // Clear errors for dependent fields when they get cleared
+    if (name === "pets" && value === "No") {
+      setFieldErrors(prev => {
+        const copy = { ...prev };
+        delete copy.pet_type;
+        delete copy.dog_breed;
+        return copy;
+      });
+    }
+    if (name === "pet_type" && value !== "Dog") {
+      setFieldErrors(prev => {
+        const copy = { ...prev };
+        delete copy.dog_breed;
+        return copy;
+      });
+    }
+
+    // If this step has been attempted, re-validate this field live to clear errors
+    if (attemptedSteps[currentStep]) {
+      const field = steps[currentStep].fields.find(f => (f as any).name === name) as any | undefined;
+      if (!field) return;
+
+      if (isFieldDisabled(field)) {
+        setFieldErrors(prev => {
+          const copy = { ...prev };
+          delete copy[name];
+          return copy;
+        });
+        return;
+      }
+
+      const nextErr = validateField(field, value);
+      setFieldErrors(prev => {
+        const copy = { ...prev };
+        if (nextErr) copy[name] = nextErr;
+        else delete copy[name];
+        return copy;
+      });
+    }
   };
 
   const canContinue = () => {
     const currentStepData = steps[currentStep];
-    const requiredFields = currentStepData.fields.filter(f => f.required);
-    return requiredFields.every(field => formData[field.name]?.trim());
+    const requiredFields = currentStepData.fields.filter(f => (f as any).required);
+    return requiredFields.every(field => formData[(field as any).name]?.trim());
   };
 
   const handleNext = () => {
-    if (currentStep < totalSteps - 1) {
-      setCurrentStep(prev => prev + 1);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (currentStep >= totalSteps - 1) return;
+
+    setAttemptedSteps(prev => ({ ...prev, [currentStep]: true }));
+
+    const stepFieldNames = new Set(steps[currentStep].fields.map(f => (f as any).name));
+    const stepErrors = validateStep(currentStep);
+
+    // Replace errors for current step fields (don’t keep stale ones)
+    setFieldErrors(prev => {
+      const next = { ...prev };
+      for (const k of Object.keys(next)) {
+        if (stepFieldNames.has(k)) delete next[k];
+      }
+      return { ...next, ...stepErrors };
+    });
+
+    const firstInvalid = Object.keys(stepErrors)[0];
+    if (firstInvalid) {
+      const el = document.querySelector<HTMLInputElement | HTMLTextAreaElement>(`[name="${firstInvalid}"]`);
+      el?.focus();
+      return;
     }
+
+    setCurrentStep(prev => prev + 1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handlePrevious = () => {
@@ -128,15 +245,45 @@ export function RentersQuotePage() {
 
   const handleSubmit = async () => {
     if (submitting) return;
+
+    // Validate current (final) step before submit
+    setAttemptedSteps(prev => ({ ...prev, [currentStep]: true }));
+    const finalStepErrors = validateStep(currentStep);
+    if (Object.keys(finalStepErrors).length) {
+      setFieldErrors(prev => ({ ...prev, ...finalStepErrors }));
+      const firstInvalid = Object.keys(finalStepErrors)[0];
+      const el = document.querySelector<HTMLInputElement | HTMLTextAreaElement>(`[name="${firstInvalid}"]`);
+      el?.focus();
+      return;
+    }
+
     setSubmitting(true);
     try {
       const form = document.createElement('form');
+      
+      // Transform data to match database schema
+      const transformedData: Record<string, string> = {};
+      
       Object.entries(formData).forEach(([key, value]) => {
+        // Convert Yes/No to boolean for specific fields
+        const booleanFields = ['pets', 'security_system', 'fire_alarm', 'sprinkler_system', 
+                               'gated_community', 'current_insurance', 'prior_claims'];
+        
+        if (booleanFields.includes(key)) {
+          transformedData[key] = value.toLowerCase() === 'yes' ? 'true' : 'false';
+        } else {
+          transformedData[key] = value;
+        }
+      });
+      
+      // Add transformed data to form
+      Object.entries(transformedData).forEach(([key, value]) => {
         const input = document.createElement('input');
         input.name = key;
         input.value = value;
         form.appendChild(input);
       });
+      
       const hp1 = document.createElement('input');
       hp1.name = 'hp_company';
       hp1.value = '';
@@ -273,46 +420,67 @@ export function RentersQuotePage() {
                   className="space-y-6"
                 >
                   <div className="grid gap-5 sm:grid-cols-2">
-                    {steps[currentStep].fields.map((field, idx) => (
-                      <motion.div
-                        key={field.name}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: idx * 0.075 }}
-                        className="space-y-2 p-4 rounded-lg border border-gray-200 bg-white/60"
-                      >
-                        <Label className="text-sm sm:text-base font-medium text-[#1a1a1a]">
-                          {field.label}{(field as any).required && <span className="text-red-500 ml-1">*</span>}
-                        </Label>
-                        {field.type === "select" && field.options ? (
-                          <SelectWithOther
-                            name={field.name}
-                            options={field.options}
-                            value={formData[field.name] || ""}
-                            onChange={(v) => handleFieldChange(field.name, v)}
-                            otherLabel={(field as any).otherLabel}
-                          />
-                        ) : field.type === "textarea" ? (
-                          <Textarea
-                            name={field.name}
-                            placeholder={(field as any).placeholder}
-                            value={formData[field.name] || ""}
-                            onChange={(e) => handleFieldChange(field.name, e.target.value)}
-                            className="min-h-[110px] text-sm sm:text-base px-3 py-3"
-                          />
-                        ) : (
-                          <Input
-                            type={field.type}
-                            name={field.name}
-                            placeholder={(field as any).placeholder}
-                            value={formData[field.name] || ""}
-                            onChange={(e) => handleFieldChange(field.name, e.target.value)}
-                            required={(field as any).required}
-                            className="text-sm sm:text-base px-3 py-3"
-                          />
-                        )}
-                      </motion.div>
-                    ))}
+                    {steps[currentStep].fields.map((field, idx) => {
+                      const disabled = isFieldDisabled(field as any);
+                      const showError = !disabled && !!attemptedSteps[currentStep] && !!fieldErrors[(field as any).name];
+                      const errMsg = showError ? fieldErrors[(field as any).name] : "";
+
+                      return (
+                        <motion.div
+                          key={(field as any).name}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: idx * 0.075 }}
+                          className="space-y-2 p-4 rounded-lg border border-gray-200 bg-white/60"
+                        >
+                          <Label className={`text-sm sm:text-base font-medium ${disabled ? "text-gray-400" : "text-[#1a1a1a]"}`}>
+                            {(field as any).label}{(field as any).required && <span className="text-red-500 ml-1">*</span>}
+                          </Label>
+
+                          {(field as any).type === "select" && (field as any).options ? (
+                            <>
+                              <SelectWithOther
+                                name={(field as any).name}
+                                options={(field as any).options}
+                                value={formData[(field as any).name] || ""}
+                                onChange={(v) => handleFieldChange((field as any).name, v)}
+                                otherLabel={(field as any).otherLabel}
+                                disabled={disabled}
+                              />
+                              {showError && <p className="text-xs text-red-600" role="alert">{errMsg}</p>}
+                            </>
+                          ) : (field as any).type === "textarea" ? (
+                            <>
+                              <Textarea
+                                name={(field as any).name}
+                                placeholder={(field as any).placeholder}
+                                value={formData[(field as any).name] || ""}
+                                onChange={(e) => handleFieldChange((field as any).name, e.target.value)}
+                                aria-invalid={showError}
+                                className={`min-h-[110px] text-sm sm:text-base px-3 py-3 ${showError ? "border-red-500 focus-visible:ring-red-500" : ""}`}
+                                disabled={disabled}
+                              />
+                              {showError && <p className="text-xs text-red-600" role="alert">{errMsg}</p>}
+                            </>
+                          ) : (
+                            <>
+                              <Input
+                                type={(field as any).type}
+                                name={(field as any).name}
+                                placeholder={(field as any).placeholder}
+                                value={formData[(field as any).name] || ""}
+                                onChange={(e) => handleFieldChange((field as any).name, e.target.value)}
+                                required={(field as any).required}
+                                aria-invalid={showError}
+                                className={`text-sm sm:text-base px-3 py-3 ${showError ? "border-red-500 focus-visible:ring-red-500" : ""}`}
+                                disabled={disabled}
+                              />
+                              {showError && <p className="text-xs text-red-600" role="alert">{errMsg}</p>}
+                            </>
+                          )}
+                        </motion.div>
+                      );
+                    })}
                   </div>
                 </motion.div>
               </AnimatePresence>
@@ -327,11 +495,13 @@ export function RentersQuotePage() {
                 >
                   <ArrowLeft className="mr-2 h-4 w-4" /> Back
                 </Button>
+
                 {currentStep < totalSteps - 1 ? (
                   <Button
                     type="button"
                     onClick={handleNext}
-                    disabled={!canContinue()}
+                    // IMPORTANT: allow clicking to trigger validation (don't disable-gate)
+                    disabled={false}
                     className="w-full sm:w-auto bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] order-1 sm:order-2"
                   >
                     Continue <ArrowRight className="ml-2 h-4 w-4" />
@@ -340,7 +510,7 @@ export function RentersQuotePage() {
                   <Button
                     type="button"
                     onClick={handleSubmit}
-                    disabled={submitting || !canContinue()}
+                    disabled={submitting}
                     className="w-full sm:w-auto bg-gradient-to-r from-[#4f46e5] via-[#06b6d4] to-[#0ea5e9] order-1 sm:order-2"
                   >
                     {submitting ? "Submitting..." : "Get My Quote"} <CheckCircle2 className="ml-2 h-4 w-4" />
