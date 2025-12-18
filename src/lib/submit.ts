@@ -1,4 +1,5 @@
 import { sanitizeFormData, validateInput, checkRateLimit, verifyHoneypot, isValidEmail, isValidPhone } from './formSecurity';
+import { executeTurnstileInvisible } from './turnstile';
 
 const honeypotFields = ["hp_company", "hp_url"];
 
@@ -90,7 +91,16 @@ export async function submitQuote(quoteType: string, form: HTMLFormElement) {
   }
 
   // 5. Sanitize all inputs
-  const sanitizedData = sanitizeFormData(data);
+  const sanitizedData = sanitizeFormData(data) as Record<string, any>;
+
+  // 5.5 Ensure Turnstile token exists (Edge Function requires it)
+  if (!sanitizedData.turnstile_token) {
+    const token = await executeTurnstileInvisible();
+    if (!token) {
+      throw new Error('Security check failed. Please try again.');
+    }
+    sanitizedData.turnstile_token = token;
+  }
 
   // Ensure user-submitted quote_type cannot override routing
   delete (sanitizedData as any).quote_type;
@@ -110,13 +120,13 @@ export async function submitQuote(quoteType: string, form: HTMLFormElement) {
   }
 
   // 8. Submit to Edge Function
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const supabaseUrl = (import.meta as any).env?.VITE_SUPABASE_URL;
 
   const response = await fetch(`${supabaseUrl}/functions/v1/submit-quote`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+      'Authorization': `Bearer ${(import.meta as any).env?.VITE_SUPABASE_ANON_KEY}`,
     },
     body: JSON.stringify(sanitizedData),
   });

@@ -15,8 +15,8 @@ import { submitQuote } from "../../lib/submit";
 import { supabase } from "../../lib/supabaseClient";
 import { SelectWithOther } from "../../components/quotes/SelectWithOther";
 import { motion, AnimatePresence } from "motion/react";
-import { executeTurnstileInvisible } from "../../lib/turnstile";
 import { sanitizeInput, validateInput, isValidEmail, isValidPhone } from "../../lib/formSecurity";
+import LoadingOverlay from "../../components/LoadingOverlay";
 
 function absUrl(path: string) {
 	const base = (import.meta as any).env?.VITE_SITE_URL || window.location.origin;
@@ -273,9 +273,6 @@ export function AutoQuotePage() {
 
 		setSubmitting(true);
 		try {
-			// Execute Turnstile before submission
-			const turnstileToken = await executeTurnstileInvisible();
-			
 			const form = document.createElement('form');
 			Object.entries(formData).forEach(([key, value]) => {
 				const input = document.createElement('input');
@@ -283,14 +280,6 @@ export function AutoQuotePage() {
 				input.value = value;
 				form.appendChild(input);
 			});
-			
-			// Add Turnstile token
-			if (turnstileToken) {
-				const turnstileInput = document.createElement('input');
-				turnstileInput.name = 'turnstile_token';
-				turnstileInput.value = turnstileToken;
-				form.appendChild(turnstileInput);
-			}
 			
 			// Honeypot fields
 			const hp1 = document.createElement('input');
@@ -345,6 +334,7 @@ export function AutoQuotePage() {
 
 	return (
 		<div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+			<LoadingOverlay open={submitting} message="This can take a few seconds on mobile." />
 			{/* Header Section with Background Image */}
 			<section className="relative py-24 overflow-hidden">
 				{/* Background Image */}

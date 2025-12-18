@@ -5,9 +5,9 @@ import { Label } from "../components/ui/label";
 import { Textarea } from "../components/ui/textarea";
 import { Phone, Mail, MapPin, Clock } from "lucide-react";
 import { submitQuote } from "../lib/submit";
-import { executeTurnstileInvisible } from "../lib/turnstile";
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabaseClient";
+import LoadingOverlay from "../components/LoadingOverlay";
 
 function absUrl(path: string) {
   const base = (import.meta as any).env?.VITE_SITE_URL || window.location.origin;
@@ -72,18 +72,6 @@ export function ContactPage() {
     if (submitting) return;
     setSubmitting(true);
     try {
-      // Execute Turnstile
-      const turnstileToken = await executeTurnstileInvisible();
-      
-      // Add token to form
-      if (turnstileToken) {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'turnstile_token';
-        input.value = turnstileToken;
-        e.currentTarget.appendChild(input);
-      }
-
       await submitQuote("contact", e.currentTarget);
       setSubmitted(true);
       window.scrollTo(0, 0);
@@ -106,6 +94,7 @@ export function ContactPage() {
 
   return (
     <div className="min-h-screen" style={{ background: "var(--brand-coral-10)" }}>
+      <LoadingOverlay open={submitting} message="This can take a few seconds on mobile." />
       {/* Header */}
       <section className="border-b bg-white py-16">
         <div className="mx-auto max-w-7xl px-4 text-center lg:px-8">

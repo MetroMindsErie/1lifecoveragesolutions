@@ -8,10 +8,10 @@ import { Label } from "../../components/ui/label";
 import { Textarea } from "../../components/ui/textarea";
 import { CheckCircle2, Home, ArrowRight, ArrowLeft } from "lucide-react";
 import { submitQuote } from "../../lib/submit";
-import { executeTurnstileInvisible } from "../../lib/turnstile";
 import { supabase } from "../../lib/supabaseClient";
 import { SelectWithOther } from "../../components/quotes/SelectWithOther";
 import { motion, AnimatePresence } from "motion/react";
+import LoadingOverlay from "../../components/LoadingOverlay";
 
 const YEAR_BUILT_OPTIONS = (() => {
   const current = new Date().getFullYear();
@@ -201,7 +201,7 @@ export function HomeownersQuotePage() {
   };
 
   const canContinue = () => {
-    const required = steps[currentStep].fields.filter(f => f.required);
+    const required = steps[currentStep].fields.filter(f => "required" in f && !!f.required);
     return required.every(f => (formData[f.name] || "").trim());
   };
 
@@ -270,22 +270,10 @@ export function HomeownersQuotePage() {
 
     setSubmitting(true);
     try {
-      // Execute Turnstile before submission
-      const turnstileToken = await executeTurnstileInvisible();
-
       const form = document.createElement("form");
       Object.entries(formData).forEach(([k, v]) => {
         const input = document.createElement("input");
         input.name = k;
-
-      // Add Turnstile token
-      if (turnstileToken) {
-        const turnstileInput = document.createElement('input');
-        turnstileInput.name = 'turnstile_token';
-        turnstileInput.value = turnstileToken;
-        form.appendChild(turnstileInput);
-      }
-
         input.value = v;
         form.appendChild(input);
       });
@@ -338,6 +326,7 @@ export function HomeownersQuotePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+      <LoadingOverlay open={submitting} message="This can take a few seconds on mobile." />
       {/* Header Section with Background Image */}
       <section className="relative py-20 overflow-hidden">
         {/* Background Image */}
@@ -434,10 +423,10 @@ export function HomeownersQuotePage() {
                             }`}
                         >
                           <Label className="text-sm sm:text-base font-medium text-[#1a1a1a]">
-                            {field.label}{field.required && <span className="text-red-500 ml-1">*</span>}
+                            {field.label}{"required" in field && field.required && <span className="text-red-500 ml-1">*</span>}
                           </Label>
 
-                          {field.type === "select" && field.options ? (
+                          {field.type === "select" && "options" in field && field.options ? (
                             <>
                               <SelectWithOther
                                 name={field.name}
@@ -470,7 +459,7 @@ export function HomeownersQuotePage() {
                                 name={field.name}
                                 value={formData[field.name] || ""}
                                 onChange={(e) => handleFieldChange(field.name, e.target.value)}
-                                required={field.required}
+                                required={"required" in field ? field.required : undefined}
                                 aria-invalid={showError}
                                 className={`text-sm sm:text-base px-3 py-3 ${
                                   showError ? "border-red-500 focus-visible:ring-red-500" : ""

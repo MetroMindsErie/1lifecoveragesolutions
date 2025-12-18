@@ -12,10 +12,10 @@ import { Label } from "../../components/ui/label";
 import { Textarea } from "../../components/ui/textarea";
 import { CheckCircle2, Briefcase, ArrowRight, ArrowLeft } from "lucide-react";
 import { submitQuote } from "../../lib/submit";
-import { executeTurnstileInvisible } from "../../lib/turnstile";
 import { supabase } from "../../lib/supabaseClient";
 import { SelectWithOther } from "../../components/quotes/SelectWithOther";
 import { motion, AnimatePresence } from "motion/react";
+import LoadingOverlay from "../../components/LoadingOverlay";
 
 function absUrl(path: string) {
 	const base = (import.meta as any).env?.VITE_SITE_URL || window.location.origin;
@@ -347,9 +347,6 @@ export function BopQuotePage() {
 
 		setSubmitting(true);
 		try {
-			// Execute Turnstile before submission
-			const turnstileToken = await executeTurnstileInvisible();
-
 			// Only send columns that exist in bop_quotes
 			const allowedColumns = new Set([
 				"business_name","business_address","phone","email","business_type","fein","years_in_business","employees","website",
@@ -390,15 +387,6 @@ export function BopQuotePage() {
 			Object.entries(sanitized).forEach(([key, value]) => {
 				const input = document.createElement("input");
 				input.name = key;
-
-			// Add Turnstile token
-			if (turnstileToken) {
-				const turnstileInput = document.createElement('input');
-				turnstileInput.name = 'turnstile_token';
-				turnstileInput.value = turnstileToken;
-				form.appendChild(turnstileInput);
-			}
-
 				input.value = String(value ?? "");
 				form.appendChild(input);
 			});
@@ -467,6 +455,7 @@ export function BopQuotePage() {
 
 	return (
 		<div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+			<LoadingOverlay open={submitting} message="This can take a few seconds on mobile." />
 			{/* Header Section with Background Image */}
       <section className="relative py-24 overflow-hidden">
 				{/* Background Image */}
@@ -562,10 +551,10 @@ export function BopQuotePage() {
 													className="space-y-2 p-4 rounded-lg border border-gray-200 bg-white/60"
 												>
 													<Label className="text-sm sm:text-base font-medium text-[#1a1a1a]">
-														{field.label}{field.required && <span className="text-red-500 ml-1">*</span>}
+														{field.label}{"required" in field && field.required && <span className="text-red-500 ml-1">*</span>}
 													</Label>
 
-													{field.type === "select" && field.options ? (
+													{field.type === "select" && "options" in field && field.options ? (
 														<>
 															<SelectWithOther
 																name={field.name}
@@ -582,7 +571,7 @@ export function BopQuotePage() {
 														<>
 															<Textarea
 																name={field.name}
-																placeholder={field.placeholder}
+																placeholder={"placeholder" in field ? field.placeholder : undefined}
 																value={formData[field.name] || ""}
 																onChange={(e) => handleFieldChange(field.name, e.target.value)}
 																aria-invalid={showError}
@@ -599,10 +588,10 @@ export function BopQuotePage() {
 															<Input
 																type={field.type}
 																name={field.name}
-																placeholder={field.placeholder}
+																placeholder={"placeholder" in field ? field.placeholder : undefined}
 																value={formData[field.name] || ""}
 																onChange={(e) => handleFieldChange(field.name, e.target.value)}
-																required={field.required}
+																required={"required" in field ? field.required : undefined}
 																aria-invalid={showError}
 																className={`text-sm sm:text-base px-3 py-3 ${
 																	showError ? "border-red-500 focus-visible:ring-red-500" : ""

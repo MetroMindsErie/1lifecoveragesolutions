@@ -12,9 +12,9 @@ import { Label } from "../components/ui/label";
 import { Textarea } from "../components/ui/textarea";
 import { CheckCircle2, Home, ArrowRight, ArrowLeft } from "lucide-react";
 import { submitQuote } from "../lib/submit";
-import { executeTurnstileInvisible } from "../lib/turnstile";
 import { SelectWithOther } from "../components/quotes/SelectWithOther";
 import { motion, AnimatePresence } from "motion/react";
+import LoadingOverlay from "../components/LoadingOverlay";
 
 export function RentersQuotePage() {
   const [submitted, setSubmitted] = useState(false);
@@ -260,9 +260,6 @@ export function RentersQuotePage() {
 
     setSubmitting(true);
     try {
-      // Execute Turnstile before submission
-      const turnstileToken = await executeTurnstileInvisible();
-
       const form = document.createElement('form');
       
       // Transform data to match database schema
@@ -288,14 +285,6 @@ export function RentersQuotePage() {
         form.appendChild(input);
       });
       
-      // Add Turnstile token
-      if (turnstileToken) {
-        const turnstileInput = document.createElement('input');
-        turnstileInput.name = 'turnstile_token';
-        turnstileInput.value = turnstileToken;
-        form.appendChild(turnstileInput);
-      }
-
       const hp1 = document.createElement('input');
       hp1.name = 'hp_company';
       hp1.value = '';
@@ -352,6 +341,7 @@ export function RentersQuotePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+      <LoadingOverlay open={submitting} message="This can take a few seconds on mobile." />
       {/* Header Section with Background Image */}
       <section className="relative py-24 overflow-hidden">
         {/* Background Image */}
