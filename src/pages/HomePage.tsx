@@ -5,9 +5,6 @@ import { ValueProposition } from "../components/ValueProposition";
 import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
 import { motion } from "motion/react";
-import logo from "../assets/c1916fca24a402e9827626e05b952c97898461d8.png";
-import airbnb from "../../public/images/airbnb.png";
-import vrbo from "../../public/images/vrbo.png";
 import { QuoteStarter } from "../components/QuoteStarter";
 import {
   Car,
@@ -42,6 +39,13 @@ import { supabase } from "../lib/supabaseClient";
 import { PetQuoteCard } from "../components/quotes/PetQuoteCard";
 import { RentersQuoteCard } from "../components/quotes/RentersQuoteCard";
 import { SpecialtyTicker } from "../components/SpecialtyTicker";
+
+const logo = new URL(
+  "../assets/c1916fca24a402e9827626e05b952c97898461d8.png",
+  import.meta.url
+).href;
+const airbnb = "/images/airbnb.png";
+const vrbo = "/images/vrbo.png";
 
 // SEO helpers
 function absUrl(path: string) {
@@ -332,9 +336,11 @@ export function HomePage() {
         <div
           className="absolute inset-0 bg-cover bg-center opacity-30"
           style={{
-            backgroundImage: 'url(/images/insurance-2.jpg)',
+            backgroundImage: 'url(/images/insurance-3.jpg)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            backgroundAttachment: 'fixed',
           }}
         />
 
@@ -345,29 +351,30 @@ export function HomePage() {
         <div className="relative mx-auto max-w-7xl px-4 py-12 sm:py-16 md:py-24 lg:px-8 lg:py-32 z-20">
           {/* Mobile: Quote Starter at top, Logo below */}
           {/* Desktop: Logo left, Quote Starter right */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-stretch">
             {/* Logo - shows second on mobile, first on desktop */}
             <motion.div
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
-              className="flex justify-center lg:justify-start order-2 lg:order-1"
+              className="flex justify-center lg:justify-start order-2 lg:order-1 h-full"
             >
-              <div className="relative w-full max-w-[16rem] sm:max-w-[20rem] lg:max-w-[28rem]">
+              <div className="relative w-full lg:min-h-[28rem]">
                 <div className="absolute inset-0 bg-gradient-to-br from-[#FF6B61]/20 via-transparent to-[#1B5A8E]/20 blur-3xl" />
-                <div className="relative rounded-2xl p-4 sm:p-6 shadow-[0_20px_60px_rgba(0,0,0,0.3)] bg-gradient-to-br from-[#0B1F3A]/15 via-white/10 to-white/5 backdrop-blur-xl border-2 border-white/20 aspect-square flex items-center justify-center">
+                <div className="relative rounded-2xl bg-white/95 backdrop-blur-xl border-2 border-white/60 p-4 sm:p-6 shadow-2xl h-full min-h-[18rem] lg:min-h-[28rem] flex items-center justify-center overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#1B5A8E]/5 via-transparent to-[#FF6B61]/5 pointer-events-none" />
                   <img
                     src={logo}
                     alt="1Life Coverage Solutions"
-                    className="max-h-full max-w-full object-contain drop-shadow-[0_10px_30px_rgba(0,0,0,0.4)] rounded-xl"
+                    className="relative z-10 max-h-[14rem] sm:max-h-[16rem] lg:max-h-[18rem] w-auto object-contain drop-shadow-[0_10px_30px_rgba(0,0,0,0.25)]"
                   />
                 </div>
               </div>
             </motion.div>
 
             {/* Quote Starter - shows first on mobile, second on desktop */}
-            <div className="order-1 lg:order-2 w-full">
-              <QuoteStarter />
+            <div className="order-1 lg:order-2 w-full h-full lg:min-h-[28rem]">
+              <QuoteStarter coverages={specialtyCoverages} />
             </div>
           </div>
         </div>
@@ -383,6 +390,7 @@ export function HomePage() {
       <ValueProposition
         features={features}
         backgroundImage="/images/insurance-3.jpg"
+        backgroundVariant="hero"
       />
 
       {/* Why Choose Us Section (coral tint) */}
@@ -492,7 +500,7 @@ export function HomePage() {
       </div>
 
       {/* Sticky ticker at bottom, always visible */}
-      <div className="sticky bottom-0 inset-x-0 bg-[#0B1F3A] pointer-events-none mt-6 z-0">
+      <div className="bottom-0 inset-x-0 bg-[#0B1F3A] pointer-events-none mt-6 z-0">
         <SpecialtyTicker coverages={specialtyCoverages} />
       </div>
     </div>
