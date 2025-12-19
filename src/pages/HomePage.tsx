@@ -36,6 +36,7 @@ import {
 // import { PartnerTicker } from "../components/PartnerTicker";
 import { useEffect } from "react";
 import { supabase } from "../lib/supabaseClient";
+import { absUrl, setHead } from "../lib/seo";
 import { PetQuoteCard } from "../components/quotes/PetQuoteCard";
 import { RentersQuoteCard } from "../components/quotes/RentersQuoteCard";
 import { SpecialtyTicker } from "../components/SpecialtyTicker";
@@ -46,65 +47,6 @@ const logo = new URL(
 ).href;
 const airbnb = "/images/airbnb.png";
 const vrbo = "/images/vrbo.png";
-
-// SEO helpers
-function absUrl(path: string) {
-  const base = (import.meta as any).env?.VITE_SITE_URL || window.location.origin;
-  return path.startsWith("http") ? path : `${base}${path.startsWith("/") ? "" : "/"}${path}`;
-}
-function upsertMeta(selector: { name?: string; property?: string }, content: string) {
-  let el = document.head.querySelector<HTMLMetaElement>(
-    selector.name ? `meta[name="${selector.name}"]` : `meta[property="${selector.property}"]`
-  );
-  if (!el) {
-    el = document.createElement("meta");
-    if (selector.name) el.setAttribute("name", selector.name);
-    if (selector.property) el.setAttribute("property", selector.property);
-    document.head.appendChild(el);
-  }
-  el.setAttribute("content", content);
-}
-function upsertLink(rel: string, href: string) {
-  let el = document.head.querySelector<HTMLLinkElement>(`link[rel="${rel}"]`);
-  if (!el) {
-    el = document.createElement("link");
-    el.setAttribute("rel", rel);
-    document.head.appendChild(el);
-  }
-  el.setAttribute("href", href);
-}
-function setHead(opts: {
-  title: string;
-  description?: string;
-  canonicalPath?: string;
-  noindex?: boolean;
-  ogImage?: string;
-  jsonLd?: any;
-}) {
-  const SITE = "1Life Coverage Solutions";
-  const url = absUrl(opts.canonicalPath || window.location.pathname);
-  document.title = `${opts.title} | ${SITE}`;
-  if (opts.description) upsertMeta({ name: "description" }, opts.description);
-  upsertLink("canonical", url);
-  upsertMeta({ name: "robots" }, opts.noindex ? "noindex,nofollow" : "index,follow");
-  upsertMeta({ property: "og:site_name" }, SITE);
-  upsertMeta({ property: "og:type" }, "website");
-  upsertMeta({ property: "og:title" }, `${opts.title} | ${SITE}`);
-  if (opts.description) upsertMeta({ property: "og:description" }, opts.description);
-  upsertMeta({ property: "og:url" }, url);
-  if (opts.ogImage) upsertMeta({ property: "og:image" }, absUrl(opts.ogImage));
-  upsertMeta({ name: "twitter:card" }, "summary_large_image");
-
-  // JSON-LD (replace any previous injected by this page)
-  document.head.querySelectorAll('script[data-seo-jsonld="1"]').forEach(n => n.remove());
-  if (opts.jsonLd) {
-    const s = document.createElement("script");
-    s.type = "application/ld+json";
-    s.setAttribute("data-seo-jsonld", "1");
-    s.textContent = JSON.stringify(opts.jsonLd);
-    document.head.appendChild(s);
-  }
-}
 
 const coverageTypes = [
   {
@@ -299,7 +241,7 @@ export function HomePage() {
       description:
         "Compare auto, home, life, and business insurance with 1Life Coverage Solutions. Fast quotes and trusted protection.",
       canonicalPath: "/",
-      ogImage: "/og/default.jpg",
+      ogImage: "/images/insurance-3.jpg",
       jsonLd,
     });
     // ensure coral is available even if Header useEffect not run yet
@@ -317,7 +259,7 @@ export function HomePage() {
             title: data.title || PAGE_TITLE,
             description: data.description || undefined,
             canonicalPath: data.canonical_url || "/",
-            ogImage: data.og_image || "/og/default.jpg",
+            ogImage: data.og_image || "/images/insurance-3.jpg",
             jsonLd: data.json_ld || jsonLd,
           });
         }

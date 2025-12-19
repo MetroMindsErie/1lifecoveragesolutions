@@ -6,6 +6,7 @@ import { Badge } from "../components/ui/badge";
 import { Search, Calendar, ArrowRight, TrendingUp } from "lucide-react";
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 import { supabase } from "../lib/supabaseClient";
+import { absUrl, setHead } from "../lib/seo";
 
 // FEED: Try multiple likely RSS endpoints (first that works is used)
 const IJ_FEED_CANDIDATES = [
@@ -38,43 +39,6 @@ function formatDate(d?: string) {
 
 const categories = ["All", "Auto", "Home", "Business", "Life", "Tips & Advice", "Industry News"];
 
-function absUrl(path: string) {
-  const base = (import.meta as any).env?.VITE_SITE_URL || window.location.origin;
-  return path.startsWith("http") ? path : `${base}${path.startsWith("/") ? "" : "/"}${path}`;
-}
-function setHead({ title, description, canonicalPath, jsonLd }: { title: string; description?: string; canonicalPath?: string; jsonLd?: any; }) {
-  const SITE = "1Life Coverage Solutions";
-  const url = absUrl(canonicalPath || window.location.pathname);
-  document.title = `${title} | ${SITE}`;
-  if (description) {
-    let d = document.head.querySelector('meta[name="description"]') as HTMLMetaElement | null;
-    if (!d) { d = document.createElement("meta"); d.setAttribute("name","description"); document.head.appendChild(d); }
-    d.setAttribute("content", description);
-  }
-  let c = document.head.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
-  if (!c) { c = document.createElement("link"); c.setAttribute("rel","canonical"); document.head.appendChild(c); }
-  c.setAttribute("href", url);
-  const up = (name: string, content: string, isProp=false) => {
-    const sel = isProp ? `meta[property="${name}"]` : `meta[name="${name}"]`;
-    let el = document.head.querySelector(sel) as HTMLMetaElement | null;
-    if (!el) { el = document.createElement("meta"); if (isProp) el.setAttribute("property", name); else el.setAttribute("name", name); document.head.appendChild(el); }
-    el.setAttribute("content", content);
-  };
-  up("og:site_name", SITE, true);
-  up("og:type", "website", true);
-  up("og:title", `${title} | ${SITE}`, true);
-  if (description) up("og:description", description, true);
-  up("og:url", url, true);
-  up("twitter:card", "summary_large_image");
-  document.head.querySelectorAll('script[data-seo-jsonld="1"]').forEach(n => n.remove());
-  if (jsonLd) {
-    const s = document.createElement("script");
-    s.type = "application/ld+json"; s.setAttribute("data-seo-jsonld","1");
-    s.textContent = JSON.stringify(jsonLd);
-    document.head.appendChild(s);
-  }
-}
-
 export function BlogPage() {
   useEffect(() => {
     const jsonLd = {
@@ -99,6 +63,7 @@ export function BlogPage() {
           title: data.title || "Insurance Blog & Guides",
           description: data.description || undefined,
           canonicalPath: data.canonical_url || "/blog",
+          ogImage: data.og_image || undefined,
           jsonLd: data.json_ld || jsonLd
         });
       }

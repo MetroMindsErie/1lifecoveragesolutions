@@ -10,7 +10,7 @@
   <!-- Vite module script: load GA only when VITE_GA_ID is set -->
   <script type="module">
     const GA_ID = import.meta.env.VITE_GA_ID;
-    if (GA_ID) {
+    if (import.meta.env.PROD && GA_ID) {
       // inject gtag.js
       const s = document.createElement('script');
       s.async = true;
@@ -26,9 +26,6 @@
       gtag('js', new Date());
       // disable automatic page_view; SPA views should be handled explicitly
       gtag('config', GA_ID, { send_page_view: false });
-    } else {
-      // no-op if not configured
-      console.warn('VITE_GA_ID not set — Google Analytics not initialized.');
     }
   </script>
 </head>

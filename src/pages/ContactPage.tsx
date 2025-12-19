@@ -8,31 +8,7 @@ import { submitQuote } from "../lib/submit";
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabaseClient";
 import LoadingOverlay from "../components/LoadingOverlay";
-
-function absUrl(path: string) {
-  const base = (import.meta as any).env?.VITE_SITE_URL || window.location.origin;
-  return path.startsWith("http") ? path : `${base}${path.startsWith("/") ? "" : "/"}${path}`;
-}
-function setHead({ title, description, canonicalPath, jsonLd }: { title: string; description?: string; canonicalPath?: string; jsonLd?: any; }) {
-  const SITE = "1Life Coverage Solutions";
-  const url = absUrl(canonicalPath || window.location.pathname);
-  document.title = `${title} | ${SITE}`;
-  if (description) {
-    let d = document.head.querySelector('meta[name="description"]') as HTMLMetaElement | null;
-    if (!d) { d = document.createElement("meta"); d.setAttribute("name","description"); document.head.appendChild(d); }
-    d.setAttribute("content", description);
-  }
-  let c = document.head.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
-  if (!c) { c = document.createElement("link"); c.setAttribute("rel","canonical"); document.head.appendChild(c); }
-  c.setAttribute("href", url);
-  document.head.querySelectorAll('script[data-seo-jsonld="1"]').forEach(n => n.remove());
-  if (jsonLd) {
-    const s = document.createElement("script");
-    s.type = "application/ld+json"; s.setAttribute("data-seo-jsonld","1");
-    s.textContent = JSON.stringify(jsonLd);
-    document.head.appendChild(s);
-  }
-}
+import { absUrl, setHead } from "../lib/seo";
 
 export function ContactPage() {
   useEffect(() => {
@@ -51,13 +27,14 @@ export function ContactPage() {
     });
     (async () => {
       const { data } = await supabase
-        .from("pages_seo").select("title,description,canonical_url,json_ld")
+        .from("pages_seo").select("title,description,canonical_url,og_image,json_ld")
         .eq("path", "/contact").maybeSingle();
       if (data) {
         setHead({
           title: data.title || "Contact Us",
           description: data.description || undefined,
           canonicalPath: data.canonical_url || "/contact",
+          ogImage: data.og_image || undefined,
           jsonLd: data.json_ld || jsonLd
         });
       }

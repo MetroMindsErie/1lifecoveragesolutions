@@ -53,6 +53,12 @@ function tableForQuoteType(quoteType: string) {
 }
 
 export async function submitQuote(quoteType: string, form: HTMLFormElement) {
+  // Give React a chance to paint any pending "submitting" UI before we do
+  // synchronous validation/sanitization work (which can otherwise block rendering).
+  if (typeof window !== 'undefined' && typeof window.requestAnimationFrame === 'function') {
+    await new Promise<void>((resolve) => window.requestAnimationFrame(() => resolve()));
+  }
+
   const formData = new FormData(form);
   const data: Record<string, string> = {};
 

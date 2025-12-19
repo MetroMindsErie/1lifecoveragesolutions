@@ -1,4 +1,16 @@
+import { useEffect } from "react";
+import { setHead } from "../lib/seo";
+
 export function Compliance() {
+  useEffect(() => {
+    setHead({
+      title: "Legal & Compliance",
+      description:
+        "Compliance information, privacy commitments, and licensing details for 1Life Coverage Solutions.",
+      canonicalPath: "/compliance",
+    });
+  }, []);
+
   return (
     <div className="min-h-screen bg-white">
       <div className="mx-auto max-w-4xl px-4 py-16 lg:px-8">

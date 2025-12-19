@@ -15,8 +15,27 @@ import { submitQuote } from "../lib/submit";
 import { SelectWithOther } from "../components/quotes/SelectWithOther";
 import { motion, AnimatePresence } from "motion/react";
 import LoadingOverlay from "../components/LoadingOverlay";
+import { absUrl, setHead } from "../lib/seo";
 
 export function RentersQuotePage() {
+  useEffect(() => {
+    const jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      serviceType: "Renters Insurance Quote",
+      provider: { "@type": "InsuranceAgency", name: "1Life Coverage Solutions" },
+      url: absUrl("/quote/renters"),
+      areaServed: "US",
+      description: "Get a renters insurance quote with tailored coverage recommendations.",
+    };
+    setHead({
+      title: "Renters Insurance Quote",
+      description: "Get a fast renters insurance quote from 1Life Coverage Solutions.",
+      canonicalPath: "/quote/renters",
+      jsonLd,
+    });
+  }, []);
+
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);

@@ -1,4 +1,16 @@
+import { useEffect } from "react";
+import { setHead } from "../lib/seo";
+
 export function PrivacyPolicy() {
+  useEffect(() => {
+    setHead({
+      title: "Privacy Policy",
+      description:
+        "Learn how 1Life Coverage Solutions collects, uses, and protects your personal information.",
+      canonicalPath: "/privacy",
+    });
+  }, []);
+
   return (
     <div className="min-h-screen bg-white">
       <div className="mx-auto max-w-4xl px-4 py-16 lg:px-8">

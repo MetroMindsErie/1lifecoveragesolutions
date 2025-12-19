@@ -9,6 +9,7 @@ import { Textarea } from "../../components/ui/textarea";
 import { CheckCircle2, Home, ArrowRight, ArrowLeft } from "lucide-react";
 import { submitQuote } from "../../lib/submit";
 import { supabase } from "../../lib/supabaseClient";
+import { absUrl, setHead } from "../../lib/seo";
 import { SelectWithOther } from "../../components/quotes/SelectWithOther";
 import { motion, AnimatePresence } from "motion/react";
 import LoadingOverlay from "../../components/LoadingOverlay";
@@ -25,10 +26,38 @@ export function HomeownersQuotePage() {
       "@type": "Service",
       serviceType: "Homeowners Insurance Quote",
       provider: { "@type": "InsuranceAgency", name: "1Life Coverage Solutions" },
-      url: window.location.origin + "/quote/homeowners",
+      url: absUrl("/quote/homeowners"),
       areaServed: "US",
       description: "Get a homeowners insurance quote with tailored coverage recommendations."
     };
+
+    setHead({
+      title: "Homeowners Insurance Quote",
+      description: "Get a fast homeowners insurance quote from 1Life Coverage Solutions.",
+      canonicalPath: "/quote/homeowners",
+      jsonLd,
+    });
+
+    (async () => {
+      try {
+        const { data } = await supabase
+          .from("pages_seo")
+          .select("title,description,canonical_url,og_image,json_ld")
+          .eq("path", "/quote/homeowners")
+          .maybeSingle();
+        if (data) {
+          setHead({
+            title: data.title || "Homeowners Insurance Quote",
+            description: data.description || undefined,
+            canonicalPath: data.canonical_url || "/quote/homeowners",
+            ogImage: data.og_image || undefined,
+            jsonLd: data.json_ld || jsonLd,
+          });
+        }
+      } catch {
+        // ignore SEO override failures
+      }
+    })();
   }, []);
 
   const steps = [

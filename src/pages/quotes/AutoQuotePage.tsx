@@ -17,11 +17,7 @@ import { SelectWithOther } from "../../components/quotes/SelectWithOther";
 import { motion, AnimatePresence } from "motion/react";
 import { sanitizeInput, validateInput, isValidEmail, isValidPhone } from "../../lib/formSecurity";
 import LoadingOverlay from "../../components/LoadingOverlay";
-
-function absUrl(path: string) {
-	const base = (import.meta as any).env?.VITE_SITE_URL || window.location.origin;
-	return path.startsWith("http") ? path : `${base}${path.startsWith("/") ? "" : "/"}${path}`;
-}
+import { absUrl, setHead } from "../../lib/seo";
 
 export function AutoQuotePage() {
 	useEffect(() => {
@@ -34,10 +30,16 @@ export function AutoQuotePage() {
 			areaServed: "US",
 			description: "Start your auto insurance quote and compare coverage options.",
 		};
+		setHead({
+			title: "Auto Insurance Quote",
+			description: "Start your auto insurance quote and compare coverage options.",
+			canonicalPath: "/quote/auto",
+			jsonLd,
+		});
 		(async () => {
 			const { data } = await supabase
 				.from("pages_seo")
-				.select("title,description,canonical_url,json_ld")
+				.select("title,description,canonical_url,og_image,json_ld")
 				.eq("path", "/quote/auto")
 				.maybeSingle();
 			if (data) {
@@ -46,6 +48,7 @@ export function AutoQuotePage() {
 					description: data.description || undefined,
 					canonicalPath: data.canonical_url || "/quote/auto",
 					jsonLd: data.json_ld || jsonLd,
+					ogImage: data.og_image || undefined,
 				});
 			}
 		})();
@@ -660,7 +663,5 @@ export function AutoQuotePage() {
 		</div>
 	);
 }
-function setHead(arg0: { title: any; description: any; canonicalPath: any; jsonLd: any; }) {
-	throw new Error("Function not implemented.");
-}
+
 

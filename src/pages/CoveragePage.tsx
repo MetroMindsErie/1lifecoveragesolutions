@@ -2,12 +2,19 @@ import { HeroSection } from "../components/HeroSection";
 import { Card, CardContent } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Check, Phone } from "lucide-react";
+import { useEffect } from "react";
+import { setHead } from "../lib/seo";
 
 interface CoveragePageProps {
   title: string;
   subtitle: string;
   description: string;
   backgroundImage: string;
+  canonicalPath?: string;
+  ogImage?: string;
+  noindex?: boolean;
+  jsonLd?: any;
+  disableSeo?: boolean;
   features: string[];
   plans: {
     name: string;
@@ -23,9 +30,26 @@ export function CoveragePage({
   subtitle,
   description,
   backgroundImage,
+  canonicalPath,
+  ogImage,
+  noindex,
+  jsonLd,
+  disableSeo,
   features,
   plans,
 }: CoveragePageProps) {
+  useEffect(() => {
+    if (disableSeo) return;
+    setHead({
+      title,
+      description,
+      canonicalPath: canonicalPath || window.location.pathname,
+      ogImage,
+      noindex,
+      jsonLd,
+    });
+  }, [disableSeo, title, description, canonicalPath, ogImage, noindex, jsonLd]);
+
   return (
     <div>
       {/* Hero Section */}

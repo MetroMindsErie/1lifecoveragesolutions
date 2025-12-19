@@ -1,4 +1,16 @@
+import { useEffect } from "react";
+import { setHead } from "../lib/seo";
+
 export function TermsOfService() {
+  useEffect(() => {
+    setHead({
+      title: "Terms of Service",
+      description:
+        "Terms of Service for using the 1Life Coverage Solutions website and requesting insurance quotes.",
+      canonicalPath: "/terms",
+    });
+  }, []);
+
   return (
     <div className="min-h-screen bg-white">
       <div className="mx-auto max-w-4xl px-4 py-16 lg:px-8">
