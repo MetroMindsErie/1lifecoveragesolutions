@@ -1,4 +1,7 @@
 const TURNSTILE_SITE_KEY = (import.meta as any).env?.VITE_TURNSTILE_SITE_KEY;
+const TURNSTILE_BYPASS_DEV =
+  (((import.meta as any).env?.VITE_TURNSTILE_BYPASS as string | undefined) || "").toLowerCase() === "true" ||
+  (((import.meta as any).env?.VITE_TURNSTILE_BYPASS as string | undefined) || "") === "1";
 
 const TURNSTILE_SCRIPT_ID = 'cf-turnstile-api';
 let turnstileLoadPromise: Promise<void> | null = null;
@@ -100,6 +103,14 @@ export function loadTurnstile(): Promise<void> {
  * Execute Turnstile and get token (invisible mode)
  */
 export async function executeTurnstileInvisible(): Promise<string | null> {
+  // Local/dev testing escape hatch:
+  // Set VITE_TURNSTILE_BYPASS=1 in .env.local to bypass real Turnstile.
+  // This is DEV-only to avoid accidental production disabling.
+  if ((import.meta as any).env?.DEV && TURNSTILE_BYPASS_DEV) {
+    await new Promise((r) => window.setTimeout(r, 1200));
+    return "dev-turnstile-bypass";
+  }
+
   if (!TURNSTILE_SITE_KEY) {
     console.warn('Turnstile not configured, skipping verification');
     return null;

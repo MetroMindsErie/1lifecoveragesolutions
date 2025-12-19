@@ -95,11 +95,25 @@ export async function submitQuote(quoteType: string, form: HTMLFormElement) {
 
   // 5.5 Ensure Turnstile token exists (Edge Function requires it)
   if (!sanitizedData.turnstile_token) {
-    const token = await executeTurnstileInvisible();
-    if (!token) {
-      throw new Error('Security check failed. Please try again.');
+    try {
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(
+          new CustomEvent('turnstile:invisible', { detail: { status: 'start' } })
+        );
+      }
+
+      const token = await executeTurnstileInvisible();
+      if (!token) {
+        throw new Error('Security check failed. Please try again.');
+      }
+      sanitizedData.turnstile_token = token;
+    } finally {
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(
+          new CustomEvent('turnstile:invisible', { detail: { status: 'end' } })
+        );
+      }
     }
-    sanitizedData.turnstile_token = token;
   }
 
   // Ensure user-submitted quote_type cannot override routing

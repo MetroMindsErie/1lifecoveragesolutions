@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 type LoadingOverlayProps = {
   open: boolean;
@@ -6,7 +6,23 @@ type LoadingOverlayProps = {
 };
 
 export default function LoadingOverlay({ open, message = "Please wait…" }: LoadingOverlayProps) {
-  if (!open) return null;
+  const [turnstilePending, setTurnstilePending] = useState(false);
+
+  useEffect(() => {
+    const handler = (evt: Event) => {
+      const e = evt as CustomEvent<{ status?: "start" | "end" } | undefined>;
+      if (e?.detail?.status === "start") setTurnstilePending(true);
+      if (e?.detail?.status === "end") setTurnstilePending(false);
+    };
+
+    window.addEventListener("turnstile:invisible", handler);
+    return () => window.removeEventListener("turnstile:invisible", handler);
+  }, []);
+
+  const isOpen = open || turnstilePending;
+  if (!isOpen) return null;
+
+  const displayMessage = turnstilePending ? "Verifying security check…" : message;
 
   return (
     <div
@@ -20,7 +36,7 @@ export default function LoadingOverlay({ open, message = "Please wait…" }: Loa
           <GeometricLoader />
           <div className="space-y-1">
             <div className="text-base font-semibold">Securing your submission</div>
-            <div className="text-sm opacity-80">{message}</div>
+            <div className="text-sm opacity-80">{displayMessage}</div>
           </div>
         </div>
       </div>
