@@ -105,7 +105,15 @@ async function prerender() {
       // Give any async SEO override fetch a brief moment
       await sleep(250);
 
-      const html = await page.content();
+      let html = await page.content();
+
+      // IMPORTANT: Puppeteer captures the *rendered DOM*, which can contain absolute URLs
+      // resolved against the preview origin (e.g. http://127.0.0.1:4173/assets/...).
+      // If we write those into static HTML and deploy to HTTPS, browsers will block them
+      // as mixed-content and your CSP will also block them.
+      // Convert preview-origin absolute URLs back to root-relative URLs.
+      html = html.split(BASE_URL).join("");
+
       const outFile = routeToOutFile(route);
       await mkdir(path.dirname(outFile), { recursive: true });
       await writeFile(outFile, html, "utf-8");
