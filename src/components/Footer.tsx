@@ -1,4 +1,4 @@
-import { Facebook, Linkedin, Instagram } from "lucide-react";
+import { Facebook, Instagram } from "lucide-react";
 import { Logo } from "./Logo";
 
 export function Footer() {
@@ -110,9 +110,9 @@ export function Footer() {
                 <a href="https://www.facebook.com/profile.php?id=61586030888860" target="_blank" rel="noopener noreferrer" className="text-[#94a3b8] hover:text-white transition-colors">
                 <Facebook className="h-5 w-5" />
                 </a>
-                <a href="#" target="_blank" rel="noopener noreferrer" className="text-[#94a3b8] hover:text-white transition-colors">
+                {/* <a href="#" target="_blank" rel="noopener noreferrer" className="text-[#94a3b8] hover:text-white transition-colors">
                 <Linkedin className="h-5 w-5" />
-                </a>
+                </a> */}
                 <a href="https://www.instagram.com/1lifecoverage/" target="_blank" rel="noopener noreferrer" className="text-[#94a3b8] hover:text-white transition-colors">
                 <Instagram className="h-5 w-5" />
                 </a>
