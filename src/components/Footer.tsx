@@ -1,4 +1,4 @@
-import { Facebook, Twitter, Linkedin, Instagram } from "lucide-react";
+import { Facebook, Linkedin, Instagram } from "lucide-react";
 import { Logo } from "./Logo";
 
 export function Footer() {
@@ -107,16 +107,13 @@ export function Footer() {
               </li>
             </ul>
             <div className="mt-6 flex gap-4">
-              <a href="#" className="text-[#94a3b8] hover:text-white transition-colors">
+              <a href="https://www.facebook.com/profile.php?id=61586030888860" className="text-[#94a3b8] hover:text-white transition-colors">
                 <Facebook className="h-5 w-5" />
-              </a>
-              <a href="#" className="text-[#94a3b8] hover:text-white transition-colors">
-                <Twitter className="h-5 w-5" />
               </a>
               <a href="#" className="text-[#94a3b8] hover:text-white transition-colors">
                 <Linkedin className="h-5 w-5" />
               </a>
-              <a href="#" className="text-[#94a3b8] hover:text-white transition-colors">
+              <a href="https://www.instagram.com/1lifecoverage/" className="text-[#94a3b8] hover:text-white transition-colors">
                 <Instagram className="h-5 w-5" />
               </a>
             </div>
