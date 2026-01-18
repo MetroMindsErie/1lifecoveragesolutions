@@ -6,6 +6,12 @@
   Permissions-Policy: geolocation=(), microphone=(), camera=()
   Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://www.googletagmanager.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co https://challenges.cloudflare.com https://api.allorigins.win https://www.google-analytics.com https://region1.google-analytics.com https://stats.g.doubleclick.net https://static.cloudflareinsights.com https://cloudflareinsights.com https://*.cloudflareinsights.com; frame-src https://challenges.cloudflare.com;
 
+/robots.txt
+  Content-Type: text/plain; charset=utf-8
+
+/sitemap.xml
+  Content-Type: application/xml; charset=utf-8
+
 /api/*
   Access-Control-Allow-Origin: *
   Access-Control-Allow-Methods: GET, POST, OPTIONS
