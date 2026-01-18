@@ -55,7 +55,16 @@
       outDir: 'build',
     },
     server: {
-      port: 3000,
+      // Keep a deterministic dev port so it doesn't collide with `vercel dev --listen 3001`.
+      port: 5173,
+      strictPort: true,
       open: true,
+      proxy: {
+        '/api': {
+          target: 'http://localhost:8787',
+          changeOrigin: true,
+          secure: false,
+        },
+      },
     },
   });

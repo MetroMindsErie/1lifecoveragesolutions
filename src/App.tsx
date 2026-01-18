@@ -24,6 +24,7 @@ import AdminContactDetailPage from "./pages/admin/AdminContactDetailPage"; // NE
 import { Compliance } from './pages/Compliance';
 import { TermsOfService } from './pages/TermsOfService';
 import { PrivacyPolicy } from './pages/PrivacyPolicy'; // NEW
+import { LifeImpactPage } from './pages/LifeImpactPage'; // NEW: Life Impact Map
 
 function App() {
   return (
@@ -116,6 +117,7 @@ function App() {
           <Route path="/compliance" element={<Compliance />} />
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/privacy" element={<PrivacyPolicy />} /> {/* NEW */}
+          <Route path="/life-impact" element={<LifeImpactPage />} /> {/* NEW: Life Impact Map */}
           {/* Default/404 route */}
           <Route
             path="*"
