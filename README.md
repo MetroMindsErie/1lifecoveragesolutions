@@ -8,4 +8,13 @@
   Run `npm i` to install the dependencies.
 
   Run `npm run dev` to start the development server.
+
+  ## SEO / Search Console
+
+  ### Google Search Console verification
+
+  This site uses the Google Search Console **HTML file** verification method.
+
+  - The verification file lives in `public/` so it is served from the site root.
+  - Example: `https://your-domain.com/googleXXXXXXXXXXXX.html`
   

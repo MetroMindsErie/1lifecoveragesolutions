@@ -291,6 +291,25 @@ export function HomePage() {
 
         {/* Content */}
         <div className="relative mx-auto max-w-7xl px-4 py-12 sm:py-16 md:py-24 lg:px-8 lg:py-32 z-20">
+          <div className="mx-auto mb-8 max-w-4xl text-center">
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="text-balance text-3xl font-extrabold tracking-tight text-white drop-shadow-[0_10px_30px_rgba(0,0,0,0.8)] sm:text-5xl"
+            >
+              Compare insurance quotes and get covered fast
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="mx-auto mt-4 max-w-2xl text-pretty text-base font-semibold text-white/95 drop-shadow-[0_8px_24px_rgba(0,0,0,0.8)] sm:text-lg"
+            >
+              Auto, home, life, renters, and business coverage — start a quote in minutes with 1Life Coverage Solutions.
+            </motion.p>
+          </div>
+
           {/* Mobile: Quote Starter at top, Logo below */}
           {/* Desktop: Logo left, Quote Starter right */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-stretch">
