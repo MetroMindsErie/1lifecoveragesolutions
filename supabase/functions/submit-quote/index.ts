@@ -81,7 +81,6 @@ interface QuoteRecord {
 }
 
 interface ContactRecord {
-  name: string | null;
   first_name: string | null;
   last_name: string | null;
   email: string | null;
@@ -250,8 +249,11 @@ serve(async (req: Request): Promise<Response> => {
         delete (metadata as any).subject;
         delete (metadata as any).message;
 
+        // Preserve useful computed fields without requiring extra DB columns
+        if (fullName) metadata.full_name = fullName;
+        if (submittedFromPath) metadata.submitted_from_path = submittedFromPath;
+
         const contactRow: ContactRecord = {
-          name: fullName || null,
           first_name: firstName || null,
           last_name: lastName || null,
           email,
@@ -259,7 +261,7 @@ serve(async (req: Request): Promise<Response> => {
           subject,
           message,
           metadata,
-          referrer: submittedFromPath || commonReferrer,
+          referrer: commonReferrer,
           utm,
           user_agent: commonUserAgent,
           ip: ip || null,
@@ -290,19 +292,23 @@ serve(async (req: Request): Promise<Response> => {
 
     if (error) throw error;
 
-    // 7. Log security event (optional)
-    await supabase.from('security_logs').insert([{
-      event_type: 'quote_submission',
-      severity: 'info',
-      ip_address: ip,
-      user_agent: req.headers.get('user-agent'),
-      details: {
-        quote_type: data.quote_type,
-        table: tableName,
-        quote_id: insertedData.id,
-        turnstile_verified: !!turnstileToken,
-      },
-    } as SecurityLog]).select();
+    // 7. Log security event (optional) — never fail the submission if logging fails
+    try {
+      await supabase.from('security_logs').insert([{
+        event_type: 'quote_submission',
+        severity: 'info',
+        ip_address: ip,
+        user_agent: req.headers.get('user-agent'),
+        details: {
+          quote_type: data.quote_type,
+          table: tableName,
+          quote_id: insertedData.id,
+          turnstile_verified: !!turnstileToken,
+        },
+      } as SecurityLog]).select();
+    } catch {
+      // ignore
+    }
 
     return new Response(
       JSON.stringify({
@@ -314,10 +320,29 @@ serve(async (req: Request): Promise<Response> => {
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
+    const msg = (() => {
+      if (error && typeof error === 'object' && 'message' in error) {
+        try { return String((error as any).message); } catch { /* noop */ }
+      }
+      try { return String(error); } catch { /* noop */ }
+      return 'An unknown error occurred';
+    })();
+
+    const details = (() => {
+      if (!error || typeof error !== 'object') return undefined;
+      const maybe = error as any;
+      const parts: string[] = [];
+      if (maybe.code) parts.push(`code: ${String(maybe.code)}`);
+      if (maybe.details) parts.push(`details: ${String(maybe.details)}`);
+      if (maybe.hint) parts.push(`hint: ${String(maybe.hint)}`);
+      return parts.length ? parts : undefined;
+    })();
+
     return new Response(
       JSON.stringify({
         error: 'Failed to process submission',
-        message: error instanceof Error ? error.message : 'An unknown error occurred',
+        message: msg,
+        details,
       } as ErrorResponse),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

@@ -108,7 +108,8 @@ export async function executeTurnstileInvisible(): Promise<string | null> {
   // This is DEV-only to avoid accidental production disabling.
   if ((import.meta as any).env?.DEV && TURNSTILE_BYPASS_DEV) {
     await new Promise((r) => window.setTimeout(r, 1200));
-    return "dev-turnstile-bypass";
+    // The Edge Function recognizes this token and skips server-side verification.
+    return "test-token-skip-verification";
   }
 
   if (!TURNSTILE_SITE_KEY) {
