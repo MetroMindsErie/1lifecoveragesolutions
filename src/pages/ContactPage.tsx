@@ -157,52 +157,99 @@ export function ContactPage() {
 
             {/* Contact Form */}
             <div className="lg:col-span-2">
-              <Card className="border-gray-200">
-                <CardContent className="p-8">
-                  <h2 className="mb-6 text-3xl text-[#1a1a1a]">Send us a Message</h2>
-                  <form onSubmit={onSubmit} className="space-y-5">
+              <Card className="rounded-2xl border border-gray-200/80 bg-white/80 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-white/65">
+                <CardContent className="p-7 sm:p-10">
+                  <div className="mb-7">
+                    <h2 className="text-3xl text-[#1a1a1a]">Send us a Message</h2>
+                    <p className="mt-2 text-sm text-[#6c757d]">We’ll get back to you within 24 hours.</p>
+                  </div>
+
+                  <form onSubmit={onSubmit} className="grid gap-7">
                     {/* Honeypots */}
                     <input type="text" name="hp_company" className="hidden" aria-hidden="true" />
                     <input type="url" name="hp_url" className="hidden" aria-hidden="true" />
 
                     <div className="grid gap-6 sm:grid-cols-2">
-                      <div>
-                        <Label htmlFor="firstName" className="text-lg">First Name</Label>
-                        <Input id="firstName" name="first_name" type="text" placeholder="John" required className="text-lg px-4 py-4 min-h-[3.5rem]" />
+                      <div className="space-y-2">
+                        <Label htmlFor="firstName" className="text-sm font-medium text-[#1a1a1a]">First Name</Label>
+                        <Input
+                          id="firstName"
+                          name="first_name"
+                          type="text"
+                          placeholder="John"
+                          required
+                          className="h-12 rounded-xl bg-white/80 px-4 text-base shadow-sm ring-1 ring-black/10 focus-visible:ring-2 focus-visible:ring-[#1B5A8E]/35"
+                        />
                       </div>
-                      <div>
-                        <Label htmlFor="lastName" className="text-lg">Last Name</Label>
-                        <Input id="lastName" name="last_name" type="text" placeholder="Doe" required className="text-lg px-4 py-4 min-h-[3.5rem]" />
+                      <div className="space-y-2">
+                        <Label htmlFor="lastName" className="text-sm font-medium text-[#1a1a1a]">Last Name</Label>
+                        <Input
+                          id="lastName"
+                          name="last_name"
+                          type="text"
+                          placeholder="Doe"
+                          required
+                          className="h-12 rounded-xl bg-white/80 px-4 text-base shadow-sm ring-1 ring-black/10 focus-visible:ring-2 focus-visible:ring-[#1B5A8E]/35"
+                        />
                       </div>
                     </div>
 
-                    <div>
-                      <Label htmlFor="email" className="text-lg">Email</Label>
-                      <Input id="email" name="email" type="email" placeholder="john.doe@example.com" required className="text-lg px-4 py-4 min-h-[3.5rem]" />
+                    <div className="space-y-2">
+                      <Label htmlFor="email" className="text-sm font-medium text-[#1a1a1a]">Email</Label>
+                      <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        placeholder="john.doe@example.com"
+                        required
+                        className="h-12 rounded-xl bg-white/80 px-4 text-base shadow-sm ring-1 ring-black/10 focus-visible:ring-2 focus-visible:ring-[#1B5A8E]/35"
+                      />
                     </div>
 
-                    <div>
-                      <Label htmlFor="phone" className="text-lg">Phone Number</Label>
-                      <Input id="phone" name="phone" type="tel" placeholder="(555) 123-4567" className="text-lg px-4 py-4 min-h-[3.5rem]" />
+                    <div className="space-y-2">
+                      <Label htmlFor="phone" className="text-sm font-medium text-[#1a1a1a]">Phone Number</Label>
+                      <Input
+                        id="phone"
+                        name="phone"
+                        type="tel"
+                        placeholder="(555) 123-4567"
+                        className="h-12 rounded-xl bg-white/80 px-4 text-base shadow-sm ring-1 ring-black/10 focus-visible:ring-2 focus-visible:ring-[#1B5A8E]/35"
+                      />
                     </div>
 
-                    <div>
-                      <Label htmlFor="subject" className="text-lg">Subject</Label>
-                      <Input id="subject" name="subject" type="text" placeholder="How can we help?" required className="text-lg px-4 py-4 min-h-[3.5rem]" />
+                    <div className="space-y-2">
+                      <Label htmlFor="subject" className="text-sm font-medium text-[#1a1a1a]">Subject</Label>
+                      <Input
+                        id="subject"
+                        name="subject"
+                        type="text"
+                        placeholder="How can we help?"
+                        required
+                        className="h-12 rounded-xl bg-white/80 px-4 text-base shadow-sm ring-1 ring-black/10 focus-visible:ring-2 focus-visible:ring-[#1B5A8E]/35"
+                      />
                     </div>
 
-                    <div>
-                      <Label htmlFor="message" className="text-lg">Message</Label>
-                      <Textarea id="message" name="message" placeholder="Tell us what you need help with..." rows={6} required className="text-lg px-4 py-4 min-h-[8rem]" />
+                    <div className="space-y-2">
+                      <Label htmlFor="message" className="text-sm font-medium text-[#1a1a1a]">Message</Label>
+                      <Textarea
+                        id="message"
+                        name="message"
+                        placeholder="Tell us what you need help with..."
+                        rows={6}
+                        required
+                        className="min-h-[10rem] rounded-xl bg-white/80 px-4 py-3 text-base shadow-sm ring-1 ring-black/10 focus-visible:ring-2 focus-visible:ring-[#1B5A8E]/35"
+                      />
                     </div>
 
-                    <Button
-                      type="submit"
-                      disabled={submitting}
-                      className="rounded bg-[#1B5A8E] px-6 py-4 text-white text-lg min-h-[3.5rem] disabled:opacity-50"
-                    >
-                      {submitting ? "Sending…" : "Send Message"}
-                    </Button>
+                    <div className="pt-2 sm:pt-3">
+                      <Button
+                        type="submit"
+                        disabled={submitting}
+                        className="h-12 w-full rounded-xl bg-[#1B5A8E] px-6 text-base font-medium text-white shadow-sm disabled:opacity-50 sm:w-auto"
+                      >
+                        {submitting ? "Sending…" : "Send Message"}
+                      </Button>
+                    </div>
                   </form>
                 </CardContent>
               </Card>

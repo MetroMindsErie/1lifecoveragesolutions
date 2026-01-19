@@ -42,7 +42,7 @@ export function ValueProposition({
           <div
             className={
               backgroundVariant === "hero"
-                ? "absolute inset-0 bg-cover bg-center opacity-30"
+                ? "absolute inset-0 bg-cover bg-center opacity-100"
                 : "absolute inset-0"
             }
             style={{
@@ -50,14 +50,20 @@ export function ValueProposition({
               backgroundPosition: "center",
               backgroundSize: "cover",
               backgroundRepeat: "no-repeat",
-              ...(backgroundVariant === "hero" ? { backgroundAttachment: "fixed" as const } : null),
+              ...(backgroundVariant === "hero"
+                ? {
+                    backgroundAttachment: "scroll" as const,
+                    filter: "brightness(0.35) saturate(0.9) contrast(1.15)",
+                  }
+                : null),
             }}
           />
 
           {backgroundVariant === "hero" ? (
             <>
               {/* Match hero overlay for a seamless continuation */}
-              <div className="absolute inset-0 bg-gradient-to-br from-[#1B5A8E]/40 via-[#2C7DB8]/30 to-[#1B5A8E]/40" />
+              <div className="absolute inset-0 bg-black/45" />
+              <div className="absolute inset-0 bg-gradient-to-br from-[#0B1F3A]/80 via-[#1B5A8E]/55 to-[#0B1F3A]/85" />
               {/* Blend with hero bottom fade (dark-to-transparent) */}
               <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-[#0B1F3A] to-transparent" />
             </>
@@ -74,7 +80,10 @@ export function ValueProposition({
 
       {/* Fallback background color if no image */}
       {!backgroundImage && (
-        <div className="absolute inset-0 bg-[#F8F9FA]" />
+        <>
+          <div className="absolute inset-0 bg-gradient-to-br from-[#F3F7FF] via-white to-[#FFF2F0]" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#2C7DB8]/12 via-transparent to-[#FF6B61]/10" />
+        </>
       )}
 
       <div className="mx-auto max-w-7xl px-4 lg:px-8 relative z-10">

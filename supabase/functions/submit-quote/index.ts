@@ -23,6 +23,9 @@ function getTableForQuoteType(quoteTypeRaw: unknown): string {
     'pets': 'pet',
     'pet-insurance': 'pet',
     'pet_insurance': 'pet',
+    'contact': 'contact',
+    'contact-us': 'contact',
+    'contact_us': 'contact',
   } as Record<string, string>)[quoteType] || quoteType;
 
   const tableMap: Record<string, string> = {
@@ -34,6 +37,7 @@ function getTableForQuoteType(quoteTypeRaw: unknown): string {
     'commercial-building': 'commercial_building_quotes',
     bop: 'bop_quotes',
     pet: 'pet_quotes',
+    contact: 'contacts',
   };
 
   const tableName = tableMap[normalized];
@@ -74,6 +78,21 @@ interface QuoteRecord {
     status: string;
     payload: Record<string, any>;
     [key: string]: any;
+}
+
+interface ContactRecord {
+  name: string | null;
+  first_name: string | null;
+  last_name: string | null;
+  email: string | null;
+  phone: string | null;
+  subject: string | null;
+  message: string | null;
+  metadata: Record<string, any>;
+  referrer: string;
+  utm: UTMParameters;
+  user_agent: string;
+  ip: string | null;
 }
 
 interface InsertedQuote extends QuoteRecord {
@@ -209,22 +228,65 @@ serve(async (req: Request): Promise<Response> => {
     delete cleanData.timestamp;
 
     // 6. Build submission matching your table structure
-    const submission: QuoteRecord = {
-      ...cleanData,
-      referrer: clientReferrer || req.headers.get('referer') || '',
-      utm,
-      submitted_from_path: submittedFromPath,
-      user_agent: clientUserAgent || req.headers.get('user-agent') || '',
-      ip: ip || null,
-      status: 'new',
-      payload: cleanData,
-    };
+    const commonReferrer = clientReferrer || req.headers.get('referer') || '';
+    const commonUserAgent = clientUserAgent || req.headers.get('user-agent') || '';
+
+    const rowToInsert: Record<string, any> = (() => {
+      if (tableName === 'contacts') {
+        const firstName = typeof cleanData.first_name === 'string' ? cleanData.first_name.trim() : '';
+        const lastName = typeof cleanData.last_name === 'string' ? cleanData.last_name.trim() : '';
+        const fullName = `${firstName} ${lastName}`.trim();
+
+        const email = typeof cleanData.email === 'string' ? cleanData.email.trim() : null;
+        const phone = typeof cleanData.phone === 'string' ? cleanData.phone.trim() : null;
+        const subject = typeof cleanData.subject === 'string' ? cleanData.subject.trim() : null;
+        const message = typeof cleanData.message === 'string' ? cleanData.message.trim() : null;
+
+        const metadata: Record<string, any> = { ...cleanData };
+        delete (metadata as any).first_name;
+        delete (metadata as any).last_name;
+        delete (metadata as any).email;
+        delete (metadata as any).phone;
+        delete (metadata as any).subject;
+        delete (metadata as any).message;
+
+        const contactRow: ContactRecord = {
+          name: fullName || null,
+          first_name: firstName || null,
+          last_name: lastName || null,
+          email,
+          phone,
+          subject,
+          message,
+          metadata,
+          referrer: submittedFromPath || commonReferrer,
+          utm,
+          user_agent: commonUserAgent,
+          ip: ip || null,
+        };
+
+        return contactRow;
+      }
+
+      const submission: QuoteRecord = {
+        ...cleanData,
+        referrer: commonReferrer,
+        utm,
+        submitted_from_path: submittedFromPath,
+        user_agent: commonUserAgent,
+        ip: ip || null,
+        status: 'new',
+        payload: cleanData,
+      };
+
+      return submission;
+    })();
 
     const { data: insertedData, error } = await supabase
       .from(tableName)
-      .insert([submission])
-      .select()
-      .single<InsertedQuote>();
+      .insert([rowToInsert])
+      .select('id')
+      .single<{ id: string }>();
 
     if (error) throw error;
 
@@ -245,7 +307,7 @@ serve(async (req: Request): Promise<Response> => {
     return new Response(
       JSON.stringify({
         success: true,
-        message: 'Quote submitted successfully',
+        message: tableName === 'contacts' ? 'Message sent successfully' : 'Quote submitted successfully',
         id: insertedData.id,
         quote_type: data.quote_type,
       } as SuccessResponse),

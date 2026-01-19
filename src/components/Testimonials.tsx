@@ -16,16 +16,26 @@ interface TestimonialsProps {
   title?: string;
   description?: string;
   backgroundImage?: string;
+  overlayVariant?: "light" | "dark";
 }
 
 export function Testimonials({ 
   testimonials, 
   title = "What Our Customers Say",
   description,
-  backgroundImage
+  backgroundImage,
+  overlayVariant = "light",
 }: TestimonialsProps) {
   return (
     <section className="relative overflow-hidden py-16 sm:py-20 md:py-24">
+      {/* Branded gradient fallback when no image */}
+      {!backgroundImage && (
+        <>
+          <div className="absolute inset-0 bg-gradient-to-br from-[#F3F7FF] via-white to-[#FFF2F0]" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#2C7DB8]/12 via-transparent to-[#FF6B61]/10" />
+        </>
+      )}
+
       {/* Background Image */}
       {backgroundImage && (
         <div
@@ -33,22 +43,40 @@ export function Testimonials({
           style={{
             backgroundImage: `url(${backgroundImage})`,
             backgroundPosition: 'center',
+            ...(overlayVariant === "dark"
+              ? { filter: 'brightness(0.35) saturate(0.9) contrast(1.15)' }
+              : null),
           }}
         >
           {/* Overlay for better text contrast */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[#F8F9FA]/95 via-[#F8F9FA]/90 to-[#F8F9FA]/95" />
+          {overlayVariant === "dark" ? (
+            <>
+              <div className="absolute inset-0 bg-black/45" />
+              <div className="absolute inset-0 bg-gradient-to-br from-[#0B1F3A]/80 via-[#1B5A8E]/55 to-[#0B1F3A]/85" />
+            </>
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-[#F8F9FA]/95 via-[#F8F9FA]/90 to-[#F8F9FA]/95" />
+          )}
         </div>
       )}
 
       <div className="mx-auto max-w-7xl px-4 lg:px-8 relative z-10">
         {/* Frosted Glass Container */}
         <div 
-          className="rounded-3xl border-2 border-white/30 p-8 sm:p-12 shadow-2xl relative overflow-hidden"
-          style={{
-            backgroundColor: 'rgba(255, 255, 255, 0.08)',
-            backdropFilter: 'blur(12px)',
-            WebkitBackdropFilter: 'blur(12px)',
-          }}
+          className={
+            overlayVariant === "dark"
+              ? "rounded-3xl border-2 border-white/20 bg-white/92 p-8 sm:p-12 shadow-2xl relative overflow-hidden backdrop-blur-xl"
+              : "rounded-3xl border-2 border-white/30 p-8 sm:p-12 shadow-2xl relative overflow-hidden"
+          }
+          style={
+            overlayVariant === "dark"
+              ? undefined
+              : {
+                  backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                  backdropFilter: 'blur(12px)',
+                  WebkitBackdropFilter: 'blur(12px)',
+                }
+          }
         >
           {/* Decorative gradient border accent - coral */}
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#2C7DB8] to-transparent"></div>

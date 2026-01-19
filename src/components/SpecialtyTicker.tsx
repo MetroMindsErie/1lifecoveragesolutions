@@ -30,7 +30,13 @@ export function SpecialtyTicker({
           : "pointer-events-none select-none w-full"
       }
     >
-      <div className="pointer-events-auto relative overflow-hidden bg-transparent shadow-none">
+      <div
+        className={
+          variant === "sticky"
+            ? "pointer-events-auto relative overflow-hidden bg-[#0B1F3A] shadow-none"
+            : "pointer-events-auto relative overflow-hidden bg-white/85 backdrop-blur-md shadow-none"
+        }
+      >
         <div className="relative">
           <div
             className={
@@ -129,7 +135,9 @@ export function SpecialtyTicker({
                                 ? isEmbedded
                                   ? "text-sm sm:text-base font-black tracking-tight text-[#1B5A8E] whitespace-nowrap"
                                   : "text-sm sm:text-base font-black tracking-tight text-[#1B5A8E] drop-shadow-sm whitespace-nowrap"
-                                : "text-lg sm:text-xl font-black tracking-tight text-white drop-shadow-lg whitespace-nowrap"
+                                : isEmbedded
+                                  ? "text-lg sm:text-xl font-black tracking-tight text-[#1B5A8E] drop-shadow-sm whitespace-nowrap"
+                                  : "text-lg sm:text-xl font-black tracking-tight text-[#D6ECFF] drop-shadow-lg whitespace-nowrap"
                             }
                           >
                             {coverage.name}

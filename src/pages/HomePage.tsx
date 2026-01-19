@@ -271,43 +271,47 @@ export function HomePage() {
   }, []);
 
   return (
-    <div className="pb-24 lg:pb-32 bg-[#1a1a1a]">
+    <div className="pb-24 lg:pb-32 bg-gradient-to-br from-[#F3F7FF] via-white to-[#FFF2F0]">
       {/* Enhanced Hero Section with Quote Starter */}
       <section className="relative isolate overflow-hidden bg-gradient-to-br from-[#1B5A8E] via-[#2C7DB8] to-[#1B5A8E]">
         {/* Background collage image */}
         <div
-          className="absolute inset-0 bg-cover bg-center opacity-30"
+          className="absolute inset-0 bg-cover bg-center opacity-100"
           style={{
             backgroundImage: 'url(/images/insurance-3.jpg)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
-            backgroundAttachment: 'fixed',
+            backgroundAttachment: 'scroll',
+            filter: 'brightness(0.55) saturate(0.95) contrast(1.1)',
           }}
         />
 
         {/* Gradient overlay to ensure text readability */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1B5A8E]/40 via-[#2C7DB8]/30 to-[#1B5A8E]/40" />
+        <div className="absolute inset-0 bg-black/25" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0B1F3A]/65 via-[#1B5A8E]/45 to-[#0B1F3A]/70" />
 
         {/* Content */}
         <div className="relative mx-auto max-w-7xl px-4 py-12 sm:py-16 md:py-24 lg:px-8 lg:py-32 z-20">
           <div className="mx-auto mb-8 max-w-4xl text-center">
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="text-balance text-3xl font-extrabold tracking-tight text-white drop-shadow-[0_10px_30px_rgba(0,0,0,0.8)] sm:text-5xl"
-            >
-              Compare insurance quotes and get covered fast
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="mx-auto mt-4 max-w-2xl text-pretty text-base font-semibold text-white/95 drop-shadow-[0_8px_24px_rgba(0,0,0,0.8)] sm:text-lg"
-            >
-              Auto, home, life, renters, and business coverage — start a quote in minutes with 1Life Coverage Solutions.
-            </motion.p>
+            <div className="inline-block rounded-2xl border border-white/25 bg-[#0B1F3A]/70 px-4 py-5 backdrop-blur-2xl shadow-[0_26px_70px_rgba(0,0,0,0.75)] sm:px-8 sm:py-6">
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="text-balance text-3xl font-extrabold tracking-tight text-white drop-shadow-[0_16px_40px_rgba(0,0,0,1)] sm:text-5xl"
+              >
+                Compare insurance quotes and get covered fast
+              </motion.h1>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.1 }}
+                className="mx-auto mt-4 max-w-2xl text-pretty text-base font-semibold text-white drop-shadow-[0_14px_34px_rgba(0,0,0,1)] sm:text-lg"
+              >
+                Auto, home, life, renters, and business coverage — start a quote in minutes with 1Life Coverage Solutions.
+              </motion.p>
+            </div>
           </div>
 
           {/* Mobile: Quote Starter at top, Logo below */}
@@ -350,40 +354,16 @@ export function HomePage() {
       {/* Value Proposition */}
       <ValueProposition
         features={features}
-        backgroundImage="/images/insurance-3.jpg"
-        backgroundVariant="hero"
+        backgroundVariant="light"
       />
 
       {/* Why Choose Us Section (coral tint) */}
-      <section className="relative py-16 sm:py-20 md:py-24 text-white">
-        {/* Background Image */}
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: 'url(images/insurance-3.jpg)',
-            backgroundPosition: 'center 60%',
-          }}
-        >
-          {/* Darker overlay for better text contrast */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[#0D3B5E]/95 via-[#1B5A8E]/90 to-[#0D3B5E]/95" />
-        </div>
-
-        {/* Decorative gradient blobs with enhanced colors */}
-        <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-[#2C7DB8] rounded-full opacity-30 blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-96 h-96 bg-[#FF6B61] rounded-full opacity-25 blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-r from-[#FF6B61]/10 to-[#2C7DB8]/10 rounded-full blur-3xl"></div>
+      <section className="relative py-16 sm:py-20 md:py-24">
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-slate-100" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#2C7DB8]/10 via-transparent to-[#FF6B61]/10" />
 
         <div className="mx-auto max-w-7xl px-4 lg:px-8 relative z-10">
-          {/* Less frosted outer container with gradient accent */}
-          <div
-            className="rounded-2xl sm:rounded-3xl border-2 border-white/30 p-6 sm:p-8 md:p-12 shadow-2xl relative overflow-hidden"
-            style={{
-              backgroundColor: 'rgba(255, 255, 255, 0.08)',
-              backdropFilter: 'blur(12px)',
-              WebkitBackdropFilter: 'blur(12px)',
-            }}
-          >
-            {/* Decorative gradient border accent */}
+          <div className="rounded-2xl sm:rounded-3xl border border-slate-200 bg-white/85 p-6 sm:p-8 md:p-12 shadow-xl backdrop-blur-sm relative overflow-hidden">
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#FF6B61] to-transparent"></div>
 
             <motion.div
@@ -393,10 +373,10 @@ export function HomePage() {
               viewport={{ once: true }}
               className="mb-12 sm:mb-16 text-center"
             >
-              <h2 className="mb-4 text-3xl sm:text-4xl font-bold text-white md:text-5xl drop-shadow-[0_8px_24px_rgba(0,0,0,1)]">
+              <h2 className="mb-4 text-3xl sm:text-4xl font-bold text-[#0B1F3A] md:text-5xl">
                 Why Choose 1Life Coverage?
               </h2>
-              <p className="mx-auto max-w-2xl text-lg sm:text-xl text-white drop-shadow-[0_6px_20px_rgba(0,0,0,1)] font-bold px-4">
+              <p className="mx-auto max-w-2xl text-lg sm:text-xl text-slate-700 font-semibold px-4">
                 We're not just another insurance company. We're your partner in protection.
               </p>
             </motion.div>
@@ -411,23 +391,10 @@ export function HomePage() {
                   viewport={{ once: true }}
                   className="text-center"
                 >
-                  {/* Individual frosted container with gradient border */}
                   <div
-                    className="rounded-2xl border-2 p-8 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group"
-                    style={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                      backdropFilter: 'blur(16px)',
-                      WebkitBackdropFilter: 'blur(16px)',
-                      borderColor: index % 2 === 0 ? 'rgba(255, 107, 97, 0.4)' : 'rgba(44, 125, 184, 0.4)',
-                    }}
+                    className="rounded-2xl border border-slate-200 bg-white p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group"
                   >
-                    {/* Gradient accent on hover */}
-                    <div
-                      className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300"
-                      style={{
-                        background: 'linear-gradient(135deg, rgba(255, 107, 97, 0.3) 0%, transparent 100%)'
-                      }}
-                    ></div>
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-br from-[#2C7DB8]/5 via-transparent to-[#FF6B61]/10" />
 
                     <div className="mb-6 flex justify-center relative z-10">
                       <div
@@ -439,8 +406,8 @@ export function HomePage() {
                         <item.icon className="h-8 w-8 text-white" />
                       </div>
                     </div>
-                    <h3 className="mb-4 text-2xl font-extrabold text-white drop-shadow-[0_4px_12px_rgba(0,0,0,1)] relative z-10">{item.title}</h3>
-                    <p className="text-base text-white leading-relaxed font-bold drop-shadow-[0_4px_10px_rgba(0,0,0,0.9)] relative z-10">{item.description}</p>
+                    <h3 className="mb-4 text-2xl font-extrabold text-[#0B1F3A] relative z-10">{item.title}</h3>
+                    <p className="text-base text-slate-700 leading-relaxed font-semibold relative z-10">{item.description}</p>
                   </div>
                 </motion.div>
               ))}
@@ -456,7 +423,7 @@ export function HomePage() {
           testimonials={testimonials}
           title="What Our Customers Say"
           description="Join thousands of satisfied customers who trust 1Life Coverage Solutions"
-          backgroundImage="/images/insurance.jpg"
+          overlayVariant="light"
         />
       </div>
 
