@@ -17,7 +17,9 @@ import { CommercialBuildingQuotePage } from "./pages/quotes/CommercialBuildingQu
 import { BopQuotePage } from "./pages/quotes/BopQuotePage";
 import { PetQuotePage } from "./pages/quotes/PetQuotePage";
 import { RentersQuotePage } from "./pages/RentersQuotePage";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
+import { useEffect } from "react";
+import { trackPageView } from "./lib/analytics";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminQuoteDetailPage from "./pages/admin/AdminQuoteDetailPage"; // NEW
 import AdminContactDetailPage from "./pages/admin/AdminContactDetailPage"; // NEW
@@ -26,6 +28,12 @@ import { TermsOfService } from './pages/TermsOfService';
 import { PrivacyPolicy } from './pages/PrivacyPolicy'; // NEW
 
 function App() {
+  const location = useLocation();
+
+  useEffect(() => {
+    trackPageView(`${location.pathname}${location.search}`);
+  }, [location.pathname, location.search]);
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header />

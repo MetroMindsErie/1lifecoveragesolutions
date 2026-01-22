@@ -1,11 +1,8 @@
-// Updated to act as a hub that links to each specific quote form
-import { Shield, Lock, Clock, Car, Home, Umbrella, Heart, Building2, Briefcase } from "lucide-react";
-import { CoverageCard } from "../components/CoverageCard";
-import { PetQuoteCard } from "../components/quotes/PetQuoteCard";
-import { RentersQuoteCard } from "../components/quotes/RentersQuoteCard";
+// Updated to showcase a deluxe quote starter experience
 import { useEffect } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { absUrl, setHead } from "../lib/seo";
+import { QuoteStarter } from "../components/QuoteStarter";
 
 export function QuotePage() {
   useEffect(() => {
@@ -38,123 +35,63 @@ export function QuotePage() {
     })();
   }, []);
 
-  const quoteTypes = [
+  const steps = [
     {
-      title: "Auto Insurance",
-      description: "Personal auto coverage quotes for your vehicles and drivers.",
-      icon: Car,
-      href: "/quote/auto",
-      image:
-        "https://images.unsplash.com/photo-1628188765472-50896231dafb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      title: "Pick coverage",
+      description: "Select a policy type.",
     },
     {
-      title: "Homeowners Insurance",
-      description: "Property and liability coverage for your home.",
-      icon: Home,
-      href: "/quote/homeowners",
-      image:
-        "https://images.unsplash.com/photo-1560518883-ce09059eeffa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      title: "Answer basics",
+      description: "Share key details.",
     },
     {
-      title: "Personal Umbrella",
-      description: "Extra liability protection over your home/auto policies.",
-      icon: Umbrella,
-      href: "/quote/umbrella",
-      image:
-        "https://images.unsplash.com/photo-1736037502897-97c76f66d682?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=687", // updated
-    },
-    {
-      title: "Life Insurance",
-      description: "Term or whole life coverage tailored to your needs.",
-      icon: Heart,
-      href: "/quote/life",
-      image:
-        "https://images.unsplash.com/photo-1596510914841-40223e421e29?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
-    },
-    {
-      title: "Commercial Building",
-      description: "Coverage for owned or leased commercial properties.",
-      icon: Building2,
-      href: "/quote/commercial-building",
-      image:
-        "https://images.unsplash.com/photo-1614969263964-f381e32b337d?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1331", // updated
-    },
-    {
-      title: "Business Owners Policy (BOP)",
-      description: "Property, liability, and more for small businesses.",
-      icon: Briefcase,
-      href: "/quote/bop",
-      image:
-        "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      title: "Compare options",
+      description: "Get matched fast.",
     },
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <section className="border-b bg-white py-12">
-        <div className="mx-auto max-w-7xl px-4 text-center lg:px-8">
-          <h1 className="mb-4 text-5xl text-[#1a1a1a]">Start Your Quote</h1>
-          <p className="mx-auto max-w-2xl text-xl text-[#6c757d]">
-            Choose a coverage type to fill out a quick, comprehensive form.
-          </p>
-        </div>
-      </section>
+    <div
+      className="min-h-screen bg-cover bg-no-repeat"
+      style={{
+        backgroundImage: "url(https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=2200&q=80)",
+        backgroundPosition: "center 40%",
+      }}
+    >
 
-      {/* Trust Indicators */}
-      <section className="border-b bg-white py-8">
-        <div className="mx-auto max-w-7xl px-4 lg:px-8">
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-            <div className="flex items-center justify-center gap-3">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-[#4f46e5] to-[#06b6d4]">
-                <Shield className="h-7 w-7 text-white" />
+
+      <section className="relative mx-auto max-w-7xl px-4 py-12 sm:py-16 lg:px-8">
+        <div className="w-full">
+          <div
+            className="mb-4 rounded-2xl bg-white/95 backdrop-blur-xl border-4 border-[#1B5A8E] px-4 py-3 shadow-[0_18px_45px_rgba(27,90,142,0.35)] relative overflow-hidden"
+            style={{ marginTop: "6rem" }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-[#1B5A8E]/10 via-transparent to-[#FF6B61]/10 pointer-events-none" />
+            <div className="absolute top-0 right-0 w-24 h-24 sm:w-28 sm:h-28 bg-gradient-to-br from-[#FF6B61]/15 to-transparent rounded-full blur-3xl" />
+            <div className="absolute bottom-0 left-0 w-28 h-28 sm:w-32 sm:h-32 bg-gradient-to-tl from-[#1B5A8E]/15 to-transparent rounded-full blur-3xl" />
+
+            <div className="relative z-10 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-[#1B5A8E]">Simple process</p>
+                <p className="mt-1 text-base font-bold text-[#0B1F3A]">3 quick steps</p>
               </div>
-              <div className="text-left">
-                <p className="text-lg text-[#1a1a1a]">Trusted Coverage</p>
-                <p className="text-base text-[#6c757d]">A+ Rated Insurance</p>
-              </div>
-            </div>
-            <div className="flex items-center justify-center gap-3">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-[#4f46e5] to-[#06b6d4]">
-                <Lock className="h-7 w-7 text-white" />
-              </div>
-              <div className="text-left">
-                <p className="text-lg text-[#1a1a1a]">Secure & Private</p>
-                <p className="text-base text-[#6c757d]">Your data is protected</p>
-              </div>
-            </div>
-            <div className="flex items-center justify-center gap-3">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-[#4f46e5] to-[#06b6d4]">
-                <Clock className="h-7 w-7 text-white" />
-              </div>
-              <div className="text-left">
-                <p className="text-lg text-[#1a1a1a]">Quick Response</p>
-                <p className="text-base text-[#6c757d]">Reply within 24 hours</p>
+              <div className="flex flex-wrap gap-2">
+                {steps.map((step, index) => (
+                  <span
+                    key={index}
+                    className="rounded-full border-[3px] border-[#FF6B61] bg-[#FF6B61]/10 px-3 py-1 text-xs font-semibold text-[#0B1F3A]"
+                  >
+                    {step.title}
+                  </span>
+                ))}
               </div>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* Quote type cards */}
-      <section className="py-16">
-        <div className="mx-auto max-w-7xl px-4 lg:px-8">
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {quoteTypes.map((q, i) => (
-              <CoverageCard
-                key={i}
-                title={q.title}
-                description={q.description}
-                icon={q.icon}
-                href={q.href}
-                image={q.image}
-              />
-            ))}
-            {/* Add Pet Insurance Card */}
-            <PetQuoteCard />
-            
-            {/* Add Renters Insurance Card */}
-            <RentersQuoteCard />
+          <div className="rounded-3xl bg-gradient-to-r from-[#1B5A8E] via-[#2C7DB8] to-[#FF6B61] p-[2px] shadow-[0_22px_60px_rgba(27,90,142,0.4)]">
+            <div className="rounded-[1.35rem] bg-white/95">
+              <QuoteStarter />
+            </div>
           </div>
         </div>
       </section>
