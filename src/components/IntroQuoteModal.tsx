@@ -70,7 +70,8 @@ export function IntroQuoteModal({ open, onStart }: IntroQuoteModalProps) {
         padding: '1rem',
         background: 'radial-gradient(circle at center, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9))',
         backdropFilter: 'blur(8px)',
-        WebkitBackdropFilter: 'blur(8px)'
+        WebkitBackdropFilter: 'blur(8px)',
+        pointerEvents: 'auto'
       }}
     >
         <div
@@ -80,7 +81,7 @@ export function IntroQuoteModal({ open, onStart }: IntroQuoteModalProps) {
           aria-labelledby={titleId}
           aria-describedby={descId}
           className="relative w-full rounded-md max-w-md rounded-3xl bg-white shadow-2xl mx-4 overflow-hidden"
-          style={{ maxHeight: '85vh', overflowY: 'auto' }}
+          style={{ maxHeight: '85vh', overflowY: 'auto', pointerEvents: 'auto' }}
         >
           {/* Close button */}
           <button
@@ -138,11 +139,9 @@ export function IntroQuoteModal({ open, onStart }: IntroQuoteModalProps) {
             <div className="mt-4 flex flex-col gap-4">
               <button
                 type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onStart();
-                }}
+                onClick={onStart}
+                onPointerUp={onStart}
+                onTouchEnd={onStart}
                 className="w-full bg-white border-3 font-black py-4 text-xl sm:text-2xl rounded-full shadow-lg transition-all cursor-pointer"
                 style={{ borderColor: '#10b981', color: '#10b981', borderWidth: '3px' }}
                 onMouseEnter={(e) => {
