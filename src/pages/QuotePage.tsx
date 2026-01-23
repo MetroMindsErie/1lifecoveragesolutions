@@ -89,7 +89,7 @@ export function QuotePage() {
           </div>
 
           <div className="rounded-3xl bg-gradient-to-r from-[#1B5A8E] via-[#2C7DB8] to-[#FF6B61] p-[2px] shadow-[0_22px_60px_rgba(27,90,142,0.4)]">
-            <div className="rounded-[1.35rem] bg-white/95">
+            <div className="rounded-[1.35rem] rounded-full bg-white/95">
               <QuoteStarter />
             </div>
           </div>
