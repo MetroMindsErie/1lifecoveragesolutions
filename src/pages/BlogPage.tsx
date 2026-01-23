@@ -15,8 +15,8 @@ const IJ_FEED_CANDIDATES = [
   "https://www.insurancejournal.com/news/feed/",
 ];
 
-// AllOrigins CORS proxy
-const CORS_PROXY = "https://api.allorigins.win/get?url=";
+// Same-origin RSS proxy (Cloudflare Pages Function)
+const RSS_PROXY = "/rss-proxy?url=";
 
 // Helper: extract first <img src="..."> from HTML
 function extractImgFromHtml(html?: string): string | undefined {
@@ -92,10 +92,9 @@ export function BlogPage() {
       setRssError(null);
       for (const feedUrl of IJ_FEED_CANDIDATES) {
         try {
-          const resp = await fetch(`${CORS_PROXY}${encodeURIComponent(feedUrl)}`);
+          const resp = await fetch(`${RSS_PROXY}${encodeURIComponent(feedUrl)}`);
           if (!resp.ok) continue;
-          const json = await resp.json();
-          const xml = json?.contents as string | undefined;
+          const xml = await resp.text();
           if (!xml) continue;
 
           const doc = new DOMParser().parseFromString(xml, "text/xml");

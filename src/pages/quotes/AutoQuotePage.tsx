@@ -18,8 +18,14 @@ import { motion, AnimatePresence } from "motion/react";
 import { sanitizeInput, validateInput, isValidEmail, isValidPhone } from "../../lib/formSecurity";
 import LoadingOverlay from "../../components/LoadingOverlay";
 import { absUrl, setHead } from "../../lib/seo";
+import { IntroQuoteModal } from "../../components/IntroQuoteModal";
 
 export function AutoQuotePage() {
+	// Trust-first intro: gate form interaction until user intentionally starts.
+	const introStorageKey = "intro-quote-auto-dismissed";
+	const [introOpen, setIntroOpen] = useState(false);
+	const [introChecked, setIntroChecked] = useState(false);
+
 	useEffect(() => {
 		const jsonLd = {
 			"@context": "https://schema.org",
@@ -53,6 +59,32 @@ export function AutoQuotePage() {
 			}
 		})();
 	}, []);
+
+	useEffect(() => {
+		// Ensure the modal and hero are visible on initial load (mobile + desktop).
+		window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+	}, []);
+
+	useEffect(() => {
+		// Read from storage after mount to avoid SSR/prerender mismatches.
+		if (typeof window === "undefined") return;
+		const params = new URLSearchParams(window.location.search);
+		const forceIntro = params.get("intro") === "1";
+		const resetIntro = params.get("intro") === "reset";
+		if (resetIntro) {
+			window.localStorage.removeItem(introStorageKey);
+		}
+		const dismissed = window.localStorage.getItem(introStorageKey) === "true";
+		setIntroOpen(forceIntro ? true : !dismissed);
+		setIntroChecked(true);
+	}, []);
+
+	useEffect(() => {
+		// Keep view at top while the intro is open so users always see the modal.
+		if (introOpen) {
+			window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+		}
+	}, [introOpen]);
 
 	const [submitted, setSubmitted] = useState(false);
 	const [submitting, setSubmitting] = useState(false);
@@ -191,6 +223,7 @@ export function AutoQuotePage() {
 	const handleNext = () => {
 		if (currentStep >= totalSteps - 1) return;
 
+		window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
 		setAttemptedSteps(prev => ({ ...prev, [currentStep]: true }));
 
 		const stepFieldNames = new Set(steps[currentStep].fields.map(f => f.name));
@@ -217,6 +250,7 @@ export function AutoQuotePage() {
 
 	const handlePrevious = () => {
 		if (currentStep > 0) {
+			window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
 			setCurrentStep(prev => prev - 1);
 		}
 	};
@@ -304,13 +338,30 @@ export function AutoQuotePage() {
 		}
 	};
 
-	useEffect(() => {
+	const focusFirstField = () => {
 		const firstField = steps[currentStep].fields[0]?.name;
 		if (firstField) {
 			const el = document.querySelector<HTMLInputElement | HTMLTextAreaElement>(`[name="${firstField}"]`);
 			el?.focus();
 		}
-	}, [currentStep]);
+	};
+
+	useEffect(() => {
+		// Avoid auto-focusing until storage is checked and the intro modal is dismissed.
+		if (!introChecked || introOpen) return;
+		focusFirstField();
+	}, [currentStep, introOpen, introChecked]);
+
+	const handleIntroDismiss = (shouldFocus: boolean) => {
+		setIntroOpen(false);
+		if (typeof window !== "undefined") {
+			window.localStorage.setItem(introStorageKey, "true");
+		}
+		if (shouldFocus) {
+			// Defer focus until after the modal closes and the form is interactable.
+			requestAnimationFrame(() => focusFirstField());
+		}
+	};
 
 	if (submitted) {
 		return (
@@ -332,6 +383,16 @@ export function AutoQuotePage() {
 					</CardContent>
 				</Card>
 			</div>
+		);
+	}
+
+	// Show only the intro overlay when it's open (rendered via portal to body)
+	if (introChecked && introOpen) {
+		return (
+			<IntroQuoteModal
+				open={true}
+				onStart={() => handleIntroDismiss(true)}
+			/>
 		);
 	}
 
