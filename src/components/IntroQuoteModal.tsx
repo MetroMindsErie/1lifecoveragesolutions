@@ -138,8 +138,12 @@ export function IntroQuoteModal({ open, onStart }: IntroQuoteModalProps) {
             <div className="mt-4 flex flex-col gap-4">
               <button
                 type="button"
-                onClick={onStart}
-                className="w-full bg-white border-3 font-black py-4 text-xl sm:text-2xl rounded-full shadow-lg transition-all"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onStart();
+                }}
+                className="w-full bg-white border-3 font-black py-4 text-xl sm:text-2xl rounded-full shadow-lg transition-all cursor-pointer"
                 style={{ borderColor: '#10b981', color: '#10b981', borderWidth: '3px' }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor = '#10b981';
