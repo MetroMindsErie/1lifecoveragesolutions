@@ -353,13 +353,16 @@ export function AutoQuotePage() {
 	}, [currentStep, introOpen, introChecked]);
 
 	const handleIntroDismiss = (shouldFocus: boolean) => {
+		console.log('handleIntroDismiss called', shouldFocus);
 		setIntroOpen(false);
 		if (typeof window !== "undefined") {
 			window.localStorage.setItem(introStorageKey, "true");
 		}
 		if (shouldFocus) {
 			// Defer focus until after the modal closes and the form is interactable.
-			requestAnimationFrame(() => focusFirstField());
+			setTimeout(() => {
+				focusFirstField();
+			}, 100);
 		}
 	};
 
