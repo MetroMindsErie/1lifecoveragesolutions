@@ -1,5 +1,4 @@
 import { useEffect, useId, useRef } from "react";
-import { createPortal } from "react-dom";
 import { Check, ShieldCheck, X } from "lucide-react";
 import { Button } from "./ui/button";
 
@@ -53,12 +52,7 @@ export function IntroQuoteModal({ open, onStart }: IntroQuoteModalProps) {
 
   if (!open) return null;
 
-  return createPortal(
-    <>
-      <style>{`
-        body { overflow: hidden !important; }
-        #root, #root > div { display: none !important; }
-      `}</style>
+  return (
     <div 
       className="fixed top-0 left-0 right-0 bottom-0 z-[9999] rounded-3xl"
       style={{
@@ -70,8 +64,7 @@ export function IntroQuoteModal({ open, onStart }: IntroQuoteModalProps) {
         padding: '1rem',
         background: 'radial-gradient(circle at center, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9))',
         backdropFilter: 'blur(8px)',
-        WebkitBackdropFilter: 'blur(8px)',
-        pointerEvents: 'auto'
+        WebkitBackdropFilter: 'blur(8px)'
       }}
     >
         <div
@@ -81,7 +74,7 @@ export function IntroQuoteModal({ open, onStart }: IntroQuoteModalProps) {
           aria-labelledby={titleId}
           aria-describedby={descId}
           className="relative w-full rounded-md max-w-md rounded-3xl bg-white shadow-2xl mx-4 overflow-hidden"
-          style={{ maxHeight: '85vh', overflowY: 'auto', pointerEvents: 'auto' }}
+          style={{ maxHeight: '85vh', overflowY: 'auto' }}
         >
           {/* Close button */}
           <button
@@ -163,7 +156,5 @@ export function IntroQuoteModal({ open, onStart }: IntroQuoteModalProps) {
           </div>
         </div>
       </div>
-    </>,
-    document.body
   );
 }

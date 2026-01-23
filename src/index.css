@@ -65,6 +65,15 @@
   }
 }
 
+body.intro-open {
+  overflow: hidden;
+}
+
+body.intro-open header,
+body.intro-open footer {
+  display: none !important;
+}
+
 @layer theme {
   :root, :host {
     --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";

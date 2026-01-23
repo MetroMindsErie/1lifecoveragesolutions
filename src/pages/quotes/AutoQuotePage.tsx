@@ -86,6 +86,14 @@ export function AutoQuotePage() {
 		}
 	}, [introOpen]);
 
+	useEffect(() => {
+		if (typeof document === "undefined") return;
+		document.body.classList.toggle("intro-open", introOpen);
+		return () => {
+			document.body.classList.remove("intro-open");
+		};
+	}, [introOpen]);
+
 	const [submitted, setSubmitted] = useState(false);
 	const [submitting, setSubmitting] = useState(false);
 	const [currentStep, setCurrentStep] = useState(0);
@@ -353,7 +361,6 @@ export function AutoQuotePage() {
 	}, [currentStep, introOpen, introChecked]);
 
 	const handleIntroDismiss = (shouldFocus: boolean) => {
-		console.log('handleIntroDismiss called', shouldFocus);
 		setIntroOpen(false);
 		if (typeof window !== "undefined") {
 			window.localStorage.setItem(introStorageKey, "true");
