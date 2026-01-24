@@ -74,7 +74,6 @@ export function BopQuotePage() {
 			subtitle: "Basic business information",
 			fields: [
 				{ name: "business_name", label: "Business Name", type: "text", required: true },
-				{ name: "business_address", label: "Business Address", type: "text", required: true },
 				{ name: "contact_phone", label: "Your Phone Number", type: "tel", required: true },
 				{ name: "contact_email", label: "Your Email Address", type: "email", required: true },
 			]
@@ -84,6 +83,10 @@ export function BopQuotePage() {
 			title: "Business details",
 			subtitle: "Type of business and operations",
 			fields: [
+				{ name: "business_address_street", label: "Street address", type: "text", required: true, placeholder: "123 Main St" },
+				{ name: "business_address_city", label: "City", type: "text", required: true, placeholder: "Cleveland" },
+				{ name: "business_address_state", label: "State", type: "text", required: true, placeholder: "OH" },
+				{ name: "business_address_zip", label: "ZIP code", type: "text", required: true, placeholder: "44114" },
 				{ name: "business_type", label: "Type of Business", type: "select", options: ["Retail","Restaurant","Professional Office","Contractor","Service","E-commerce","Manufacturing","Other"] },
 				{ name: "fein", label: "FEIN / Tax ID Number", type: "text" },
 				{ name: "years_in_business", label: "Years in Business", type: "select", options: ["<1","1-2","3-5","6-10","11-20","20+"] },
@@ -105,7 +108,10 @@ export function BopQuotePage() {
 			title: "Property Information",
 			subtitle: "Details about your location",
 			fields: [
-				{ name: "property_address", label: "Property Address (if different)", type: "text" },
+				{ name: "property_address_street", label: "Street address (if different)", type: "text", placeholder: "123 Main St" },
+				{ name: "property_address_city", label: "City", type: "text", placeholder: "Cleveland" },
+				{ name: "property_address_state", label: "State", type: "text", placeholder: "OH" },
+				{ name: "property_address_zip", label: "ZIP code", type: "text", placeholder: "44114" },
 				{ name: "property_type", label: "Property Type", type: "select", options: ["Owned", "Leased", "Rented"] },
 				{ name: "building_construction", label: "Building Construction", type: "select", options: ["Brick", "Wood", "Metal", "Concrete"] },
 				{ name: "year_built", label: "Year Built", type: "select", options: YEAR_BUILT_OPTIONS },
@@ -297,6 +303,41 @@ export function BopQuotePage() {
 
 		setSubmitting(true);
 		try {
+			const buildAddressFromParts = (data: Record<string, string>) => {
+				const street = (data.business_address_street || "").trim();
+				const city = (data.business_address_city || "").trim();
+				const state = (data.business_address_state || "").trim();
+				const zip = (data.business_address_zip || "").trim();
+				const cityState = [city, state].filter(Boolean).join(", ");
+				const cityStateZip = [cityState, zip].filter(Boolean).join(" ");
+				return [street, cityStateZip].filter(Boolean).join(", ");
+			};
+
+			const buildPropertyAddressFromParts = (data: Record<string, string>) => {
+				const street = (data.property_address_street || "").trim();
+				const city = (data.property_address_city || "").trim();
+				const state = (data.property_address_state || "").trim();
+				const zip = (data.property_address_zip || "").trim();
+				const cityState = [city, state].filter(Boolean).join(", ");
+				const cityStateZip = [cityState, zip].filter(Boolean).join(" ");
+				return [street, cityStateZip].filter(Boolean).join(", ");
+			};
+
+			const address = buildAddressFromParts(formData);
+			const normalizedFormData: Record<string, any> = { ...formData };
+			if (address) normalizedFormData.business_address = address;
+			delete normalizedFormData.business_address_street;
+			delete normalizedFormData.business_address_city;
+			delete normalizedFormData.business_address_state;
+			delete normalizedFormData.business_address_zip;
+
+			const propertyAddress = buildPropertyAddressFromParts(formData);
+			if (propertyAddress) normalizedFormData.property_address = propertyAddress;
+			delete normalizedFormData.property_address_street;
+			delete normalizedFormData.property_address_city;
+			delete normalizedFormData.property_address_state;
+			delete normalizedFormData.property_address_zip;
+
 			// Only send columns that exist in bop_quotes
 			const allowedColumns = new Set([
 				"business_name","business_address","phone","email","business_type","fein","years_in_business","employees","website",
@@ -311,12 +352,12 @@ export function BopQuotePage() {
 
 			// Sanitize
 			const sanitized: Record<string, any> = {};
-			for (const [k, v] of Object.entries(formData)) {
+			for (const [k, v] of Object.entries(normalizedFormData)) {
 				if (allowedColumns.has(k)) sanitized[k] = String(v ?? "").trim();
 			}
 			// Ensure required contact keys are present (email or phone)
-			const primaryEmail = String(formData.email ?? formData.contact_email ?? "").trim();
-			const primaryPhone = String(formData.phone ?? formData.contact_phone ?? "").trim();
+			const primaryEmail = String(normalizedFormData.email ?? normalizedFormData.contact_email ?? "").trim();
+			const primaryPhone = String(normalizedFormData.phone ?? normalizedFormData.contact_phone ?? "").trim();
 			if (!primaryEmail && !primaryPhone) {
 				alert("Please provide at least an email or phone.");
 				setSubmitting(false);

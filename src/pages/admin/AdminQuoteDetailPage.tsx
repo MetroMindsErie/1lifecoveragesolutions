@@ -241,7 +241,15 @@ export default function AdminQuoteDetailPage() {
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                   <div className="text-xs text-gray-500">Submitted: {new Date(item.created_at).toLocaleString()}</div>
-                  <h1 className="mt-1 text-2xl font-semibold text-gray-900">{item.name || "Unnamed"}</h1>
+                  {(() => {
+                    const bopName = srcTable === "bop_quotes"
+                      ? (item.business_name || item.contact_name || item.payload?.contact_name)
+                      : undefined;
+                    const displayName = item.name || bopName || "Unnamed";
+                    return (
+                      <h1 className="mt-1 text-2xl font-semibold text-gray-900">{displayName}</h1>
+                    );
+                  })()}
 
                   <div className="mt-3 flex flex-wrap items-center gap-2">
                     <span className="inline-flex rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
@@ -286,7 +294,12 @@ export default function AdminQuoteDetailPage() {
                           href={`mailto:${item.email}?subject=${encodeURIComponent(
                             `Your quote`
                           )}&body=${encodeURIComponent(
-                            `Hi ${item.name || ""},\n\nThank you for your quote request. When is a good time for a quick call?\n\n— 1Life Coverage`
+                            `Hi ${(() => {
+                              const bopName = srcTable === "bop_quotes"
+                                ? (item.business_name || item.contact_name || item.payload?.contact_name)
+                                : undefined;
+                              return item.name || bopName || "";
+                            })()},\n\nThank you for your quote request. When is a good time for a quick call?\n\n— 1Life Coverage`
                           )}`}
                         >
                           <span className="inline-flex items-center gap-2">

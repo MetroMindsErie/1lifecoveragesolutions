@@ -79,7 +79,10 @@ export function UmbrellaQuotePage() {
 			title: "Personal details",
 			subtitle: "Help us understand your coverage needs",
 			fields: [
-				{ name: "address", label: "Address", type: "text" },
+				{ name: "address_street", label: "Street address", type: "text", placeholder: "123 Main St" },
+				{ name: "address_city", label: "City", type: "text", placeholder: "Cleveland" },
+				{ name: "address_state", label: "State", type: "text", placeholder: "OH" },
+				{ name: "address_zip", label: "ZIP code", type: "text", placeholder: "44114" },
 				{ name: "dob", label: "Date of Birth", type: "date" }
 			]
 		},
@@ -268,7 +271,25 @@ export function UmbrellaQuotePage() {
 		setSubmitting(true);
 		try {
 			const form = document.createElement('form');
-			Object.entries(formData).forEach(([key, value]) => {
+			const buildAddressFromParts = (data: Record<string, string>) => {
+				const street = (data.address_street || "").trim();
+				const city = (data.address_city || "").trim();
+				const state = (data.address_state || "").trim();
+				const zip = (data.address_zip || "").trim();
+				const cityState = [city, state].filter(Boolean).join(", ");
+				const cityStateZip = [cityState, zip].filter(Boolean).join(" ");
+				return [street, cityStateZip].filter(Boolean).join(", ");
+			};
+
+			const submissionData: Record<string, string> = { ...formData };
+			const address = buildAddressFromParts(formData);
+			if (address) submissionData.address = address;
+			delete submissionData.address_street;
+			delete submissionData.address_city;
+			delete submissionData.address_state;
+			delete submissionData.address_zip;
+
+			Object.entries(submissionData).forEach(([key, value]) => {
 				const input = document.createElement('input');
 				input.name = key;
 				input.value = value;

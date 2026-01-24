@@ -62,8 +62,10 @@ export function RentersQuotePage() {
       title: "Tell us about your rental",
       subtitle: "Property information",
       fields: [
-        { name: "address", label: "Street Address", type: "text", required: true },
-        { name: "zip", label: "ZIP Code", type: "text", required: true },
+        { name: "address_street", label: "Street address", type: "text", required: true, placeholder: "123 Main St" },
+        { name: "address_city", label: "City", type: "text", required: true, placeholder: "Cleveland" },
+        { name: "address_state", label: "State", type: "text", required: true, placeholder: "OH" },
+        { name: "address_zip", label: "ZIP code", type: "text", required: true, placeholder: "44114" },
         { name: "rental_type", label: "Type of Rental", type: "select", options: ["Apartment", "House", "Condo", "Townhouse"], otherLabel: "Other" },
         { name: "move_in_date", label: "Move-in Date", type: "date" },
         { name: "square_footage", label: "Approximate Square Footage", type: "text" },
@@ -283,6 +285,14 @@ export function RentersQuotePage() {
       
       // Transform data to match database schema
       const transformedData: Record<string, string> = {};
+
+      const buildAddressFromParts = (data: Record<string, string>) => {
+        const street = (data.address_street || "").trim();
+        const city = (data.address_city || "").trim();
+        const state = (data.address_state || "").trim();
+        const cityState = [city, state].filter(Boolean).join(", ");
+        return [street, cityState].filter(Boolean).join(", ");
+      };
       
       Object.entries(formData).forEach(([key, value]) => {
         // Convert Yes/No to boolean for specific fields
@@ -295,7 +305,14 @@ export function RentersQuotePage() {
           transformedData[key] = value;
         }
       });
-      
+
+      const address = buildAddressFromParts(formData);
+      if (address) transformedData.address = address;
+      delete transformedData.address_city;
+      delete transformedData.address_state;
+      delete transformedData.address_street;
+      if (formData.address_zip) transformedData.zip = formData.address_zip;
+      delete transformedData.address_zip;
       // Add transformed data to form
       Object.entries(transformedData).forEach(([key, value]) => {
         const input = document.createElement('input');
