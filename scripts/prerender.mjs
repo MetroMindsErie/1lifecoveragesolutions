@@ -98,12 +98,16 @@ async function prerender() {
 
       await page.goto(url, { waitUntil: "networkidle2" });
 
-      // Wait for client-side SEO to apply
-      await page.waitForSelector('link[rel="canonical"]');
-      await page.waitForSelector('meta[property="og:title"]');
+      // Wait for client-side SEO to apply (with timeout fallback)
+      try {
+        await page.waitForSelector('link[rel="canonical"]', { timeout: 10000 });
+        await page.waitForSelector('meta[property="og:title"]', { timeout: 10000 });
+      } catch (err) {
+        console.warn(`[prerender] Warning: SEO meta tags not found for ${route}, continuing anyway`);
+      }
 
       // Give any async SEO override fetch a brief moment
-      await sleep(250);
+      await sleep(500);
 
       let html = await page.content();
 

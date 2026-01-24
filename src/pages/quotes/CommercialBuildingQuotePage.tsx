@@ -84,7 +84,10 @@ export function CommercialBuildingQuotePage() {
 			subtitle: "Tell us about the property",
 			fields: [
 				{ name: "business_name_or_owner", label: "Business Name / Property Owner or Tenant", type: "text", required: true },
-				{ name: "property_address", label: "Property Address", type: "text", required: true },
+				{ name: "property_address_street", label: "Street address", type: "text", required: true, placeholder: "123 Main St" },
+				{ name: "property_address_city", label: "City", type: "text", required: true, placeholder: "Cleveland" },
+				{ name: "property_address_state", label: "State", type: "text", required: true, placeholder: "OH" },
+				{ name: "property_address_zip", label: "ZIP code", type: "text", required: true, placeholder: "44114" },
 				{ name: "own_or_rent", label: "Own or Rent/Lease?", type: "select", options: ["Own", "Rent/Lease"] },
 				{ name: "property_type", label: "Type of Property", type: "select", options: ["Office", "Retail", "Warehouse", "Industrial", "Mixed Use"] },
 			]
@@ -272,8 +275,26 @@ export function CommercialBuildingQuotePage() {
 
 		setSubmitting(true);
 		try {
+			const buildAddressFromParts = (data: Record<string, string>) => {
+				const street = (data.property_address_street || "").trim();
+				const city = (data.property_address_city || "").trim();
+				const state = (data.property_address_state || "").trim();
+				const zip = (data.property_address_zip || "").trim();
+				const cityState = [city, state].filter(Boolean).join(", ");
+				const cityStateZip = [cityState, zip].filter(Boolean).join(" ");
+				return [street, cityStateZip].filter(Boolean).join(", ");
+			};
+
+			const submissionData: Record<string, string> = { ...formData };
+			const address = buildAddressFromParts(formData);
+			if (address) submissionData.property_address = address;
+			delete submissionData.property_address_street;
+			delete submissionData.property_address_city;
+			delete submissionData.property_address_state;
+			delete submissionData.property_address_zip;
+
 			const form = document.createElement('form');
-			Object.entries(formData).forEach(([key, value]) => {
+			Object.entries(submissionData).forEach(([key, value]) => {
 				const input = document.createElement('input');
 				input.name = key;
 				input.value = value;

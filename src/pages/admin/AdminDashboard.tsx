@@ -185,7 +185,29 @@ export default function AdminDashboard() {
       const meta = tables[idx];
       if (error) return;
       (data || []).forEach((row: any) => {
-        combined.push({ ...row, quote_type: meta.type, srcTable: meta.tbl });
+        const normalizedRow = { ...row } as any;
+        if (meta.type === "bop") {
+          const rawPayload = normalizedRow.payload;
+          let parsedPayload = rawPayload;
+          if (typeof rawPayload === "string") {
+            try {
+              parsedPayload = JSON.parse(rawPayload);
+            } catch {
+              parsedPayload = undefined;
+            }
+          }
+
+          if (!normalizedRow.contact_name && parsedPayload?.contact_name) {
+            normalizedRow.contact_name = parsedPayload.contact_name;
+          }
+
+          normalizedRow.name = normalizedRow.name
+            || normalizedRow.contact_name
+            || parsedPayload?.contact_name
+            || normalizedRow.business_name
+            || parsedPayload?.business_name;
+        }
+        combined.push({ ...normalizedRow, quote_type: meta.type, srcTable: meta.tbl });
       });
     });
 
@@ -202,11 +224,33 @@ export default function AdminDashboard() {
     const lower = searchQuery.toLowerCase();
     return quotes.filter(q =>
       (q.name || "").toLowerCase().includes(lower) ||
+      (q.contact_name || "").toLowerCase().includes(lower) ||
+      (q.business_name || "").toLowerCase().includes(lower) ||
       (q.email || "").toLowerCase().includes(lower) ||
       (q.phone || "").toLowerCase().includes(lower) ||
       (q.quote_type || "").toLowerCase().includes(lower)
     );
   }, [quotes, searchQuery]);
+
+  const getBopDisplayName = (q: any) => {
+    const rawPayload = q.payload;
+    let parsedPayload = rawPayload;
+    if (typeof rawPayload === "string") {
+      try {
+        parsedPayload = JSON.parse(rawPayload);
+      } catch {
+        parsedPayload = undefined;
+      }
+    }
+
+    return (
+      q.contact_name ||
+      parsedPayload?.contact_name ||
+      q.business_name ||
+      parsedPayload?.business_name ||
+      "BOP Quote"
+    );
+  };
 
   const filteredContacts = useMemo(() => {
     if (!searchQuery) return contacts;
@@ -759,7 +803,13 @@ export default function AdminDashboard() {
                       </tr>
                     </thead>
                     <tbody className="divide-y">
-                      {filteredQuotes.map((q) => (
+                      {filteredQuotes.map((q) => {
+                        const isBop = q.quote_type === "bop" || q.srcTable === "bop_quotes";
+                        const displayName = isBop
+                          ? getBopDisplayName(q)
+                          : (q.name || "Unnamed");
+
+                        return (
                         <tr
                           key={q.id}
                           onClick={() => openQuote(q)}
@@ -773,7 +823,7 @@ export default function AdminDashboard() {
                               {q.quote_type || "unknown"}
                             </span>
                           </td>
-                          <td className="px-6 py-3 font-medium text-gray-900">{q.name || "Unnamed"}</td>
+                          <td className="px-6 py-3 font-medium text-gray-900">{displayName}</td>
                           <td className="px-6 py-3 text-gray-600">{q.email || "-"}</td>
                           <td className="px-6 py-3 text-gray-600">{q.phone || "-"}</td>
                           <td className="px-6 py-3">
@@ -790,7 +840,8 @@ export default function AdminDashboard() {
                             <ChevronRight className="inline-block h-4 w-4 text-gray-400" />
                           </td>
                         </tr>
-                      ))}
+                        );
+                      })}
                       {filteredQuotes.length === 0 && (
                         <tr>
                           <td colSpan={7} className="px-6 py-12 text-center text-gray-500">

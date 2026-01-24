@@ -210,7 +210,7 @@ serve(async (req: Request): Promise<Response> => {
     }
 
     // 4. Remove sensitive/system fields
-    const { turnstile_token, hp_company, hp_url, ...cleanData } = data;
+    const { turnstile_token, hp_company, hp_url, quote_type, ...cleanData } = data;
 
     // 5. Get UTM parameters from the payload
     const utm: UTMParameters = cleanData.utm || {};
@@ -223,7 +223,6 @@ serve(async (req: Request): Promise<Response> => {
     delete cleanData.submitted_from_path;
     delete cleanData.user_agent;
     delete cleanData.referrer;
-    delete cleanData.quote_type;
     delete cleanData.timestamp;
 
     // 6. Build submission matching your table structure

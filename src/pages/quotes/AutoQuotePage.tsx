@@ -120,7 +120,10 @@ export function AutoQuotePage() {
 			title: "Tell us about you as a driver",
 			subtitle: "This helps us calculate accurate rates",
 			fields: [
-				{ name: "address", label: "Your current address", type: "text", required: true },
+				{ name: "address_street", label: "Street address", type: "text", required: true, placeholder: "123 Main St" },
+				{ name: "address_city", label: "City", type: "text", required: true, placeholder: "Cleveland" },
+				{ name: "address_state", label: "State", type: "text", required: true, placeholder: "OH" },
+				{ name: "address_zip", label: "ZIP code", type: "text", required: true, placeholder: "44114" },
 				{ name: "dob", label: "Date of birth", type: "date", required: true },
 				{ name: "drivers_license_number", label: "Driver's license number", type: "text" },
 				{ name: "occupation", label: "Current occupation", type: "select", options: ["Professional", "Skilled Trade", "Student", "Retired", "Self-Employed", "Unemployed", "Other"] },
@@ -295,6 +298,16 @@ export function AutoQuotePage() {
 		return { valid: errors.length === 0, errors };
 	};
 
+	const buildAddressFromParts = (data: Record<string, string>) => {
+		const street = (data.address_street || "").trim();
+		const city = (data.address_city || "").trim();
+		const state = (data.address_state || "").trim();
+		const zip = (data.address_zip || "").trim();
+		const cityState = [city, state].filter(Boolean).join(", ");
+		const cityStateZip = [cityState, zip].filter(Boolean).join(" ");
+		return [street, cityStateZip].filter(Boolean).join(", ");
+	};
+
 	const handleSubmit = async () => {
 		if (submitting) return;
 
@@ -319,7 +332,15 @@ export function AutoQuotePage() {
 		setSubmitting(true);
 		try {
 			const form = document.createElement('form');
-			Object.entries(formData).forEach(([key, value]) => {
+			const submissionData: Record<string, string> = { ...formData };
+			const address = buildAddressFromParts(formData);
+			if (address) submissionData.address = address;
+			delete submissionData.address_street;
+			delete submissionData.address_city;
+			delete submissionData.address_state;
+			delete submissionData.address_zip;
+
+			Object.entries(submissionData).forEach(([key, value]) => {
 				const input = document.createElement('input');
 				input.name = key;
 				input.value = value;

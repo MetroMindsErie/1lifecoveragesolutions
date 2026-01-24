@@ -80,6 +80,10 @@ export function PetQuotePage() {
 				{ name: "pet_type", label: "What type of pet?", type: "select", options: ["Dog", "Cat"] },
 				{ name: "pet_breed", label: "Breed", type: "text" },
 				{ name: "pet_sex", label: "Male or Female?", type: "select", options: ["Male", "Female"] },
+				{ name: "address_street", label: "Street address", type: "text", required: true, placeholder: "123 Main St" },
+				{ name: "address_city", label: "City", type: "text", required: true, placeholder: "Cleveland" },
+				{ name: "address_state", label: "State", type: "text", required: true, placeholder: "OH" },
+				{ name: "address_zip", label: "ZIP code", type: "text", required: true, placeholder: "44114" },
 			]
 		},
 		{
@@ -88,7 +92,6 @@ export function PetQuotePage() {
 			subtitle: "This helps us calculate accurate coverage",
 			fields: [
 				{ name: "pet_age", label: "How old is your pet?", type: "select", options: ["<1 year", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11+"] },
-				{ name: "zip", label: "Your ZIP code", type: "text" },
 				{ name: "pet_medical_history", label: "Any existing conditions or medications?", type: "textarea", placeholder: "Optional - tell us about any health issues..." },
 			]
 		},
@@ -188,7 +191,25 @@ export function PetQuotePage() {
 		try {
 			// Create form element and populate with data
 			const form = document.createElement('form');
-			Object.entries(formData).forEach(([key, value]) => {
+			const buildAddressFromParts = (data: Record<string, string>) => {
+				const street = (data.address_street || "").trim();
+				const city = (data.address_city || "").trim();
+				const state = (data.address_state || "").trim();
+				const zip = (data.address_zip || "").trim();
+				const cityState = [city, state].filter(Boolean).join(", ");
+				const cityStateZip = [cityState, zip].filter(Boolean).join(" ");
+				return [street, cityStateZip].filter(Boolean).join(", ");
+			};
+
+			const submissionData: Record<string, string> = { ...formData };
+			const address = buildAddressFromParts(formData);
+			if (address) submissionData.zip = address;
+			delete submissionData.address_street;
+			delete submissionData.address_city;
+			delete submissionData.address_state;
+			delete submissionData.address_zip;
+
+			Object.entries(submissionData).forEach(([key, value]) => {
 				const input = document.createElement('input');
 				input.name = key;
 				input.value = value;
